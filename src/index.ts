@@ -527,6 +527,9 @@ export default {
             show_delete: false,
             delete_action: '',
             return_to: '/admin/posts/new#media',
+            show_preview: false,
+            preview_url: '',
+            save_success: false,
           };
           return renderAdminEdit(request, env, view);
         }
@@ -547,13 +550,16 @@ export default {
               show_delete: false,
               delete_action: '',
               return_to: '/admin/posts/new#media',
+              show_preview: false,
+              preview_url: '',
+              save_success: false,
               ...parsed.raw,
             });
           }
 
           try {
             const id = await createPost(env.DB, parsed.values);
-            return redirectResponse(request, `/admin/posts/${id}`);
+            return redirectResponse(request, `/admin/posts/${id}?saved=1`);
           } catch (error) {
             return renderAdminEdit(request, env, {
               page_title: 'New Post',
@@ -568,9 +574,40 @@ export default {
               show_delete: false,
               delete_action: '',
               return_to: '/admin/posts/new#media',
+              show_preview: false,
+              preview_url: '',
+              save_success: false,
               ...parsed.raw,
             });
           }
+        }
+
+        const previewMatch = path.match(/^\/admin\/preview\/([^/]+)$/);
+        if (previewMatch && method === 'GET') {
+          const postId = previewMatch[1];
+          const post = await getPostById(env.DB, postId);
+          if (!post) {
+            return htmlResponse(templates.notFound, {}, 404);
+          }
+          const bodyHtml = marked.parse(post.body_markdown);
+          const view = {
+            page_title: post.seo_title || `${post.title} - bhart.org`,
+            seo_description: post.seo_description || post.summary,
+            title: post.title,
+            summary: post.summary,
+            author_name: post.author_name,
+            author_avatar: post.hero_image_url ?? DEFAULT_HERO_IMAGE,
+            published_at: post.published_at ?? '',
+            published_date: formatDate(post.published_at),
+            reading_time: post.reading_time_minutes,
+            hero_image_url: post.hero_image_url,
+            hero_image_alt: post.hero_image_alt || post.title,
+            body_html: bodyHtml,
+            tags: post.tag_names.map((name) => ({ name })),
+            preview: true,
+            preview_edit_url: `/admin/posts/${post.id}`,
+          };
+          return htmlResponse(templates.article, view);
         }
 
         const editMatch = path.match(/^\/admin\/posts\/([^/]+)$/);
@@ -580,6 +617,7 @@ export default {
           if (!post) {
             return htmlResponse(templates.notFound, {}, 404);
           }
+          const saved = url.searchParams.get('saved') === '1';
           const view = {
             page_title: `Edit - ${post.title}`,
             page_heading: 'Edit Post',
@@ -604,6 +642,9 @@ export default {
             show_delete: true,
             delete_action: `/admin/posts/${post.id}/delete`,
             return_to: `/admin/posts/${post.id}#media`,
+            show_preview: true,
+            preview_url: `/admin/preview/${post.id}`,
+            save_success: saved,
           };
           return renderAdminEdit(request, env, view);
         }
@@ -625,13 +666,16 @@ export default {
               show_delete: true,
               delete_action: `/admin/posts/${postId}/delete`,
               return_to: `/admin/posts/${postId}#media`,
+              show_preview: true,
+              preview_url: `/admin/preview/${postId}`,
+              save_success: false,
               ...parsed.raw,
             });
           }
 
           try {
             await updatePost(env.DB, postId, parsed.values);
-            return redirectResponse(request, `/admin/posts/${postId}`);
+            return redirectResponse(request, `/admin/posts/${postId}?saved=1`);
           } catch (error) {
             return renderAdminEdit(request, env, {
               page_title: 'Edit Post',
@@ -646,6 +690,9 @@ export default {
               show_delete: true,
               delete_action: `/admin/posts/${postId}/delete`,
               return_to: `/admin/posts/${postId}#media`,
+              show_preview: true,
+              preview_url: `/admin/preview/${postId}`,
+              save_success: false,
               ...parsed.raw,
             });
           }
@@ -733,6 +780,7 @@ export default {
         const bodyHtml = marked.parse(post.body_markdown);
         const view = {
           page_title: post.seo_title || `${post.title} - bhart.org`,
+          seo_description: post.seo_description || post.summary,
           title: post.title,
           summary: post.summary,
           author_name: post.author_name,
