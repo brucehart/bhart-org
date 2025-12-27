@@ -651,11 +651,11 @@ export const templates = {
           {{#media_items}}
           <div class="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center">
             <img class="h-20 w-28 rounded-lg object-cover border border-gray-100" src="{{url}}" alt="{{alt}}" />
-            <div class="flex-1">
-              <div class="text-sm font-semibold text-text-main">{{alt}}</div>
-              <div class="text-xs text-text-sub">{{caption}}</div>
-              <div class="text-xs text-text-sub">Tags: {{tags}}</div>
-              <div class="text-xs text-text-sub">{{uploaded}} &bull; {{size}} &bull; {{dimensions}} &bull; {{filename}}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold text-text-main break-words">{{alt}}</div>
+              <div class="text-xs text-text-sub break-words">{{caption}}</div>
+              <div class="text-xs text-text-sub break-words">Tags: {{tags}}</div>
+              <div class="text-xs text-text-sub break-words">{{uploaded}} &bull; {{size}} &bull; {{dimensions}} &bull; {{filename}}</div>
               <div class="mt-2">
                 <input class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs" readonly value="![{{alt}}]({{url}})" />
               </div>
@@ -827,12 +827,12 @@ export const templates = {
                   {{#media_items}}
                   <div class="flex items-center gap-3 rounded-xl border border-gray-100 p-3">
                     <img class="h-16 w-20 rounded-lg object-cover border border-gray-100" src="{{url}}" alt="{{alt}}" />
-                  <div class="flex-1">
-                    <div class="text-xs font-semibold text-text-main">{{alt}}</div>
-                    <div class="text-[11px] text-text-sub">{{caption}}</div>
-                    <div class="text-[11px] text-text-sub">Tags: {{tags}}</div>
-                    <div class="text-[11px] text-text-sub">{{uploaded}} &bull; {{size}} &bull; {{dimensions}} &bull; {{filename}}</div>
-                  </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-xs font-semibold text-text-main break-words">{{alt}}</div>
+                      <div class="text-[11px] text-text-sub break-words">{{caption}}</div>
+                      <div class="text-[11px] text-text-sub break-words">Tags: {{tags}}</div>
+                      <div class="text-[11px] text-text-sub break-words">{{uploaded}} &bull; {{size}} &bull; {{dimensions}} &bull; {{filename}}</div>
+                    </div>
                     <div class="flex flex-col gap-2">
                       <button class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-text-main" type="button" data-insert-url="{{url}}" data-insert-alt="{{alt}}">Insert</button>
                       <button class="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-white" type="button" data-feature-url="{{url}}" data-feature-alt="{{alt}}">Use as featured</button>
