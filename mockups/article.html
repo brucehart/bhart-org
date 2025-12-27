@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Future of Generative Models in 2024 - Bruce Hart</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "text-main": "#0d121b",
+                        "text-muted": "#4c669a",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code blocks */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        body {
+            font-family: "Space Grotesk", sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 antialiased min-h-screen flex flex-col">
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#e7ebf3] dark:border-gray-800">
+<div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex h-16 items-center justify-between">
+<!-- Logo -->
+<div class="flex items-center gap-2">
+<div class="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</div>
+<a class="text-xl font-bold tracking-tight" href="#">Bruce Hart</a>
+</div>
+<!-- Desktop Menu -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm font-medium text-primary" href="#">Articles</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">About</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<!-- Mobile Menu Button -->
+<button class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<main class="flex-grow w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Article Column -->
+<article class="lg:col-span-8 flex flex-col gap-8">
+<!-- Header Section -->
+<header class="flex flex-col gap-6">
+<!-- Tags -->
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span> AI
+                        </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold uppercase tracking-wide">
+                            Machine Learning
+                        </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold uppercase tracking-wide">
+                            Opinion
+                        </span>
+</div>
+<!-- Title -->
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-text-main dark:text-white">
+                        The Future of Generative Models in 2024
+                    </h1>
+<!-- Meta Data -->
+<div class="flex items-center gap-4 text-sm text-text-muted dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-6">
+<div class="flex items-center gap-2">
+<div class="h-8 w-8 rounded-full bg-gray-300 overflow-hidden" data-alt="Bruce Hart portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB2oZ5S2ngofFEekssuqpRFkSMI1mljZRWZ15WgppNhAEFThPypOM_yZ4u2k3uZe8D7dnHZSmMEeOK3-2_r_kkC63zBjjguMxqY2uMg2SMoOkcAXTyAtAtJMLorYsdeV75Z-rXIPHYT3UFSPIoxiqNu5KDBOHXGeDD8MuvmcLQpBwDUvYAXWFs97mLQVo_cDMu4RsjFWrAzvzC41TVcMkMCrGtEC2jp9T9RAA8EPMLtHBCH8YLvr3Va7tOkLEEsZETt17GWP4vqKnxa'); background-size: cover;"></div>
+<span class="font-medium text-text-main dark:text-gray-200">Bruce Hart</span>
+</div>
+<span>•</span>
+<time datetime="2023-10-14">Oct 14, 2023</time>
+<span>•</span>
+<span>8 min read</span>
+</div>
+</header>
+<!-- Featured Image -->
+<div class="w-full rounded-2xl overflow-hidden shadow-sm aspect-video relative group">
+<div class="absolute inset-0 bg-gray-200 animate-pulse" id="loader"></div>
+<img alt="Abstract visualization of neural networks and glowing data streams in blue and purple" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 relative z-10" data-alt="Abstract visualization of neural networks and glowing data streams in blue and purple" onload="document.getElementById('loader').style.display='none'" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwOyWQ7BoZXTfT8YKEzCA6rEjgxgxkr9ZRq43YLF5vUWS3wTm5stAvwAzJL_l6ApN81gX0EUJoRFRL_OHLzydeIrMyaEu1NEsp8T60ZCzgGLEeZ3iHuxv2JgbQa5R_GrPOaqxBE1CRXitGEOmfQdTkaubLP1dXejXM4_DHK9MtMlUvbziWBlGvQR84m4GpjlGphs87MagTk8LCauurKK6WTfHozL5elVIPHzBDusAcdkRZswF89o5m8blGpgwTghJdbVs-8H5TC0Ke"/>
+</div>
+<!-- Article Body -->
+<div class="prose prose-lg prose-slate dark:prose-invert max-w-none text-text-main dark:text-gray-300 leading-relaxed text-lg">
+<p class="mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-primary first-letter:mr-3 first-letter:float-left">
+                        The rapid evolution of generative models has reshaped how we interact with technology. From simple text completion to complex multimodal synthesis, the landscape is shifting daily. In this article, we explore the implications of these changes for developers and consumers alike, focusing specifically on the architectural shifts we expect to see in the coming year.
+                    </p>
+<h2 class="text-2xl font-bold mt-10 mb-4 text-text-main dark:text-white flex items-center gap-2">
+<span class="text-primary material-symbols-outlined">hub</span>
+                        The Shift to Multimodal
+                    </h2>
+<p class="mb-6">
+                        We are no longer in the era of text-only models. The introduction of models capable of processing images, audio, and video simultaneously represents a step-change in capability. This isn't just about convenience; it's about grounding AI systems in a reality that closely mirrors human perception.
+                    </p>
+<!-- Blockquote Component -->
+<blockquote class="border-l-4 border-primary pl-6 my-8 italic text-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800/50 py-4 pr-4 rounded-r-lg shadow-sm">
+                        "The goal isn't just to generate content, but to understand the context of the world in a way that is actionable and safe for end-users."
+                    </blockquote>
+<p class="mb-6">
+                        When we look at the benchmarks, the performance gains are staggering. However, integrating these models into production workflows requires a new set of tools and a robust understanding of vector databases.
+                    </p>
+<!-- Figure/Image Component -->
+<figure class="my-10 bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="rounded-lg overflow-hidden bg-gray-100 aspect-[16/9] relative">
+<img alt="Data analytics dashboard showing rising graphs and charts representing AI model performance" class="w-full h-full object-cover" data-alt="Data analytics dashboard showing rising graphs and charts representing AI model performance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlY9MeEkgzzX3S9nrb8k7daYPYqjc_2ZgWvi57PmCvRuwzXkEyCOkp-DrxjUFfpSfVgL5qKKlcI_BOQoWVEE5JKZv7hfmIlidgEWdPq1bfMJMt-tkduPzpcAgBUsEcoCKjiS8uK8uDPBIKwvBnHnYNnVcFCHS5n8tac_j8o6tvuagGSl8tby6HRZpEEQ-Ix_r8RcMxLX9wtnUZWkOwuFnpApNnQQt4Gni9z8IistFfo20beQC5AWh7Ft_VrU-Ple-r0mUEs2oYBPjx"/>
+</div>
+<figcaption class="text-center text-sm text-text-muted mt-3 mb-1 font-medium">
+                            Figure 1: Performance scaling of multimodal models over Q3 2023.
+                        </figcaption>
+</figure>
+<h2 class="text-2xl font-bold mt-10 mb-4 text-text-main dark:text-white">Engineering Challenges</h2>
+<p class="mb-6">
+                        One of the primary bottlenecks remains inference latency. As model parameter counts explode, so does the compute required to serve them. Below is a simplified Python snippet demonstrating how we might implement a basic sharding strategy for large model inference:
+                    </p>
+<!-- Code Block Component -->
+<div class="rounded-lg overflow-hidden bg-[#1e293b] text-gray-300 my-8 shadow-lg font-mono text-sm border border-gray-700">
+<div class="flex items-center justify-between px-4 py-2 bg-[#0f172a] border-b border-gray-700">
+<span class="text-xs font-semibold text-gray-400">inference_shard.py</span>
+<div class="flex gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+</div>
+</div>
+<div class="p-4 overflow-x-auto custom-scrollbar">
+<pre><code>def distribute_layers(model, num_gpus):
+    """
+    Splits model layers across available GPUs.
+    """
+    layers = model.transformer.h
+    chunk_size = len(layers) // num_gpus
+    
+    device_map = {}
+    for i in range(num_gpus):
+        start_idx = i * chunk_size
+        end_idx = (i + 1) * chunk_size
+        
+        # Handle remainder for last GPU
+        if i == num_gpus - 1:
+            end_idx = len(layers)
+            
+        for layer_idx in range(start_idx, end_idx):
+            device_map[layer_idx] = f"cuda:{i}"
+            
+    return device_map</code></pre>
+</div>
+</div>
+<p class="mb-6">
+                        Optimizing this distribution logic is key to reducing time-to-first-token (TTFT). In 2024, we expect frameworks like vLLM and TensorRT-LLM to abstract much of this complexity away, but understanding the underlying mechanics remains crucial.
+                    </p>
+<h3 class="text-xl font-bold mt-8 mb-3 text-text-main dark:text-white">Conclusion</h3>
+<p>
+                        The future is bright, but complex. As we move forward, the intersection of hardware optimization and model architecture will be where the most exciting developments occur. Stay tuned for my next deep dive on quantization techniques.
+                    </p>
+</div>
+<!-- Article Footer / Share -->
+<div class="border-t border-gray-200 dark:border-gray-800 pt-8 mt-4">
+<p class="text-sm font-semibold mb-4 text-text-muted">Share this article</p>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">share</span>
+                            Twitter
+                        </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">link</span>
+                            Copy Link
+                        </button>
+</div>
+</div>
+</article>
+<!-- Sidebar Column -->
+<aside class="lg:col-span-4 relative">
+<div class="sticky top-24 flex flex-col gap-8">
+<!-- Author Bio Card -->
+<div class="bg-white dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="flex items-center gap-4 mb-4">
+<div class="h-16 w-16 rounded-full bg-gray-300 overflow-hidden ring-2 ring-white dark:ring-gray-700" data-alt="Bruce Hart portrait close up" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA8POWO-FlPzRcyiC4uVDiNUlVIR8hB38b4cQLP72dCZq1V66gVDQfdf7EIFusv38IRobwrW3bjjdXYzBXx02aEFSsXTtFMtJVpXhhEUujksV8RKtcZFpaGg1bbzfl2H-THVnE4O7sJHluFjgfz_OvShSIDniX6KKs7yP7sZh_J7QuzRrxTgcJ27EDQHdzMBacuvzRs2ks_7MJzhxxZxr_kxo2u0Iys0wW1cUq3aZDzDymAsMO5gdmoYw_tt0Yy_sVqyPpllT9MzaG6'); background-size: cover;"></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Bruce Hart</h3>
+<p class="text-sm text-text-muted">Software Engineer &amp; AI Enthusiast</p>
+</div>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                            I write about the intersection of artificial intelligence, software architecture, and digital ethics. Building the future, one token at a time.
+                        </p>
+<button class="w-full py-2 px-4 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                            Follow
+                        </button>
+</div>
+<!-- Table of Contents -->
+<div class="hidden lg:block pl-2">
+<h4 class="font-bold text-sm uppercase tracking-wider text-text-muted mb-4">Table of Contents</h4>
+<ul class="space-y-3 border-l border-gray-200 dark:border-gray-700">
+<li>
+<a class="block pl-4 text-sm text-primary font-medium border-l-2 border-primary -ml-[1px]" href="#">
+                                    Introduction
+                                </a>
+</li>
+<li>
+<a class="block pl-4 text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:border-l-2 hover:border-gray-300 -ml-[1px] transition-all" href="#">
+                                    The Shift to Multimodal
+                                </a>
+</li>
+<li>
+<a class="block pl-4 text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:border-l-2 hover:border-gray-300 -ml-[1px] transition-all" href="#">
+                                    Engineering Challenges
+                                </a>
+</li>
+<li>
+<a class="block pl-4 text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:border-l-2 hover:border-gray-300 -ml-[1px] transition-all" href="#">
+                                    Conclusion
+                                </a>
+</li>
+</ul>
+</div>
+<!-- Related Articles -->
+<div>
+<h4 class="font-bold text-sm uppercase tracking-wider text-text-muted mb-4">Related Reading</h4>
+<div class="flex flex-col gap-4">
+<a class="group flex gap-4 items-start" href="#">
+<div class="w-20 h-14 shrink-0 rounded-md bg-gray-200 overflow-hidden" data-alt="Abstract blue digital network nodes" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwb8_VRlti-VyH1mJhsUe7aO2Lir7BSounR5Rs19TmmM3jxxPGUUuOH8Ykgb_dRbXDynOrXkg5f1I0Vd3yq5apDrrLB3IuZ_rkC0mHG8gaOJm4QNMpSeMHi1PxLMHNLf988b56ObfRL8lla-PXrZsOermaE0BJc_-8d92a2IIveBIgmVoLZPoofi_Zl4J2Q23mpMB_8gFvejDdfs4UtHFhoYWPGwE7E-NIhPxGpix3xcI2Br1SYNUXWt9VVDJiRrw4GmLhlriTmOuN'); background-size: cover;"></div>
+<div>
+<h5 class="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">Understanding Vector Databases for Beginners</h5>
+<p class="text-xs text-text-muted mt-1">Sep 22 • 5 min read</p>
+</div>
+</a>
+<a class="group flex gap-4 items-start" href="#">
+<div class="w-20 h-14 shrink-0 rounded-md bg-gray-200 overflow-hidden" data-alt="Computer server room with green lights" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAUKX34njGZLnJsFW8Xe95RRRDwVjlgNR506QM9EnF0nOSH5J05HpQSeRb-Uzjn6rkyhfgLCgkRstVbwD_N4wn5cVQ1X6P-dobp2FTh8vlDjhvM8ubGnDco9UOrGfHq4ro7uwY8qlTxu93XE_iBYER5jVo5-Miju5nE68NPacNicXQ_TP4OZuvLVUoZPAPo3khPIu7ciK3QMxNEKZuWzDWGj6uhSAACVytBdxdUf3W2MqFglr_xswTiU2pt4HbnFnNxTmWR3a9egX9V'); background-size: cover;"></div>
+<div>
+<h5 class="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">My Home Lab Setup 2023 Edition</h5>
+<p class="text-xs text-text-muted mt-1">Aug 10 • 12 min read</p>
+</div>
+</a>
+</div>
+</div>
+<!-- Newsletter -->
+<div class="bg-primary/5 rounded-xl p-5 border border-primary/10">
+<h4 class="font-bold text-sm text-primary mb-2">Subscribe to the newsletter</h4>
+<p class="text-xs text-gray-600 dark:text-gray-400 mb-3">Get the latest AI insights delivered to your inbox weekly.</p>
+<form class="flex flex-col gap-2">
+<input class="w-full text-sm px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="email@example.com" type="email"/>
+<button class="w-full text-sm font-medium bg-primary text-white py-2 rounded hover:bg-blue-700 transition-colors" type="submit">Subscribe</button>
+</form>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-auto border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark py-12">
+<div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 bg-primary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">bolt</span>
+</div>
+<span class="text-lg font-bold">Bruce Hart</span>
+</div>
+<div class="flex gap-8 text-sm text-text-muted">
+<a class="hover:text-primary transition-colors" href="#">Twitter</a>
+<a class="hover:text-primary transition-colors" href="#">LinkedIn</a>
+<a class="hover:text-primary transition-colors" href="#">GitHub</a>
+<a class="hover:text-primary transition-colors" href="#">RSS</a>
+</div>
+<p class="text-sm text-text-muted">
+                © 2024 Bruce Hart. All rights reserved.
+            </p>
+</div>
+</footer>
+</body></html>

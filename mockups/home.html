@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>bhart.org - AI, Tech &amp; Personal Blog</title>
+<!-- Google Fonts: Space Grotesk -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1a2233",
+                        "text-main": "#0d121b",
+                        "text-sub": "#4c669a",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "sans": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "md": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display antialiased selection:bg-primary/20 selection:text-primary">
+<div class="relative flex min-h-screen flex-col overflow-x-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-50 w-full border-b border-[#e7ebf3] dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+<div class="flex items-center gap-3">
+<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<a class="text-xl font-bold tracking-tight text-text-main dark:text-white group transition-colors" href="#">
+                        bhart.org
+                        <span class="hidden sm:inline-block text-sm font-normal text-text-sub dark:text-gray-400 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">by Bruce Hart</span>
+</a>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-text-main hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm font-medium text-text-main hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors" href="#">Categories</a>
+<a class="text-sm font-medium text-text-main hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors" href="#">About</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden sm:flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
+                        Subscribe
+                    </button>
+<button class="flex md:hidden h-10 w-10 items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="relative overflow-hidden py-16 sm:py-24 lg:py-32">
+<!-- Abstract Background Pattern -->
+<div class="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.08]" style="background-image: radial-gradient(#135bec 1px, transparent 1px); background-size: 32px 32px;"></div>
+<div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
+<div class="flex flex-col gap-6 max-w-2xl">
+<div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary dark:text-primary-light">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                                Latest Post: The Future of LLMs
+                            </div>
+<h1 class="text-5xl sm:text-6xl font-black tracking-tight text-text-main dark:text-white leading-[1.1]">
+                                Bruce Hart
+                            </h1>
+<p class="text-xl sm:text-2xl text-text-sub dark:text-gray-400 font-light leading-relaxed">
+                                Exploring the intersection of <span class="text-primary font-medium">Artificial Intelligence</span>, Technology, and Human Interest.
+                            </p>
+<div class="flex flex-wrap gap-4 pt-2">
+<button class="flex items-center gap-2 rounded-lg bg-text-main dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-background-dark hover:opacity-90 transition-opacity">
+                                    Start Reading
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<button class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent px-6 py-3 text-sm font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                    More About Me
+                                </button>
+</div>
+</div>
+<div class="relative hidden lg:block h-full min-h-[400px]">
+<!-- Unique visual element -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-transparent rotate-3 backdrop-blur-sm"></div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl bg-gradient-to-tr from-primary/10 to-transparent -rotate-2 backdrop-blur-sm"></div>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 rotate-0 transition-transform hover:rotate-1 duration-500 bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-2">
+<div class="w-full h-full bg-cover bg-center rounded-xl" data-alt="Abstract AI neural network visualization with blue nodes" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCif6aB3DG2umruW9SMqW5L6oofsFJ-C6EHuspoJ6Z9APT6FeJagQHwHNuRcgYgtrx_4vWaqHIGbE_IYnZTJ1RSMBcpWhC-iIbFmWQfg3xVgDtOUxVkr3jZ2TAaxe_BYGJDiT_Os2Uo8gSethslBkSawoJ0vrq_jXo5bJYCOKC5PyLRByWcKHiXDlj6HyPKYK8b9qxy1gjVtWEjEa89tOhkKpNNZdqh5cIa2tvqd6mhzsTRuHlli1ErDD_vfEzBgDlnOXHGqSpqak7A');"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Filter (Chips) -->
+<div class="sticky top-16 z-40 w-full bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800 py-4">
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-text-main px-5 text-sm font-medium text-white transition-colors">
+                            All
+                        </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 px-5 text-sm font-medium text-text-main dark:text-gray-300 transition-colors">
+                            Artificial Intelligence
+                        </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 px-5 text-sm font-medium text-text-main dark:text-gray-300 transition-colors">
+                            Technology
+                        </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 px-5 text-sm font-medium text-text-main dark:text-gray-300 transition-colors">
+                            Personal
+                        </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 px-5 text-sm font-medium text-text-main dark:text-gray-300 transition-colors">
+                            Coding
+                        </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 px-5 text-sm font-medium text-text-main dark:text-gray-300 transition-colors">
+                            Hardware
+                        </button>
+</div>
+</div>
+</div>
+<!-- Articles Grid -->
+<section class="py-12 bg-white dark:bg-background-dark">
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-bold tracking-tight text-text-main dark:text-white mb-8">Recent Articles</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Article Card 1 (Featured Style) -->
+<article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light dark:bg-card-dark border border-gray-100 dark:border-gray-800 transition-all hover:shadow-xl hover:shadow-primary/5 lg:col-span-2 md:flex-row">
+<div class="md:w-2/5 overflow-hidden">
+<div class="h-64 w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105 md:h-full" data-alt="Futuristic robotic hand touching a digital interface" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkR0kHrpmDVx8ikSWcvWnfJ-7xQdGwuKyhr-MjiNPoIKQT-59lzIejJWExZTPu7-rACFaLz8TJ3b3JJxXVk8hSIwozdIBAP4_uHbA-tBeykod4UWvqWA9O43wqqjR_KMRR_nNJuKZa8QYYWDx6l_vsd6LhuvE4Vps4pvIvJEvnZl04ZM26mIEPxyZ05QmCEM4YEVLXOkf2Z5F_czKCyfgpzUY4yoHG4gbjTp-ouDXUnp8IFv3UAEVP6vIh3tdMBDQ_uVdkw7VhV0ff');">
+</div>
+</div>
+<div class="flex flex-1 flex-col justify-between p-6 sm:p-8">
+<div>
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">AI</span>
+<span class="text-xs text-text-sub dark:text-gray-500 font-medium">Oct 24, 2023</span>
+</div>
+<h3 class="text-2xl font-bold text-text-main dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                        The Future of LLMs: Beyond the Chatbot
+                                    </h3>
+<p class="mt-3 text-base text-text-sub dark:text-gray-400 line-clamp-3">
+                                        An in-depth look at how Large Language Models are shaping our world, moving from simple conversational agents to complex reasoning engines that can solve real-world problems.
+                                    </p>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<span class="text-xs font-medium text-text-sub dark:text-gray-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 8 min read
+                                    </span>
+<span class="text-sm font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                        Read Article <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+</span>
+</div>
+</div>
+</article>
+<!-- Article Card 2 -->
+<article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light dark:bg-card-dark border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:shadow-primary/5">
+<div class="relative overflow-hidden h-56">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Close up of computer hardware motherboard circuits" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDUjXlUsbsLK5sQLhBN3coepVV2kJbPII01nLWHE6qtVX-YkqfihjrN2nvEJTOqlARQcVm895N2lQyYzHLqqkCHYtqbWP0lSsOY1X-5SpMt8QtzI6TQ9lrkiY1SetWAQ79sgm9fbkZ_sPOXG32B6Q9AU5aoJYVMefRjVuMgbBn2gD2Ja4ioVll9oAyOYo-Q5YSz5AK3_xEAUsxrTQtxwaYm_CShiCL6brE6AhJ4pFqSZNPj8tjEE2-7R0PJA10ckg_3MCz85jL3JXSs');">
+</div>
+</div>
+<div class="flex flex-1 flex-col p-6">
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400 ring-1 ring-inset ring-purple-500/20">Hardware</span>
+<span class="text-xs text-text-sub dark:text-gray-500 font-medium">Oct 12, 2023</span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    Building a Homelab for AI Inference
+                                </h3>
+<p class="mt-3 text-sm text-text-sub dark:text-gray-400 line-clamp-3 flex-grow">
+                                    Why rent GPU cloud time when you can build your own? A guide to affordable hardware for running local models.
+                                </p>
+<div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<span class="text-xs font-medium text-text-sub dark:text-gray-500">12 min read</span>
+</div>
+</div>
+</article>
+<!-- Article Card 3 -->
+<article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light dark:bg-card-dark border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:shadow-primary/5">
+<div class="relative overflow-hidden h-56">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Person writing code on a laptop screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCo1hK9FK8OSIdwPhEw5zhfDwLTuHCwvnqOjHf49K7bNYwjeBBd_P9FsArcbk8JpIEjbaq0Q9sqEFrV_v7gkbVZZK1Q7VFri5rgzr0ZNMPv7UYbFhn0CYS5wLgyZuUgfz1OcmZR44ujQpt_AJWD5wF8jy9tIiShaZcBwhUmGrjfAI7UzEiPtBg0Y3ktsXydkE9YEiEuWOMrZN798kzyccpawqiR5XarvWa5JyMHYVwfZlm3W5jaROExgrHZKvt3qWNS_ra62ieR6q2h');">
+</div>
+</div>
+<div class="flex flex-1 flex-col p-6">
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-semibold text-green-600 dark:text-green-400 ring-1 ring-inset ring-green-500/20">Coding</span>
+<span class="text-xs text-text-sub dark:text-gray-500 font-medium">Sep 28, 2023</span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    Python 3.12: What's New?
+                                </h3>
+<p class="mt-3 text-sm text-text-sub dark:text-gray-400 line-clamp-3 flex-grow">
+                                    Exploring the performance improvements and new typing features in the latest major Python release.
+                                </p>
+<div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<span class="text-xs font-medium text-text-sub dark:text-gray-500">5 min read</span>
+</div>
+</div>
+</article>
+<!-- Article Card 4 -->
+<article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light dark:bg-card-dark border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:shadow-primary/5">
+<div class="relative overflow-hidden h-56">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Scenic landscape of a hiking trail in mountains" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4j6XzoJ4u7heErvT8RsENBGeUexuGEhzag8y-5qf2RUXpCXGWNTkNzDpPRLzgdGS14I7_kkwNtXx2_pnJl76J8X8OzQgxfDwfZ2pKEhR-UgkPCT8f2cQGrjNdBqOASwp-4lI-Hu9KGoAgyOYnEvF3GvRqZSQ6xS_FfE9JtZUdMRbbSiRqBJla-eXteBuuTBOtSUiiAB-cZA_oujbD51rpYrJ7ioUdArcCU_7VjvMtGAZ-Ehb9onvquxzVDabOcF9vgW97IzxpoT-S');">
+</div>
+</div>
+<div class="flex flex-1 flex-col p-6">
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-500/20">Personal</span>
+<span class="text-xs text-text-sub dark:text-gray-500 font-medium">Sep 15, 2023</span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    Hiking the Pacific Crest: Week 1
+                                </h3>
+<p class="mt-3 text-sm text-text-sub dark:text-gray-400 line-clamp-3 flex-grow">
+                                    Disconnecting from the grid and finding solace in nature. My experience starting the PCT journey.
+                                </p>
+<div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<span class="text-xs font-medium text-text-sub dark:text-gray-500">15 min read</span>
+</div>
+</div>
+</article>
+<!-- Article Card 5 -->
+<article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light dark:bg-card-dark border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:shadow-primary/5">
+<div class="relative overflow-hidden h-56">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Laptop computer showing code on screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB3Z-MQIWsTzr9VhR2gqh3ywBcJAw-lCO2m7FB_-n712fy8Tl0f5cGmlYMFH1ZZ1Ejd0CvDbdrLeCRjQrRBMwULmVqj343_xdHHPnaQXxsfz2Rw1eGPe6XrrCO3ikdSKXys1Oq6hsfw_INisqJSbaI7v9wkMgX9obZoXa-pCSGOzZjUb7VzUCFF5j2Z4UqrmDzYMITchTguTU-axtk4p4EwI_J954-BYLOXkrJxh9-6mU_C-Zdj5I41-9BwjtlhGIgyV8IVohmuO9SM');">
+</div>
+</div>
+<div class="flex flex-1 flex-col p-6">
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 ring-1 ring-inset ring-blue-500/20">Tech</span>
+<span class="text-xs text-text-sub dark:text-gray-500 font-medium">Aug 22, 2023</span>
+</div>
+<h3 class="text-xl font-bold text-text-main dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    The State of Web Development 2024
+                                </h3>
+<p class="mt-3 text-sm text-text-sub dark:text-gray-400 line-clamp-3 flex-grow">
+                                    A subjective overview of the current frontend landscape, frameworks, and where we might be heading next year.
+                                </p>
+<div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<span class="text-xs font-medium text-text-sub dark:text-gray-500">7 min read</span>
+</div>
+</div>
+</article>
+</div>
+<div class="mt-12 flex justify-center">
+<button class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark px-6 py-3 text-sm font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            Load More Articles
+                        </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Newsletter / Footer Area -->
+<footer class="bg-white dark:bg-card-dark border-t border-gray-200 dark:border-gray-800">
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+<div class="rounded-3xl bg-background-light dark:bg-background-dark p-8 md:p-12 lg:p-16 relative overflow-hidden">
+<!-- Decor element -->
+<div class="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
+<div class="absolute -left-24 -bottom-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<h2 class="text-3xl font-bold tracking-tight text-text-main dark:text-white sm:text-4xl">
+                            Subscribe for weekly insights
+                        </h2>
+<p class="mx-auto mt-4 max-w-xl text-lg text-text-sub dark:text-gray-400">
+                            Get the latest articles on AI, tech trends, and personal reflections delivered straight to your inbox. No spam, ever.
+                        </p>
+<form class="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row">
+<label class="sr-only" for="email-address">Email address</label>
+<input autocomplete="email" class="min-w-0 flex-auto rounded-lg border-0 bg-white px-4 py-3.5 text-text-main shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 dark:bg-card-dark dark:ring-gray-700 dark:text-white" id="email-address" name="email" placeholder="Enter your email" required="" type="email"/>
+<button class="flex-none rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors" type="submit">
+                                Subscribe
+                            </button>
+</form>
+</div>
+</div>
+<div class="mt-16 flex flex-col items-center justify-between gap-8 md:flex-row">
+<div class="flex items-center gap-2">
+<div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
+<span class="material-symbols-outlined text-[14px]">terminal</span>
+</div>
+<p class="text-sm font-semibold text-text-main dark:text-white">bhart.org</p>
+</div>
+<div class="flex gap-6">
+<a class="text-gray-400 hover:text-text-main dark:hover:text-white transition-colors" href="#">
+<span class="sr-only">Twitter</span>
+<svg aria-hidden="true" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+</svg>
+</a>
+<a class="text-gray-400 hover:text-text-main dark:hover:text-white transition-colors" href="#">
+<span class="sr-only">GitHub</span>
+<svg aria-hidden="true" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+</svg>
+</a>
+<a class="text-gray-400 hover:text-text-main dark:hover:text-white transition-colors" href="#">
+<span class="sr-only">LinkedIn</span>
+<svg aria-hidden="true" class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill-rule="evenodd"></path>
+</svg>
+</a>
+</div>
+<p class="text-xs text-text-sub dark:text-gray-500">
+                        © 2024 Bruce Hart. All rights reserved.
+                    </p>
+</div>
+</div>
+</footer>
+</div>
+</body></html>
