@@ -4,9 +4,9 @@
 
 Base path: `/api/codex/v1`
 
-Auth: `Authorization: Bearer $CODEX_API_TOKEN`
+Auth: `Authorization: Bearer $CODEX_BHART_API_TOKEN`
 
-Local dev: `npm run dev`, then call `http://127.0.0.1:8787/api/codex/v1/...`
+Local dev: `npm run dev`, then call `http://bhart-org.bruce-hart.workers.dev/api/codex/v1/...`
 
 ### Endpoints
 
@@ -49,8 +49,8 @@ Local dev: `npm run dev`, then call `http://127.0.0.1:8787/api/codex/v1/...`
 
 ```bash
 curl -sS \
-  -H "Authorization: Bearer $CODEX_API_TOKEN" \
-  "http://127.0.0.1:8787/api/codex/v1/posts?status=draft&limit=20"
+  -H "Authorization: Bearer $CODEX_BHART_API_TOKEN" \
+  "https://bhart-org.bruce-hart.workers.dev/api/codex/v1/posts?status=draft&limit=20"
 ```
 
 ## Writing Style
