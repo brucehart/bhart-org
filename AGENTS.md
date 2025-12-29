@@ -21,6 +21,12 @@ Local dev: `npm run dev`, then call `http://127.0.0.1:8787/api/codex/v1/...`
 - `GET /posts/by-slug/:slug`
   - Returns full post (same shape as `/posts/:id`)
 
+- `POST /posts`
+  - Creates a new post.
+  - Required: `title`, `summary`, `body_markdown`, `tags`, `author_name`, `author_email`
+  - Optional: `slug` (otherwise computed from `title`), `status` (`draft` default), `published_at` (required if `status=published`),
+    `hero_image_url`, `hero_image_alt`, `featured`, `seo_title`, `seo_description`
+
 - `PATCH /posts/:id`
   - Partial updates. Fields: `title`, `summary`, `body_markdown`, `status`, `published_at`,
     `hero_image_url`, `hero_image_alt`, `featured`, `author_name`, `author_email`,
@@ -46,3 +52,13 @@ curl -sS \
   -H "Authorization: Bearer $CODEX_API_TOKEN" \
   "http://127.0.0.1:8787/api/codex/v1/posts?status=draft&limit=20"
 ```
+
+## Writing Style
+
+- Voice: informal, smart, humble, curious; avoid hype, keep it human and specific.
+- Thesis-first: open with a hook and state the main point early (often as a bold line or a short standalone sentence).
+- Idea-driven: bring 2–4 interesting ideas/mental models, not just a changelog; show reasoning and tradeoffs.
+- Structure: short paragraphs, lots of whitespace, and `##` section headings that read like claims.
+- Tone mechanics: use punchy emphasis lines; occasional “not X, but Y” contrasts; admit uncertainty when appropriate.
+- Content mix: AI + tech opinions, “where we’re headed” sketches, personal stories, side projects, and occasional fun internet stuff.
+- Endings: invite readers to reach out, collaborate, or discuss.
