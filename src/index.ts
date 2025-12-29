@@ -762,6 +762,177 @@ export default {
           return jsonResponse({ post: serializePost(updated) });
         }
 
+        if (codexPath === '/posts' && method === 'POST') {
+          logCodexAudit(method, path);
+
+          const payloadResult = await readJsonBody(request);
+          if (!payloadResult.ok) {
+            return payloadResult.response;
+          }
+
+          if (!isPlainObject(payloadResult.data)) {
+            return jsonError(400, 'invalid_request', 'Request body must be a JSON object.');
+          }
+
+          const payload = payloadResult.data;
+          const errors: string[] = [];
+
+          const title = normalizeRequiredString(payload.title);
+          if (!title) {
+            errors.push('title is required.');
+          }
+
+          const summary = normalizeRequiredString(payload.summary);
+          if (!summary) {
+            errors.push('summary is required.');
+          }
+
+          const bodyMarkdown = payload.body_markdown;
+          if (typeof bodyMarkdown !== 'string') {
+            errors.push('body_markdown must be a string.');
+          } else if (!bodyMarkdown.trim()) {
+            errors.push('body_markdown is required.');
+          }
+
+          const slugInput =
+            typeof payload.slug === 'string' && payload.slug.trim() ? payload.slug.trim() : null;
+          const slug = title ? slugify(slugInput || title) : null;
+          if (!slug) {
+            errors.push('slug is required.');
+          }
+
+          const authorName = normalizeRequiredString(payload.author_name);
+          if (!authorName) {
+            errors.push('author_name is required.');
+          }
+
+          const authorEmail = normalizeRequiredString(payload.author_email);
+          if (!authorEmail) {
+            errors.push('author_email is required.');
+          }
+
+          const statusRaw = payload.status;
+          const status: PostStatus =
+            statusRaw === undefined ? 'draft' : (statusRaw as PostStatus);
+          if (status !== 'draft' && status !== 'published') {
+            errors.push('status must be draft or published.');
+          }
+
+          const tagsPatch = Object.prototype.hasOwnProperty.call(payload, 'tags')
+            ? parseTagPatch([], payload.tags as CodexTagPatch)
+            : null;
+          if (!tagsPatch) {
+            errors.push('tags must be provided as an array or patch object.');
+          } else if (!tagsPatch.length) {
+            errors.push('At least one tag is required.');
+          }
+
+          let heroImageUrl: string | null = null;
+          if (Object.prototype.hasOwnProperty.call(payload, 'hero_image_url')) {
+            const value = normalizeOptionalString(payload.hero_image_url);
+            if (value === undefined) {
+              errors.push('hero_image_url must be a string or null.');
+            } else {
+              heroImageUrl = value;
+            }
+          }
+
+          let heroImageAlt: string | null = null;
+          if (Object.prototype.hasOwnProperty.call(payload, 'hero_image_alt')) {
+            const value = normalizeOptionalString(payload.hero_image_alt);
+            if (value === undefined) {
+              errors.push('hero_image_alt must be a string or null.');
+            } else {
+              heroImageAlt = value;
+            }
+          }
+
+          let seoTitle: string | null = null;
+          if (Object.prototype.hasOwnProperty.call(payload, 'seo_title')) {
+            const value = normalizeOptionalString(payload.seo_title);
+            if (value === undefined) {
+              errors.push('seo_title must be a string or null.');
+            } else {
+              seoTitle = value;
+            }
+          }
+
+          let seoDescription: string | null = null;
+          if (Object.prototype.hasOwnProperty.call(payload, 'seo_description')) {
+            const value = normalizeOptionalString(payload.seo_description);
+            if (value === undefined) {
+              errors.push('seo_description must be a string or null.');
+            } else {
+              seoDescription = value;
+            }
+          }
+
+          let featured = false;
+          if (Object.prototype.hasOwnProperty.call(payload, 'featured')) {
+            if (typeof payload.featured !== 'boolean') {
+              errors.push('featured must be a boolean.');
+            } else {
+              featured = payload.featured;
+            }
+          }
+
+          const publishedAtRaw = payload.published_at;
+          let publishedAt: string | null = null;
+          if (status === 'published') {
+            if (typeof publishedAtRaw !== 'string') {
+              errors.push('published_at is required when status is published.');
+            } else {
+              const parsed = parseIsoTimestamp(publishedAtRaw);
+              if (!parsed) {
+                errors.push('published_at must be a valid ISO timestamp.');
+              } else {
+                publishedAt = parsed;
+              }
+            }
+          } else if (publishedAtRaw !== undefined && publishedAtRaw !== null) {
+            errors.push('published_at must be null or omitted when status is draft.');
+          }
+
+          if (errors.length) {
+            return jsonError(400, 'invalid_request', 'Validation failed.', errors);
+          }
+
+          const input: PostInput = {
+            slug: slug!,
+            title: title!,
+            summary: summary!,
+            body_markdown: bodyMarkdown as string,
+            status,
+            published_at: publishedAt,
+            hero_image_url: heroImageUrl,
+            hero_image_alt: heroImageAlt,
+            featured,
+            author_name: authorName!,
+            author_email: authorEmail!,
+            seo_title: seoTitle,
+            seo_description: seoDescription,
+            reading_time_minutes: estimateReadingTime(bodyMarkdown as string),
+            tags: tagsPatch!,
+          };
+
+          try {
+            const id = await createPost(env.DB, input);
+            const created = await getPostById(env.DB, id);
+            if (!created) {
+              return jsonError(500, 'create_failed', 'Post created but could not be reloaded.');
+            }
+            return jsonResponse({ post: serializePost(created) }, 201);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : '';
+            return jsonError(
+              409,
+              'conflict',
+              'Unable to create post. Check slug uniqueness and required fields.',
+              message ? { message } : undefined,
+            );
+          }
+        }
+
         if (codexPath === '/posts' && method === 'GET') {
           logCodexAudit(method, path);
           const statusParam = url.searchParams.get('status') ?? undefined;

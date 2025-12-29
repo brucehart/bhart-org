@@ -214,6 +214,33 @@ describe('Codex API', () => {
     expect(body.error?.code).toBe('unauthorized');
   });
 
+  it('creates posts', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: authHeaders({ 'content-type': 'application/json' }),
+        body: JSON.stringify({
+          title: 'Hello, Internet (Again)',
+          summary: 'A time capsule + a public workshop for the AI era.',
+          body_markdown: 'This is a test post body.',
+          tags: ['ai', 'personal'],
+          author_name: 'Bruce Hart',
+          author_email: 'hello@bhart.org',
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as {
+      post: { slug: string; status: string; published_at: string | null; tag_slugs: string[] };
+    };
+    expect(body.post.slug).toBe('hello-internet-again');
+    expect(body.post.status).toBe('draft');
+    expect(body.post.published_at).toBeNull();
+    expect(body.post.tag_slugs).toContain('ai');
+    expect(body.post.tag_slugs).toContain('personal');
+  });
+
   it('lists and fetches posts', async () => {
     await seedPostWithTags(
       {
