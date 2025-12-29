@@ -4,4 +4,5 @@ interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_OAUTH_REDIRECT_URI?: string;
+  CODEX_API_TOKEN: string;
 }

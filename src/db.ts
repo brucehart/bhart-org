@@ -150,6 +150,86 @@ export const listAdminPosts = async (db: D1Database): Promise<PostWithTags[]> =>
   return results.map(mapPostRow);
 };
 
+export type CodexPostCursor = {
+  updatedAt: string;
+  id: string;
+};
+
+export type ListCodexPostsOptions = {
+  limit?: number;
+  status?: 'draft' | 'published';
+  tagSlug?: string;
+  query?: string;
+  cursor?: CodexPostCursor;
+};
+
+export const listCodexPosts = async (
+  db: D1Database,
+  options: ListCodexPostsOptions = {},
+): Promise<PostWithTags[]> => {
+  const params: unknown[] = [];
+  const conditions: string[] = [];
+
+  if (options.status) {
+    conditions.push('p.status = ?');
+    params.push(options.status);
+  }
+
+  if (options.tagSlug) {
+    conditions.push(
+      'EXISTS (SELECT 1 FROM post_tags pt2 JOIN tags t2 ON t2.id = pt2.tag_id WHERE pt2.post_id = p.id AND t2.slug = ?)',
+    );
+    params.push(options.tagSlug);
+  }
+
+  if (options.query) {
+    const term = `%${options.query.toLowerCase()}%`;
+    conditions.push(
+      '(LOWER(p.title) LIKE ? OR LOWER(p.summary) LIKE ? OR LOWER(p.body_markdown) LIKE ?)',
+    );
+    params.push(term, term, term);
+  }
+
+  if (options.cursor) {
+    conditions.push('(p.updated_at < ? OR (p.updated_at = ? AND p.id < ?))');
+    params.push(options.cursor.updatedAt, options.cursor.updatedAt, options.cursor.id);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const limit = options.limit ?? 20;
+  params.push(limit);
+
+  const query = `
+    SELECT
+      p.*, 
+      GROUP_CONCAT(t.name, ',') AS tag_names,
+      GROUP_CONCAT(t.slug, ',') AS tag_slugs
+    FROM posts p
+    LEFT JOIN post_tags pt ON pt.post_id = p.id
+    LEFT JOIN tags t ON t.id = pt.tag_id
+    ${where}
+    GROUP BY p.id
+    ORDER BY p.updated_at DESC, p.id DESC
+    LIMIT ?
+  `;
+
+  const { results } = await db.prepare(query).bind(...params).all<PostRecord>();
+  return results.map(mapPostRow);
+};
+
+export const listAllTags = async (db: D1Database): Promise<TagRecord[]> => {
+  const query = `
+    SELECT t.*, COUNT(pt.post_id) as post_count
+    FROM tags t
+    LEFT JOIN post_tags pt ON pt.tag_id = t.id
+    LEFT JOIN posts p ON p.id = pt.post_id
+    GROUP BY t.id
+    ORDER BY t.name ASC
+  `;
+  const { results } = await db.prepare(query).all<TagRecord>();
+  return results;
+};
+
 const ensureTags = async (db: D1Database, tags: string[]) => {
   const ids: string[] = [];
   for (const rawTag of tags) {
