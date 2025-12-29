@@ -372,6 +372,185 @@ export const templates = {
             </div>
           </div>
         </section>
+        <section class="w-full max-w-[960px] px-6 lg:px-0 py-16">
+          <div class="grid lg:grid-cols-[1fr_1fr] gap-12">
+            <div class="flex flex-col gap-6">
+              <h2 class="text-text-light text-3xl font-bold font-display">Career Timeline</h2>
+              <p class="text-muted-light leading-relaxed">
+                Experienced engineering leader with a history of delivering innovative technical solutions and solving hard problems. Delivers growth through strong technical performance, team mentorship, and trusted customer relationships. Specializes in the development of complex cyber capabilities targeting embedded systems and communications networks. Background in digital signal processing, algorithm design, and software engineering.
+              </p>
+              <div class="h-56 w-full rounded-xl overflow-hidden relative bg-white border border-border-light" data-alt="Abstract signal flow visualization">
+                <div
+                  class="absolute inset-0"
+                  style="background-image: radial-gradient(circle at 20% 20%, rgba(19, 91, 236, 0.18), transparent 55%), radial-gradient(circle at 80% 30%, rgba(19, 91, 236, 0.12), transparent 50%), linear-gradient(135deg, rgba(13, 18, 27, 0.06), rgba(13, 18, 27, 0));"
+                ></div>
+                <div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
+                <div class="relative h-full w-full p-6 flex flex-col justify-end gap-2">
+                  <p class="text-text-light text-sm font-semibold">Focus Areas</p>
+                  <p class="text-muted-light text-xs">Offensive cyber operations, PNT, ISR, embedded systems, and DSP.</p>
+                </div>
+              </div>
+              <div class="rounded-xl border border-border-light bg-white p-6">
+                <h3 class="text-text-light text-lg font-bold font-display mb-4">Skills &amp; Tools</h3>
+                <div class="flex flex-col gap-4">
+                  <div class="flex flex-col gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted-light">Software Engineering</p>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">C</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">C++</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Python</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">C#</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Java</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Qt</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Networking</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Device Drivers</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Embedded Linux</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Assembly (ARM, x86, MIPS, PowerPC)</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Windows Internals</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted-light">Digital Signal Processing</p>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">MATLAB</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">GNU Radio</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Software Defined Radio</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">USRP</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">OpenCPI</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-[40px_1fr] gap-x-4">
+              <div class="flex flex-col items-center gap-1 pt-1">
+                <div class="text-primary bg-background-light z-10">
+                  <span class="material-symbols-outlined">science</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Chief Scientist - Special Programs, KBR</p>
+                <p class="text-primary text-sm font-medium mb-2">05/2024 - Present</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Develops technical approach to programs focused on offensive cyber operations, PNT capabilities, and advanced ISR.</li>
+                  <li>Provides program management support, technical strategy, and proposal development.</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">analytics</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Senior Director - Cyber Analytics, KBR</p>
+                <p class="text-muted-light text-sm font-medium mb-2">09/2020 - 05/2024</p>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">leaderboard</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Vice President - Cyber Analytics, Centauri</p>
+                <p class="text-muted-light text-sm font-medium mb-2">12/2019 - 09/2020</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Division lead for Cyber Operations, Cyber Engineering, and Trusted Microelectronics sectors.</li>
+                  <li>Oversaw operations, program execution, program management, and new business development.</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">memory</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Chief Technology Officer, PreTalen</p>
+                <p class="text-muted-light text-sm font-medium mb-2">01/2016 - 12/2019</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Led PreTalen's technical efforts in offensive cyber capabilities development and PNT-related technologies, including breakthrough classified cyber technology currently deployed by a DoD customer.</li>
+                  <li>Oversaw significant growth and established PreTalen as a technical leader in key markets.</li>
+                  <li>Helped guide PreTalen through acquisition by Centauri in December 2019.</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">code</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Senior Software Engineer, NDC Technologies</p>
+                <p class="text-muted-light text-sm font-medium mb-2">05/2013 - 01/2016</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Primary embedded software developer for an ultrasonic measurement system.</li>
+                  <li>Led development of a common platform introducing market-leading web-based interfaces across the product range.</li>
+                  <li>Responsible for long-term R&amp;D planning and engineering analysis of new product platforms.</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">query_stats</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Senior Member of R&amp;D Staff, GIRD Systems</p>
+                <p class="text-muted-light text-sm font-medium mb-2">05/2004 - 05/2013</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Technical lead for programs developing new digital signal processing technologies in electronic warfare, array processing, geolocation, and interference mitigation.</li>
+                  <li>Principal investigator for 15 technical programs in signal processing research totaling over $5M in Department of Defense funding (Army, Air Force, Navy).</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">terminal</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">Software Engineer, University of Dayton Research Institute</p>
+                <p class="text-muted-light text-sm font-medium mb-2">07/1999 - 05/2004</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>Developed data-driven (ASP/SQL Server) websites for university and external customers.</li>
+                  <li>Created a Java-based graphical user interface for a wide-ranging logistics program for AFRL/RH (711th Human Performance Wing).</li>
+                </ul>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">school</span>
+                </div>
+                <div class="w-[2px] bg-border-light h-full grow"></div>
+              </div>
+              <div class="flex flex-col pb-8 pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">MS - Electrical Engineering, University of Dayton</p>
+                <p class="text-muted-light text-sm font-medium mb-2">05/2004</p>
+                <p class="text-muted-light text-sm leading-relaxed">Concentrations in Digital Signal Processing and Software Engineering.</p>
+              </div>
+              <div class="flex flex-col items-center gap-1 pb-1">
+                <div class="w-[2px] bg-border-light h-4"></div>
+                <div class="text-muted-light">
+                  <span class="material-symbols-outlined">school</span>
+                </div>
+              </div>
+              <div class="flex flex-col pt-4">
+                <p class="text-text-light text-lg font-bold leading-normal font-display">BEE - Electrical Engineering, University of Dayton</p>
+                <p class="text-muted-light text-sm font-medium mb-2">05/2003</p>
+                <p class="text-muted-light text-sm leading-relaxed">Concentration in Computer Engineering.</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   </body>
