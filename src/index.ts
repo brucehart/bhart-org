@@ -24,12 +24,13 @@ import {
   updatePost,
 } from './db';
 import type { CodexPostCursor, PostInput } from './db';
-import { templates } from './templates';
+import { templates } from './templates/index';
 import {
   SESSION_COOKIE_NAME,
   estimateReadingTime,
   formatBytes,
   formatDate,
+  formatDateTime,
   formatDateTimeLocal,
   deriveTagsFromFilename,
   getFormValue,
@@ -1196,7 +1197,8 @@ export default {
                   ? 'bg-green-100 text-green-700'
                   : 'bg-yellow-100 text-yellow-700',
               tag_list: post.tag_names.length ? post.tag_names.join(', ') : 'No tags',
-              updated_date: formatDate(post.updated_at),
+              published_date: formatDateTime(post.published_at),
+              updated_date: formatDateTime(post.updated_at),
             })),
           };
           return htmlResponse(templates.adminList, view);
