@@ -139,7 +139,7 @@ export const homeTemplate = `<!DOCTYPE html>
                   <!-- About Me Mini Card -->
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <div class="flex items-center gap-4 mb-4">
-                      <div class="w-16 h-16 rounded-full bg-cover bg-center border-2 border-gray-100" style="background-image: url('/media/hedcut.png');"></div>
+                      <div class="w-16 h-16 rounded-full bg-cover bg-center border-2 border-gray-100" style="background-image: url('{{author_avatar_url}}');"></div>
                       <div>
                         <h3 class="font-bold text-text-main">Bruce Hart</h3>
                         <p class="text-xs text-text-sub">AI & Tech Writer</p>

@@ -20,9 +20,11 @@ export const handlePublicRoutes = async (
   if (path === '/' && method === 'GET') {
     const tagFilter = url.searchParams.get('tag') ?? undefined;
     const nowIso = new Date().toISOString();
-    const [posts, tags] = await Promise.all([
+    const SIDEBAR_RECENT_POSTS_LIMIT = 5;
+    const [posts, tags, recentPosts] = await Promise.all([
       listPublishedPosts(env.DB, nowIso, { limit: 9, tagSlug: tagFilter }),
       listTags(env.DB, nowIso),
+      listPublishedPosts(env.DB, nowIso, { limit: SIDEBAR_RECENT_POSTS_LIMIT }),
     ]);
 
     const featured = posts.find((post) => post.featured === 1) ?? posts[0];
@@ -47,9 +49,6 @@ export const handlePublicRoutes = async (
             : 'flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white border border-gray-200 hover:border-primary/50 px-5 text-sm font-medium text-text-main transition-colors',
       })),
     ];
-
-    // Fetch recent posts for sidebar (limit to 5)
-    const recentPosts = await listPublishedPosts(env.DB, nowIso, { limit: 5 });
 
     const view = {
       site_title: 'bhart.org - AI, Tech and Personal Blog',
@@ -78,8 +77,9 @@ export const handlePublicRoutes = async (
         slug: tag.slug,
         post_count: tag.post_count ?? 0,
       })),
+      author_avatar_url: HEADSHOT_IMAGE,
       has_recent_posts: recentPosts.length > 0,
-      recent_posts: recentPosts.slice(0, 5).map((post) => ({
+      recent_posts: recentPosts.map((post) => ({
         title: post.title,
         url: `/articles/${post.slug}`,
         published_date: formatDate(post.published_at),
