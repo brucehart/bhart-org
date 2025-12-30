@@ -108,7 +108,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                 <div class="absolute inset-0 bg-primary rounded-xl translate-x-2 translate-y-2 lg:translate-x-4 lg:translate-y-4 opacity-20 transition-transform group-hover:translate-x-3 group-hover:translate-y-3"></div>
                 <div
                   class="relative h-full w-full bg-center bg-no-repeat bg-cover rounded-xl border border-border-light shadow-sm overflow-hidden"
-                  style="background-image: url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80');"
+                  style="background-image: url('/media/headshot.png');"
                 ></div>
               </div>
             </div>
