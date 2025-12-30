@@ -20,9 +20,11 @@ export const handlePublicRoutes = async (
   if (path === '/' && method === 'GET') {
     const tagFilter = url.searchParams.get('tag') ?? undefined;
     const nowIso = new Date().toISOString();
-    const [posts, tags] = await Promise.all([
+    const SIDEBAR_RECENT_POSTS_LIMIT = 5;
+    const [posts, tags, recentPosts] = await Promise.all([
       listPublishedPosts(env.DB, nowIso, { limit: 9, tagSlug: tagFilter }),
       listTags(env.DB, nowIso),
+      listPublishedPosts(env.DB, nowIso, { limit: SIDEBAR_RECENT_POSTS_LIMIT }),
     ]);
 
     const featured = posts.find((post) => post.featured === 1) ?? posts[0];
@@ -50,7 +52,6 @@ export const handlePublicRoutes = async (
 
     const view = {
       site_title: 'bhart.org - AI, Tech and Personal Blog',
-      home_headshot_url: HEADSHOT_IMAGE,
       nav_is_home: true,
       hero: featured
         ? {
@@ -70,6 +71,19 @@ export const handlePublicRoutes = async (
         primary_tag: post.tag_names[0] ?? 'General',
         url: `/articles/${post.slug}`,
         image_url: post.hero_image_url ?? DEFAULT_CARD_IMAGE,
+      })),
+      sidebar_tags: tags.map((tag) => ({
+        name: tag.name,
+        slug: tag.slug,
+        post_count: tag.post_count ?? 0,
+      })),
+      author_avatar_url: HEADSHOT_IMAGE,
+      has_recent_posts: recentPosts.length > 0,
+      recent_posts: recentPosts.map((post) => ({
+        title: post.title,
+        url: `/articles/${post.slug}`,
+        published_date: formatDate(post.published_at),
+        reading_time: post.reading_time_minutes,
       })),
     };
     return htmlResponse(templates.home, view);
