@@ -93,3 +93,10 @@ export const cleanupRateLimitStore = (maxAge: number) => {
     }
   }
 };
+
+/**
+ * Clear all rate limit data (for testing)
+ */
+export const clearRateLimitStore = () => {
+  rateLimitStore.clear();
+};
