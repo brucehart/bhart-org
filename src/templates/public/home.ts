@@ -78,20 +78,28 @@ export const homeTemplate = `<!DOCTYPE html>
                   </a>
                 </div>
               </div>
-              <div class="rounded-2xl border border-gray-100 bg-background-light p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-widest text-primary">On this blog</p>
-                <div class="mt-4 flex flex-col gap-3 text-sm text-text-sub">
-                  <div class="flex items-start gap-3">
-                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                    <p>AI agents, automation systems, and operational playbooks.</p>
-                  </div>
-                  <div class="flex items-start gap-3">
-                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                    <p>Full stack experiments with data, APIs, and product thinking.</p>
-                  </div>
-                  <div class="flex items-start gap-3">
-                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                    <p>Notes on leadership, systems, and making technology human.</p>
+              <div class="flex flex-col gap-6">
+                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
+                  <div
+                    class="aspect-square w-full rounded-xl bg-cover bg-center"
+                    style="background-image: url('{{home_headshot_url}}');"
+                  ></div>
+                </div>
+                <div class="rounded-2xl border border-gray-100 bg-background-light p-6 shadow-sm">
+                  <p class="text-xs font-semibold uppercase tracking-widest text-primary">On this blog</p>
+                  <div class="mt-4 flex flex-col gap-3 text-sm text-text-sub">
+                    <div class="flex items-start gap-3">
+                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                      <p>AI agents, automation systems, and operational playbooks.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                      <p>Full stack experiments with data, APIs, and product thinking.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                      <p>Notes on leadership, systems, and making technology human.</p>
+                    </div>
                   </div>
                 </div>
               </div>

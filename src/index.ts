@@ -47,6 +47,7 @@ const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=80';
 const DEFAULT_CARD_IMAGE =
   'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1200&q=80';
+const HEADSHOT_IMAGE = '/media/hedcut.png';
 const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle';
 const GITHUB_URL = 'https://github.com/your-handle';
 const BASE_VIEW = {
@@ -1304,7 +1305,7 @@ export default {
             title: post.title,
             summary: post.summary,
             author_name: post.author_name,
-            author_avatar: post.hero_image_url ?? DEFAULT_HERO_IMAGE,
+            author_avatar: HEADSHOT_IMAGE,
             published_at: post.published_at ?? '',
             published_date: formatDate(post.published_at),
             reading_time: post.reading_time_minutes,
@@ -1447,6 +1448,7 @@ export default {
 
         const view = {
           site_title: 'bhart.org - AI, Tech and Personal Blog',
+          home_headshot_url: HEADSHOT_IMAGE,
           nav_is_home: true,
           hero: featured
             ? {
@@ -1505,7 +1507,7 @@ export default {
           title: post.title,
           summary: post.summary,
           author_name: post.author_name,
-          author_avatar: post.hero_image_url ?? DEFAULT_HERO_IMAGE,
+          author_avatar: HEADSHOT_IMAGE,
           published_at: post.published_at,
           published_date: formatDate(post.published_at),
           reading_time: post.reading_time_minutes,
