@@ -47,6 +47,12 @@ const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=80';
 const DEFAULT_CARD_IMAGE =
   'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1200&q=80';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle';
+const GITHUB_URL = 'https://github.com/your-handle';
+const BASE_VIEW = {
+  linkedin_url: LINKEDIN_URL,
+  github_url: GITHUB_URL,
+};
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const OAUTH_STATE_TTL_SECONDS = 60 * 10;
 
@@ -219,7 +225,7 @@ const serializePost = (post: PostWithTags) => {
 };
 
 const htmlResponse = (template: string, view: Record<string, unknown>, status = 200) => {
-  return new Response(Mustache.render(template, view), {
+  return new Response(Mustache.render(template, { ...BASE_VIEW, ...view }), {
     status,
     headers: {
       'content-type': 'text/html; charset=utf-8',
@@ -1466,6 +1472,18 @@ export default {
 
       if (path === '/about' && method === 'GET') {
         return htmlResponse(templates.about, {});
+      }
+      if (path === '/projects' && method === 'GET') {
+        return htmlResponse(templates.projects, {});
+      }
+      if (path === '/news' && method === 'GET') {
+        return htmlResponse(templates.news, {});
+      }
+      if (path === '/work-with-me' && method === 'GET') {
+        return htmlResponse(templates.workWithMe, {});
+      }
+      if (path === '/contact' && method === 'GET') {
+        return htmlResponse(templates.contact, {});
       }
 
       const articleMatch = path.match(/^\/articles\/([^/]+)$/);

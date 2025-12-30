@@ -59,10 +59,20 @@ export const articleTemplate = `<!DOCTYPE html>
             </div>
             <a class="text-xl font-bold tracking-tight" href="/">Bruce Hart</a>
           </div>
-          <div class="hidden md:flex items-center gap-8">
-            <a class="text-sm font-medium hover:text-primary transition-colors" href="/">Home</a>
-            <a class="text-sm font-medium text-primary" href="/">Articles</a>
-            <a class="text-sm font-medium hover:text-primary transition-colors" href="/about">About</a>
+          <div class="hidden md:flex items-center gap-6">
+            <nav class="flex items-center gap-6">
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/">Home</a>
+              <a class="text-sm font-medium text-primary" href="/">Articles</a>
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/about">About</a>
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/projects">Projects</a>
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/news">News</a>
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
+              <a class="text-sm font-medium hover:text-primary transition-colors" href="/contact">Contact</a>
+            </nav>
+            <div class="flex items-center gap-4 text-sm font-medium text-text-muted">
+              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
+              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
+            </div>
           </div>
         </div>
       </div>

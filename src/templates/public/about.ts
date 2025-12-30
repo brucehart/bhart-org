@@ -72,11 +72,19 @@ export const aboutTemplate = `<!DOCTYPE html>
           </div>
           <h2 class="text-xl font-bold leading-tight tracking-[-0.015em] font-display">Bruce Hart</h2>
         </div>
-        <div class="hidden md:flex flex-1 justify-end gap-8">
-          <nav class="flex items-center gap-9">
+        <div class="hidden md:flex flex-1 items-center justify-end gap-6">
+          <nav class="flex items-center gap-6">
             <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/">Home</a>
             <a class="text-primary text-sm font-bold leading-normal" href="/about">About</a>
+            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/projects">Projects</a>
+            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/news">News</a>
+            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
+            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/contact">Contact</a>
           </nav>
+          <div class="flex items-center gap-4 text-sm font-medium text-muted-light">
+            <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
+            <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
+          </div>
         </div>
         <div class="md:hidden flex items-center text-text-light">
           <span class="material-symbols-outlined cursor-pointer">menu</span>
@@ -170,20 +178,21 @@ export const aboutTemplate = `<!DOCTYPE html>
               <p class="text-muted-light leading-relaxed">
                 Experienced engineering leader with a history of delivering innovative technical solutions and solving hard problems. Delivers growth through strong technical performance, team mentorship, and trusted customer relationships. Specializes in the development of complex cyber capabilities targeting embedded systems and communications networks. Background in digital signal processing, algorithm design, and software engineering.
               </p>
-              <div class="h-56 w-full rounded-xl overflow-hidden relative bg-white border border-border-light" data-alt="Abstract signal flow visualization">
-                <div
-                  class="absolute inset-0"
-                  style="background-image: radial-gradient(circle at 20% 20%, rgba(19, 91, 236, 0.18), transparent 55%), radial-gradient(circle at 80% 30%, rgba(19, 91, 236, 0.12), transparent 50%), linear-gradient(135deg, rgba(13, 18, 27, 0.06), rgba(13, 18, 27, 0));"
-                ></div>
-                <div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
-                <div class="relative h-full w-full p-6 flex flex-col justify-end gap-2">
-                  <p class="text-text-light text-sm font-semibold">Focus Areas</p>
-                  <p class="text-muted-light text-xs">Offensive cyber operations, PNT, ISR, embedded systems, and DSP.</p>
-                </div>
-              </div>
               <div class="rounded-xl border border-border-light bg-white p-6">
                 <h3 class="text-text-light text-lg font-bold font-display mb-4">Skills &amp; Tools</h3>
                 <div class="flex flex-col gap-4">
+                  <div class="flex flex-col gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted-light">Artificial Intelligence</p>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Artificial Intelligence</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Automation</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Machine Learning</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Data Science</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Databases</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">Full Stack Engineering</span>
+                      <span class="rounded-full border border-border-light bg-background-light px-3 py-1 text-xs font-medium text-text-light">AI Agent Development</span>
+                    </div>
+                  </div>
                   <div class="flex flex-col gap-3">
                     <p class="text-xs font-semibold uppercase tracking-wider text-muted-light">Software Engineering</p>
                     <div class="flex flex-wrap gap-2">

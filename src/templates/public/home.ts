@@ -48,66 +48,73 @@ export const homeTemplate = `<!DOCTYPE html>
   </head>
   <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
-      <header class="sticky top-0 z-50 w-full border-b border-[#e7ebf3] bg-background-light/80 backdrop-blur-md">
+      <header class="sticky top-0 z-50 w-full border-b border-[#e7ebf3] bg-background-light/90 backdrop-blur-md">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 text-text-main">
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
               <span class="material-symbols-outlined text-[20px]">terminal</span>
             </div>
             <a class="text-xl font-bold tracking-tight text-text-main" href="/">bhart.org</a>
           </div>
-          <nav class="hidden md:flex items-center gap-8">
-            <a class="text-sm font-medium text-primary" href="/">Home</a>
-            <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/about">About</a>
-          </nav>
-          <div class="flex items-center gap-4">
-            <button class="hidden sm:flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
-              Subscribe
-            </button>
+          <div class="hidden md:flex flex-1 items-center justify-end gap-6">
+            <nav class="flex items-center gap-6">
+              <a class="text-sm font-semibold text-primary" href="/">Home</a>
+              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/about">About</a>
+              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/projects">Projects</a>
+              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/news">News</a>
+              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
+              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/contact">Contact</a>
+            </nav>
+            <div class="flex items-center gap-4 text-sm font-medium text-text-sub">
+              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
+              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
+            </div>
+          </div>
+          <div class="md:hidden flex items-center text-text-main">
+            <span class="material-symbols-outlined cursor-pointer">menu</span>
           </div>
         </div>
       </header>
       <main class="flex-grow">
-        <section class="relative overflow-hidden py-16 sm:py-24 lg:py-32">
-          <div
-            class="absolute inset-0 pointer-events-none opacity-[0.03]"
-            style="background-image: radial-gradient(#135bec 1px, transparent 1px); background-size: 32px 32px;"
-          ></div>
-          <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
-              <div class="flex flex-col gap-6 max-w-2xl">
-                {{#hero}}
-                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-                  <span class="relative flex h-2 w-2">
-                    <span class="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                  </span>
-                  Latest Post: {{title}}
-                </div>
-                {{/hero}}
-                <h1 class="text-5xl sm:text-6xl font-black tracking-tight text-text-main leading-[1.1]">
-                  Bruce Hart
-                </h1>
-                <p class="text-xl sm:text-2xl text-text-sub font-light leading-relaxed">
-                  Exploring the intersection of <span class="text-primary font-medium">Artificial Intelligence</span>, Technology, and Human Interest.
+        <section class="bg-white">
+          <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <div
+              class="absolute inset-0 pointer-events-none opacity-[0.03]"
+              style="background-image: radial-gradient(#135bec 1px, transparent 1px); background-size: 32px 32px;"
+            ></div>
+            <div class="relative grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
+              <div class="flex flex-col gap-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Welcome</p>
+                <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-text-main">I'm Bruce Hart.</h1>
+                <p class="text-lg text-text-sub max-w-2xl">
+                  I write about practical AI, automation, and the human side of building software. Expect thoughtful takes,
+                  experiments, and honest tradeoffs from the field.
                 </p>
-                <div class="flex flex-wrap gap-4 pt-2">
-                  {{#hero}}
-                  <a href="{{url}}" class="flex items-center gap-2 rounded-lg bg-text-main px-6 py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity">
-                    Start Reading
+                <div class="flex flex-wrap gap-3 pt-2">
+                  <a class="inline-flex items-center gap-2 rounded-lg bg-text-main px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity" href="/about">
+                    About me
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                   </a>
-                  {{/hero}}
-                  <a href="/about" class="flex items-center gap-2 rounded-lg border border-gray-200 bg-transparent px-6 py-3 text-sm font-bold text-text-main hover:bg-gray-50 transition-colors">
-                    More About Me
+                  <a class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-transparent px-5 py-3 text-sm font-bold text-text-main hover:bg-gray-50 transition-colors" href="/work-with-me">
+                    Work With Me
                   </a>
                 </div>
               </div>
-              <div class="relative hidden lg:block h-full min-h-[400px]">
-                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-transparent rotate-3 backdrop-blur-sm"></div>
-                <div class="absolute right-4 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl bg-gradient-to-tr from-primary/10 to-transparent -rotate-2 backdrop-blur-sm"></div>
-                <div class="absolute right-2 top-1/2 -translate-y-1/2 w-4/5 aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 rotate-0 bg-white border border-gray-100 p-2">
-                  <div class="w-full h-full bg-cover bg-center rounded-xl" style="background-image: url('{{hero_image}}');"></div>
+              <div class="rounded-2xl border border-gray-100 bg-background-light p-6 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-widest text-primary">On this blog</p>
+                <div class="mt-4 flex flex-col gap-3 text-sm text-text-sub">
+                  <div class="flex items-start gap-3">
+                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                    <p>AI agents, automation systems, and operational playbooks.</p>
+                  </div>
+                  <div class="flex items-start gap-3">
+                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                    <p>Full stack experiments with data, APIs, and product thinking.</p>
+                  </div>
+                  <div class="flex items-start gap-3">
+                    <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
+                    <p>Notes on leadership, systems, and making technology human.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -191,12 +198,23 @@ export const homeTemplate = `<!DOCTYPE html>
               </form>
             </div>
           </div>
+          <div class="mt-10 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-text-sub">
+            <a class="hover:text-primary transition-colors" href="/about">About</a>
+            <a class="hover:text-primary transition-colors" href="/projects">Projects</a>
+            <a class="hover:text-primary transition-colors" href="/news">News</a>
+            <a class="hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
+            <a class="hover:text-primary transition-colors" href="/contact">Contact</a>
+          </div>
           <div class="mt-16 flex flex-col items-center justify-between gap-8 md:flex-row">
             <div class="flex items-center gap-2">
               <div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
                 <span class="material-symbols-outlined text-[14px]">terminal</span>
               </div>
               <p class="text-sm font-semibold text-text-main">bhart.org</p>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-semibold text-text-sub">
+              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
+              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
             </div>
             <p class="text-xs text-text-sub">(c) 2024 Bruce Hart. All rights reserved.</p>
           </div>
