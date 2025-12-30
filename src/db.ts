@@ -52,6 +52,14 @@ const mapMediaRow = (row: MediaAssetRecord): MediaAsset => {
   };
 };
 
+/**
+ * Escape special characters in LIKE patterns to prevent SQL pattern injection
+ * Escapes: %, _, and \
+ */
+const escapeLikePattern = (str: string): string => {
+  return str.replace(/[\\%_]/g, '\\$&');
+};
+
 export const listPublishedPosts = async (
   db: D1Database,
   nowIso: string,
@@ -183,9 +191,10 @@ export const listCodexPosts = async (
   }
 
   if (options.query) {
-    const term = `%${options.query.toLowerCase()}%`;
+    const escapedQuery = escapeLikePattern(options.query.toLowerCase());
+    const term = `%${escapedQuery}%`;
     conditions.push(
-      '(LOWER(p.title) LIKE ? OR LOWER(p.summary) LIKE ? OR LOWER(p.body_markdown) LIKE ?)',
+      '(LOWER(p.title) LIKE ? ESCAPE \'\\\' OR LOWER(p.summary) LIKE ? ESCAPE \'\\\' OR LOWER(p.body_markdown) LIKE ? ESCAPE \'\\\')',
     );
     params.push(term, term, term);
   }
@@ -231,45 +240,80 @@ export const listAllTags = async (db: D1Database): Promise<TagRecord[]> => {
 };
 
 const ensureTags = async (db: D1Database, tags: string[]) => {
-  const ids: string[] = [];
+  // Prepare tag data
+  const tagData: Array<{ name: string; slug: string; id: string }> = [];
   for (const rawTag of tags) {
     const name = rawTag.trim();
     if (!name) {
       continue;
     }
     const slug = slugify(name);
-    const existing = await db
-      .prepare('SELECT id FROM tags WHERE slug = ?')
-      .bind(slug)
-      .first<{ id: string }>();
-
-    if (existing?.id) {
-      ids.push(existing.id);
-      await db
-        .prepare('UPDATE tags SET name = ? WHERE id = ?')
-        .bind(name, existing.id)
-        .run();
-      continue;
-    }
-
-    const id = crypto.randomUUID();
-    await db
-      .prepare('INSERT INTO tags (id, name, slug) VALUES (?, ?, ?)')
-      .bind(id, name, slug)
-      .run();
-    ids.push(id);
+    tagData.push({ name, slug, id: crypto.randomUUID() });
   }
+
+  if (tagData.length === 0) {
+    return [];
+  }
+
+  // Fetch existing tags in a single query
+  const slugs = tagData.map((t) => t.slug);
+  const placeholders = slugs.map(() => '?').join(',');
+  const existingTags = await db
+    .prepare(`SELECT id, slug, name FROM tags WHERE slug IN (${placeholders})`)
+    .bind(...slugs)
+    .all<{ id: string; slug: string; name: string }>();
+
+  const existingBySlug = new Map<string, { id: string; name: string }>();
+  for (const tag of existingTags.results) {
+    existingBySlug.set(tag.slug, { id: tag.id, name: tag.name });
+  }
+
+  // Build batch operations
+  const statements: D1PreparedStatement[] = [];
+  const ids: string[] = [];
+
+  for (const tag of tagData) {
+    const existing = existingBySlug.get(tag.slug);
+    if (existing) {
+      ids.push(existing.id);
+      // Update name if different
+      if (existing.name !== tag.name) {
+        statements.push(
+          db.prepare('UPDATE tags SET name = ? WHERE id = ?').bind(tag.name, existing.id),
+        );
+      }
+    } else {
+      ids.push(tag.id);
+      statements.push(
+        db.prepare('INSERT INTO tags (id, name, slug) VALUES (?, ?, ?)').bind(tag.id, tag.name, tag.slug),
+      );
+    }
+  }
+
+  // Execute batch if we have statements
+  if (statements.length > 0) {
+    await db.batch(statements);
+  }
+
   return ids;
 };
 
 const setPostTags = async (db: D1Database, postId: string, tagIds: string[]) => {
-  await db.prepare('DELETE FROM post_tags WHERE post_id = ?').bind(postId).run();
+  // Build batch operations: delete old tags and insert new ones
+  const statements: D1PreparedStatement[] = [];
+  
+  // First statement: delete existing tags
+  statements.push(db.prepare('DELETE FROM post_tags WHERE post_id = ?').bind(postId));
+  
+  // Add insert statements for each tag
   for (const tagId of tagIds) {
-    await db
-      .prepare('INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)')
-      .bind(postId, tagId)
-      .run();
+    statements.push(
+      db.prepare('INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)').bind(postId, tagId),
+    );
   }
+  
+  // Execute all operations in a single batch
+  await db.batch(statements);
 };
 
 export const createPost = async (db: D1Database, input: PostInput) => {

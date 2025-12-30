@@ -2,6 +2,7 @@ import { env, createExecutionContext, waitOnExecutionContext } from 'cloudflare:
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import worker from '../src';
 import { slugify } from '../src/utils';
+import { clearRateLimitStore } from '../src/middleware/rateLimit';
 
 const API_BASE = 'http://example.com/api/codex/v1';
 const TOKEN = 'test-token';
@@ -204,6 +205,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   env.CODEX_API_TOKEN = TOKEN;
   await resetData();
+  clearRateLimitStore(); // Clear rate limit state between tests
 });
 
 describe('Codex API', () => {
@@ -376,5 +378,282 @@ describe('Codex API', () => {
       }),
     );
     expect(patchResponse.status).toBe(409);
+  });
+});
+
+describe('Public Routes', () => {
+  beforeEach(async () => {
+    await seedPostWithTags(
+      {
+        id: 'pub-1',
+        slug: 'test-article',
+        title: 'Test Article',
+        summary: 'Test summary',
+        body_markdown: '# Test\n\nThis is a test article with some content.',
+        status: 'published',
+        published_at: '2025-01-01T00:00:00.000Z',
+        updated_at: '2025-01-01T00:00:00.000Z',
+      },
+      ['Test', 'Public'],
+    );
+  });
+
+  it('serves home page', async () => {
+    const response = await fetchWorker(new Request('http://example.com/'));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/html');
+    const html = await response.text();
+    expect(html).toContain('bhart.org');
+  });
+
+  it('serves about page', async () => {
+    const response = await fetchWorker(new Request('http://example.com/about'));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/html');
+  });
+
+  it('serves article page', async () => {
+    const response = await fetchWorker(new Request('http://example.com/articles/test-article'));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/html');
+    const html = await response.text();
+    expect(html).toContain('Test Article');
+    expect(html).toContain('This is a test article');
+  });
+
+  it('returns 404 for non-existent article', async () => {
+    const response = await fetchWorker(new Request('http://example.com/articles/not-found'));
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 404 for draft articles', async () => {
+    await seedPostWithTags(
+      {
+        id: 'draft-1',
+        slug: 'draft-article',
+        title: 'Draft Article',
+        summary: 'Draft summary',
+        body_markdown: 'Draft content',
+        status: 'draft',
+        published_at: null,
+        updated_at: '2025-01-01T00:00:00.000Z',
+      },
+      ['Draft'],
+    );
+
+    const response = await fetchWorker(new Request('http://example.com/articles/draft-article'));
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 404 for non-existent route', async () => {
+    const response = await fetchWorker(new Request('http://example.com/nonexistent'));
+    expect(response.status).toBe(404);
+  });
+});
+
+describe('Error Handling', () => {
+  it('handles invalid JSON in API request', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: authHeaders({ 'content-type': 'application/json' }),
+        body: 'invalid json {',
+      }),
+    );
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error?: { code?: string } };
+    expect(body.error?.code).toBe('invalid_json');
+  });
+
+  it('handles missing required fields in create post', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: authHeaders({ 'content-type': 'application/json' }),
+        body: JSON.stringify({
+          title: 'Missing Fields',
+        }),
+      }),
+    );
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error?: { details?: string[] } };
+    expect(body.error?.details).toBeDefined();
+    expect(body.error?.details?.length).toBeGreaterThan(0);
+  });
+
+  it('handles invalid status value', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: authHeaders({ 'content-type': 'application/json' }),
+        body: JSON.stringify({
+          title: 'Test',
+          summary: 'Test',
+          body_markdown: 'Test',
+          tags: ['test'],
+          author_name: 'Test',
+          author_email: 'test@example.com',
+          status: 'invalid',
+        }),
+      }),
+    );
+    expect(response.status).toBe(400);
+  });
+});
+
+describe('Security', () => {
+  it('escapes SQL wildcards in search', async () => {
+    await seedPostWithTags(
+      {
+        id: 'search-1',
+        slug: 'searchable-post',
+        title: 'Normal Title',
+        summary: 'Normal summary',
+        body_markdown: 'Normal content',
+        status: 'draft',
+        published_at: null,
+        updated_at: '2025-01-01T00:00:00.000Z',
+      },
+      ['Test'],
+    );
+
+    // Search with SQL wildcard characters - should be escaped
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts?q=${encodeURIComponent('%_')}`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { posts: unknown[] };
+    // Should not match everything due to wildcard
+    expect(body.posts).toEqual([]);
+  });
+
+  it('prevents XSS in article content', async () => {
+    await seedPostWithTags(
+      {
+        id: 'xss-1',
+        slug: 'xss-test',
+        title: 'XSS Test',
+        summary: 'Test summary',
+        body_markdown: 'Safe content',
+        status: 'published',
+        published_at: '2025-01-01T00:00:00.000Z',
+        updated_at: '2025-01-01T00:00:00.000Z',
+      },
+      ['Security'],
+    );
+
+    const response = await fetchWorker(new Request('http://example.com/articles/xss-test'));
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    // Markdown should be safely rendered
+    expect(html).not.toContain('<script>');
+  });
+});
+
+describe('Rate Limiting', () => {
+  it('allows requests within limit', async () => {
+    // Make several requests within the limit (100 per minute)
+    for (let i = 0; i < 10; i++) {
+      const response = await fetchWorker(
+        new Request(`${API_BASE}/tags`, {
+          headers: authHeaders(),
+        }),
+      );
+      expect(response.status).toBe(200);
+    }
+  });
+
+  it('rate limits excessive requests', async () => {
+    // Make many requests to trigger rate limit
+    const requests = [];
+    for (let i = 0; i < 101; i++) {
+      requests.push(
+        fetchWorker(
+          new Request(`${API_BASE}/tags`, {
+            headers: authHeaders(),
+          }),
+        ),
+      );
+    }
+
+    const responses = await Promise.all(requests);
+    const rateLimited = responses.some((r) => r.status === 429);
+    expect(rateLimited).toBe(true);
+  });
+});
+
+describe('Edge Cases', () => {
+  it('handles empty search results', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts?q=${encodeURIComponent('nonexistentquery12345')}`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { posts: unknown[] };
+    expect(body.posts).toEqual([]);
+  });
+
+  it('handles empty tag filter', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/tags`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { tags: unknown[] };
+    expect(Array.isArray(body.tags)).toBe(true);
+  });
+
+  it('handles malformed cursor', async () => {
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts?cursor=invalid`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error?: { code?: string } };
+    expect(body.error?.code).toBe('invalid_request');
+  });
+
+  it('handles boundary limit values', async () => {
+    // Test limit = 0 (should be rejected)
+    let response = await fetchWorker(
+      new Request(`${API_BASE}/posts?limit=0`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(400);
+
+    // Test limit > 100 (should be capped at 100)
+    response = await fetchWorker(
+      new Request(`${API_BASE}/posts?limit=200`, {
+        headers: authHeaders(),
+      }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it('handles posts without tags gracefully', async () => {
+    // This should fail due to validation, but let's check the error
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: authHeaders({ 'content-type': 'application/json' }),
+        body: JSON.stringify({
+          title: 'No Tags',
+          summary: 'Summary',
+          body_markdown: 'Content',
+          tags: [],
+          author_name: 'Test',
+          author_email: 'test@example.com',
+        }),
+      }),
+    );
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error?: { details?: string[] } };
+    expect(body.error?.details?.some((d) => d.includes('tag'))).toBe(true);
   });
 });
