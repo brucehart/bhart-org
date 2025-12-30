@@ -10,8 +10,8 @@ export const DEFAULT_HERO_IMAGE =
 export const DEFAULT_CARD_IMAGE =
   'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1200&q=80';
 export const HEADSHOT_IMAGE = '/media/hedcut.png';
-export const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle';
-export const GITHUB_URL = 'https://github.com/your-handle';
+export const LINKEDIN_URL = 'https://www.linkedin.com/in/hartbruce/';
+export const GITHUB_URL = 'https://github.com/brucehart';
 export const BASE_VIEW = {
   linkedin_url: LINKEDIN_URL,
   github_url: GITHUB_URL,
