@@ -4,6 +4,7 @@ export const articleTemplate = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{page_title}}</title>
+    {{> publicFavicon}}
     <meta name="description" content="{{seo_description}}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
@@ -26,7 +27,11 @@ export const articleTemplate = `<!DOCTYPE html>
               "background-light": "#f6f6f8",
               "background-dark": "#101622",
               "text-main": "#0d121b",
-              "text-muted": "#4c669a"
+              "text-muted": "#4c669a",
+              "text-sub": "#4c669a",
+              "text-light": "#0d121b",
+              "muted-light": "#4c669a",
+              "border-light": "#e7ebf3"
             },
             fontFamily: {
               display: ["Space Grotesk", "sans-serif"],
@@ -50,33 +55,7 @@ export const articleTemplate = `<!DOCTYPE html>
     </style>
   </head>
   <body class="bg-background-light text-text-main antialiased min-h-screen flex flex-col">
-    <nav class="sticky top-0 z-50 w-full bg-background-light/80 backdrop-blur-md border-b border-[#e7ebf3]">
-      <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white">
-              <span class="material-symbols-outlined text-xl">bolt</span>
-            </div>
-            <a class="text-xl font-bold tracking-tight" href="/">Bruce Hart</a>
-          </div>
-          <div class="hidden md:flex items-center gap-6">
-            <nav class="flex items-center gap-6">
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/">Home</a>
-              <a class="text-sm font-medium text-primary" href="/">Articles</a>
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/about">About</a>
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/projects">Projects</a>
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/news">News</a>
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
-              <a class="text-sm font-medium hover:text-primary transition-colors" href="/contact">Contact</a>
-            </nav>
-            <div class="flex items-center gap-4 text-sm font-medium text-text-muted">
-              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
-              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+    {{> publicHeader}}
     {{#preview}}
     <div class="bg-amber-100 border-b border-amber-200">
       <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 text-sm text-amber-900 flex items-center justify-between">
@@ -131,6 +110,7 @@ export const articleTemplate = `<!DOCTYPE html>
         </aside>
       </div>
     </main>
+    {{> publicFooter}}
   </body>
 </html>
 `;

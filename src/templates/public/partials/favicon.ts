@@ -1,0 +1,8 @@
+export const publicFaviconTemplate = `
+<link
+  rel="icon"
+  type="image/svg+xml"
+  href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23135bec%22%3E%3Cpath%20d%3D%22M160-160q-33%200-56.5-23.5T80-240v-480q0-33%2023.5-56.5T160-800h640q33%200%2056.5%2023.5T880-720v480q0%2033-23.5%2056.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56%20103-104-104-104%2057-56%20160%20160-160%20160Zm180%200v-80h240v80H480Z%22%2F%3E%3C%2Fsvg%3E"
+  sizes="any"
+/>
+`;

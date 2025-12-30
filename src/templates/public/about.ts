@@ -4,6 +4,7 @@ export const aboutTemplate = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Bruce Hart - About</title>
+    {{> publicFavicon}}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -24,6 +25,8 @@ export const aboutTemplate = `<!DOCTYPE html>
               primary: "#135bec",
               "background-light": "#f6f6f8",
               "background-dark": "#101622",
+              "text-main": "#0d121b",
+              "text-sub": "#4c669a",
               "text-light": "#0d121b",
               "text-dark": "#ffffff",
               "muted-light": "#4c669a",
@@ -65,31 +68,7 @@ export const aboutTemplate = `<!DOCTYPE html>
   </head>
   <body class="bg-background-light text-text-light transition-colors duration-200">
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-      <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light bg-background-light/90 backdrop-blur-sm px-6 py-4 lg:px-40">
-        <div class="flex items-center gap-4 text-text-light">
-          <div class="size-8 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined !text-[32px]">terminal</span>
-          </div>
-          <h2 class="text-xl font-bold leading-tight tracking-[-0.015em] font-display">Bruce Hart</h2>
-        </div>
-        <div class="hidden md:flex flex-1 items-center justify-end gap-6">
-          <nav class="flex items-center gap-6">
-            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/">Home</a>
-            <a class="text-primary text-sm font-bold leading-normal" href="/about">About</a>
-            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/projects">Projects</a>
-            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/news">News</a>
-            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
-            <a class="text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors" href="/contact">Contact</a>
-          </nav>
-          <div class="flex items-center gap-4 text-sm font-medium text-muted-light">
-            <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
-            <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
-          </div>
-        </div>
-        <div class="md:hidden flex items-center text-text-light">
-          <span class="material-symbols-outlined cursor-pointer">menu</span>
-        </div>
-      </header>
+      {{> publicHeader}}
       <main class="layout-container flex h-full grow flex-col items-center">
         <section class="w-full max-w-[960px] px-6 lg:px-0 py-12 lg:py-20">
           <div class="@container">
@@ -352,6 +331,7 @@ export const aboutTemplate = `<!DOCTYPE html>
           </div>
         </section>
       </main>
+      {{> publicFooter}}
     </div>
   </body>
 </html>

@@ -31,7 +31,7 @@ export const adminListTemplate = `<!DOCTYPE html>
     </script>
   </head>
   <body class="bg-background-light text-text-main font-display">
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col">
       <header class="border-b border-gray-200 bg-white">
         <div class="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <div>
@@ -47,7 +47,7 @@ export const adminListTemplate = `<!DOCTYPE html>
           </div>
         </div>
       </header>
-      <main class="mx-auto max-w-6xl px-6 py-10">
+      <main class="mx-auto w-full max-w-6xl px-6 py-10 flex-grow">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold">Posts</h2>
           <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/posts/new">New Post</a>
@@ -91,6 +91,7 @@ export const adminListTemplate = `<!DOCTYPE html>
           </table>
         </div>
       </main>
+      {{> publicFooterCompact}}
     </div>
   </body>
 </html>

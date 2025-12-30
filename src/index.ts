@@ -24,7 +24,7 @@ import {
   updatePost,
 } from './db';
 import type { CodexPostCursor, PostInput } from './db';
-import { templates } from './templates/index';
+import { templates, partials } from './templates/index';
 import {
   SESSION_COOKIE_NAME,
   estimateReadingTime,
@@ -225,7 +225,7 @@ const serializePost = (post: PostWithTags) => {
 };
 
 const htmlResponse = (template: string, view: Record<string, unknown>, status = 200) => {
-  return new Response(Mustache.render(template, { ...BASE_VIEW, ...view }), {
+  return new Response(Mustache.render(template, { ...BASE_VIEW, ...view }, partials), {
     status,
     headers: {
       'content-type': 'text/html; charset=utf-8',
@@ -1447,6 +1447,7 @@ export default {
 
         const view = {
           site_title: 'bhart.org - AI, Tech and Personal Blog',
+          nav_is_home: true,
           hero: featured
             ? {
                 title: featured.title,
@@ -1471,19 +1472,19 @@ export default {
       }
 
       if (path === '/about' && method === 'GET') {
-        return htmlResponse(templates.about, {});
+        return htmlResponse(templates.about, { nav_is_about: true });
       }
       if (path === '/projects' && method === 'GET') {
-        return htmlResponse(templates.projects, {});
+        return htmlResponse(templates.projects, { nav_is_projects: true });
       }
       if (path === '/news' && method === 'GET') {
-        return htmlResponse(templates.news, {});
+        return htmlResponse(templates.news, { nav_is_news: true });
       }
       if (path === '/work-with-me' && method === 'GET') {
-        return htmlResponse(templates.workWithMe, {});
+        return htmlResponse(templates.workWithMe, { nav_is_work: true });
       }
       if (path === '/contact' && method === 'GET') {
-        return htmlResponse(templates.contact, {});
+        return htmlResponse(templates.contact, { nav_is_contact: true });
       }
 
       const articleMatch = path.match(/^\/articles\/([^/]+)$/);

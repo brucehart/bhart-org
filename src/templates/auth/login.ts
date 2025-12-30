@@ -13,7 +13,8 @@ export const loginTemplate = `<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
   </head>
   <body class="bg-background-light text-text-main font-display">
-    <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="min-h-screen flex flex-col">
+      <div class="flex flex-grow items-center justify-center px-6">
       <div class="max-w-md w-full rounded-2xl border border-gray-200 bg-white p-8 text-center">
         <h1 class="text-2xl font-bold mb-2">Admin Access</h1>
         <p class="text-sm text-text-sub mb-6">Sign in with your authorized Google account.</p>
@@ -22,6 +23,8 @@ export const loginTemplate = `<!DOCTYPE html>
         </a>
         <div class="mt-6 text-xs text-text-sub">Only accounts in the authorized users table may access the admin.</div>
       </div>
+      </div>
+      {{> publicFooterCompact}}
     </div>
   </body>
 </html>

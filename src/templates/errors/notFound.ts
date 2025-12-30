@@ -13,7 +13,8 @@ export const notFoundTemplate = `<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
   </head>
   <body class="bg-background-light text-text-main font-display">
-    <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="min-h-screen flex flex-col">
+      <div class="flex flex-grow items-center justify-center px-6">
       <div class="max-w-md w-full rounded-2xl border border-gray-200 bg-white p-8 text-center">
         <h1 class="text-2xl font-bold mb-2">Page not found</h1>
         <p class="text-sm text-text-sub mb-6">The page you are looking for does not exist.</p>
@@ -21,6 +22,8 @@ export const notFoundTemplate = `<!DOCTYPE html>
           Return Home
         </a>
       </div>
+      </div>
+      {{> publicFooterCompact}}
     </div>
   </body>
 </html>

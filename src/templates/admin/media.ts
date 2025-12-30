@@ -31,7 +31,7 @@ export const adminMediaTemplate = `<!DOCTYPE html>
     </script>
   </head>
   <body class="bg-background-light text-text-main font-display">
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col">
       <header class="border-b border-gray-200 bg-white">
         <div class="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <div>
@@ -44,7 +44,7 @@ export const adminMediaTemplate = `<!DOCTYPE html>
           </div>
         </div>
       </header>
-      <main class="mx-auto max-w-6xl px-6 py-10 space-y-6">
+      <main class="mx-auto w-full max-w-6xl px-6 py-10 space-y-6 flex-grow">
         <div class="rounded-2xl border border-gray-200 bg-white p-6">
           <h2 class="text-lg font-bold mb-4">Upload new media</h2>
           <form action="/admin/media/upload" method="post" enctype="multipart/form-data" class="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -83,6 +83,7 @@ export const adminMediaTemplate = `<!DOCTYPE html>
           {{/media_items}}
         </div>
       </main>
+      {{> publicFooterCompact}}
     </div>
   </body>
 </html>

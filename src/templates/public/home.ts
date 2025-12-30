@@ -4,6 +4,7 @@ export const homeTemplate = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{site_title}}</title>
+    {{> publicFavicon}}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -27,7 +28,10 @@ export const homeTemplate = `<!DOCTYPE html>
               "card-light": "#ffffff",
               "card-dark": "#1a2233",
               "text-main": "#0d121b",
-              "text-sub": "#4c669a"
+              "text-sub": "#4c669a",
+              "text-light": "#0d121b",
+              "muted-light": "#4c669a",
+              "border-light": "#e7ebf3"
             },
             fontFamily: {
               display: ["Space Grotesk", "sans-serif"],
@@ -48,33 +52,7 @@ export const homeTemplate = `<!DOCTYPE html>
   </head>
   <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
-      <header class="sticky top-0 z-50 w-full border-b border-[#e7ebf3] bg-background-light/90 backdrop-blur-md">
-        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center gap-3 text-text-main">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <span class="material-symbols-outlined text-[20px]">terminal</span>
-            </div>
-            <a class="text-xl font-bold tracking-tight text-text-main" href="/">bhart.org</a>
-          </div>
-          <div class="hidden md:flex flex-1 items-center justify-end gap-6">
-            <nav class="flex items-center gap-6">
-              <a class="text-sm font-semibold text-primary" href="/">Home</a>
-              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/about">About</a>
-              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/projects">Projects</a>
-              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/news">News</a>
-              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
-              <a class="text-sm font-medium text-text-main hover:text-primary transition-colors" href="/contact">Contact</a>
-            </nav>
-            <div class="flex items-center gap-4 text-sm font-medium text-text-sub">
-              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
-              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
-            </div>
-          </div>
-          <div class="md:hidden flex items-center text-text-main">
-            <span class="material-symbols-outlined cursor-pointer">menu</span>
-          </div>
-        </div>
-      </header>
+      {{> publicHeader}}
       <main class="flex-grow">
         <section class="bg-white">
           <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -166,60 +144,7 @@ export const homeTemplate = `<!DOCTYPE html>
           </div>
         </section>
       </main>
-      <footer class="bg-white border-t border-gray-200">
-        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div class="rounded-3xl bg-background-light p-8 md:p-12 lg:p-16 relative overflow-hidden">
-            <div class="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
-            <div class="absolute -left-24 -bottom-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
-            <div class="relative z-10 flex flex-col items-center text-center">
-              <h2 class="text-3xl font-bold tracking-tight text-text-main sm:text-4xl">
-                Subscribe for weekly insights
-              </h2>
-              <p class="mx-auto mt-4 max-w-xl text-lg text-text-sub">
-                Get the latest articles on AI, tech trends, and personal reflections delivered straight to your inbox.
-              </p>
-              <form class="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row">
-                <label class="sr-only" for="email-address">Email address</label>
-                <input
-                  autocomplete="email"
-                  class="min-w-0 flex-auto rounded-lg border-0 bg-white px-4 py-3.5 text-text-main shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
-                  id="email-address"
-                  name="email"
-                  placeholder="Enter your email"
-                  required=""
-                  type="email"
-                />
-                <button
-                  class="flex-none rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
-                  type="submit"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-          <div class="mt-10 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-text-sub">
-            <a class="hover:text-primary transition-colors" href="/about">About</a>
-            <a class="hover:text-primary transition-colors" href="/projects">Projects</a>
-            <a class="hover:text-primary transition-colors" href="/news">News</a>
-            <a class="hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
-            <a class="hover:text-primary transition-colors" href="/contact">Contact</a>
-          </div>
-          <div class="mt-16 flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div class="flex items-center gap-2">
-              <div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
-                <span class="material-symbols-outlined text-[14px]">terminal</span>
-              </div>
-              <p class="text-sm font-semibold text-text-main">bhart.org</p>
-            </div>
-            <div class="flex items-center gap-4 text-xs font-semibold text-text-sub">
-              <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
-              <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
-            </div>
-            <p class="text-xs text-text-sub">(c) 2024 Bruce Hart. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      {{> publicFooter}}
     </div>
   </body>
 </html>

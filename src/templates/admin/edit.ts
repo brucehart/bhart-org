@@ -31,7 +31,7 @@ export const adminEditTemplate = `<!DOCTYPE html>
     </script>
   </head>
   <body class="bg-background-light text-text-main font-display">
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col">
       <header class="border-b border-gray-200 bg-white">
         <div class="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <div>
@@ -58,7 +58,7 @@ export const adminEditTemplate = `<!DOCTYPE html>
         </div>
       </div>
       {{/save_success}}
-      <main class="mx-auto max-w-6xl px-6 py-10">
+      <main class="mx-auto w-full max-w-6xl px-6 py-10 flex-grow">
         {{#errors}}
         <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {{.}}
@@ -196,6 +196,7 @@ export const adminEditTemplate = `<!DOCTYPE html>
           <input type="hidden" name="return_to" value="{{return_to}}" />
         </form>
       </main>
+      {{> publicFooterCompact}}
     </div>
     <script>
       const bodyField = document.getElementById('body_markdown');

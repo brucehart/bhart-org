@@ -6,6 +6,10 @@ import { projectsTemplate } from './public/projects';
 import { newsTemplate } from './public/news';
 import { workWithMeTemplate } from './public/workWithMe';
 import { contactTemplate } from './public/contact';
+import { publicHeaderTemplate } from './public/partials/header';
+import { publicFaviconTemplate } from './public/partials/favicon';
+import { publicFooterTemplate } from './public/partials/footer';
+import { publicFooterCompactTemplate } from './public/partials/footerCompact';
 
 // Admin templates
 import { adminListTemplate } from './admin/list';
@@ -35,4 +39,11 @@ export const templates = {
   unauthorized: unauthorizedTemplate,
   notFound: notFoundTemplate,
   error: errorTemplate,
+};
+
+export const partials = {
+  publicHeader: publicHeaderTemplate,
+  publicFavicon: publicFaviconTemplate,
+  publicFooter: publicFooterTemplate,
+  publicFooterCompact: publicFooterCompactTemplate,
 };
