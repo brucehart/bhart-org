@@ -54,55 +54,14 @@ export const homeTemplate = `<!DOCTYPE html>
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow">
-        <section class="bg-white">
-          <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-            <div
-              class="absolute inset-0 pointer-events-none opacity-[0.03]"
-              style="background-image: radial-gradient(#135bec 1px, transparent 1px); background-size: 32px 32px;"
-            ></div>
-            <div class="relative grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
-              <div class="flex flex-col gap-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Welcome</p>
-                <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-text-main">I'm Bruce Hart.</h1>
-                <p class="text-lg text-text-sub max-w-2xl">
-                  I write about practical AI, automation, and the human side of building software. Expect thoughtful takes,
-                  experiments, and honest tradeoffs from the field.
-                </p>
-                <div class="flex flex-wrap gap-3 pt-2">
-                  <a class="inline-flex items-center gap-2 rounded-lg bg-text-main px-5 py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity" href="/about">
-                    About me
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                  </a>
-                  <a class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-transparent px-5 py-3 text-sm font-bold text-text-main hover:bg-gray-50 transition-colors" href="/work-with-me">
-                    Work With Me
-                  </a>
-                </div>
-              </div>
-              <div class="flex flex-col gap-6">
-                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
-                  <div
-                    class="aspect-square w-full rounded-xl bg-cover bg-center"
-                    style="background-image: url('{{home_headshot_url}}');"
-                  ></div>
-                </div>
-                <div class="rounded-2xl border border-gray-100 bg-background-light p-6 shadow-sm">
-                  <p class="text-xs font-semibold uppercase tracking-widest text-primary">On this blog</p>
-                  <div class="mt-4 flex flex-col gap-3 text-sm text-text-sub">
-                    <div class="flex items-start gap-3">
-                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                      <p>AI agents, automation systems, and operational playbooks.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                      <p>Full stack experiments with data, APIs, and product thinking.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <span class="mt-2 h-2 w-2 rounded-full bg-primary/60"></span>
-                      <p>Notes on leadership, systems, and making technology human.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <section class="bg-white border-b border-gray-100">
+          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col gap-3 text-center">
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Welcome to my blog</h1>
+              <p class="text-base text-text-sub max-w-3xl mx-auto">
+                I write about practical AI, automation, and the human side of building software. 
+                Expect thoughtful takes, experiments, and honest tradeoffs from the field.
+              </p>
             </div>
           </div>
         </section>
@@ -115,40 +74,107 @@ export const homeTemplate = `<!DOCTYPE html>
             </div>
           </div>
         </div>
-        <section class="py-12 bg-white">
+        <section class="py-12 bg-background-light">
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold tracking-tight text-text-main mb-8">Recent Articles</h2>
-            {{#has_posts}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {{#posts}}
-              <article class="group flex flex-col overflow-hidden rounded-2xl bg-background-light border border-gray-100 transition-all hover:shadow-lg hover:shadow-primary/5">
-                <div class="relative overflow-hidden h-56">
-                  <div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image: url('{{image_url}}');"></div>
-                </div>
-                <div class="flex flex-1 flex-col p-6">
-                  <div class="flex items-center gap-3 mb-3">
-                    <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">{{primary_tag}}</span>
-                    <span class="text-xs text-text-sub font-medium">{{published_date}}</span>
-                  </div>
-                  <h3 class="text-xl font-bold text-text-main leading-tight group-hover:text-primary transition-colors">
-                    <a href="{{url}}">{{title}}</a>
-                  </h3>
-                  <p class="mt-3 text-sm text-text-sub line-clamp-3 flex-grow">
-                    {{summary}}
-                  </p>
-                  <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <span class="text-xs font-medium text-text-sub">{{reading_time}} min read</span>
+            <div class="flex flex-col lg:flex-row gap-8">
+              <!-- Left Sidebar: Tags -->
+              <aside class="w-full lg:w-64 flex-shrink-0">
+                <div class="sticky top-24 space-y-6">
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
+                    <div class="flex flex-col gap-2">
+                      {{#sidebar_tags}}
+                      <a href="/?tag={{slug}}" class="flex items-center justify-between px-3 py-2 text-sm text-text-main hover:bg-background-light rounded-lg transition-colors group">
+                        <span class="group-hover:text-primary transition-colors">{{name}}</span>
+                        <span class="text-xs text-text-sub font-medium bg-background-light group-hover:bg-primary/10 group-hover:text-primary px-2 py-0.5 rounded-full transition-colors">{{post_count}}</span>
+                      </a>
+                      {{/sidebar_tags}}
+                      {{^sidebar_tags}}
+                      <p class="text-sm text-text-sub">No topics yet.</p>
+                      {{/sidebar_tags}}
+                    </div>
                   </div>
                 </div>
-              </article>
-              {{/posts}}
+              </aside>
+
+              <!-- Main Content: Articles -->
+              <div class="flex-1 min-w-0">
+                <h2 class="text-3xl font-bold tracking-tight text-text-main mb-8">Recent Articles</h2>
+                {{#has_posts}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {{#posts}}
+                  <article class="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all hover:shadow-lg hover:shadow-primary/5">
+                    <div class="relative overflow-hidden h-48">
+                      <div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image: url('{{image_url}}');"></div>
+                    </div>
+                    <div class="flex flex-1 flex-col p-6">
+                      <div class="flex items-center gap-3 mb-3">
+                        <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">{{primary_tag}}</span>
+                        <span class="text-xs text-text-sub font-medium">{{published_date}}</span>
+                      </div>
+                      <h3 class="text-xl font-bold text-text-main leading-tight group-hover:text-primary transition-colors">
+                        <a href="{{url}}">{{title}}</a>
+                      </h3>
+                      <p class="mt-3 text-sm text-text-sub line-clamp-3 flex-grow">
+                        {{summary}}
+                      </p>
+                      <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-xs font-medium text-text-sub">{{reading_time}} min read</span>
+                      </div>
+                    </div>
+                  </article>
+                  {{/posts}}
+                </div>
+                {{/has_posts}}
+                {{^has_posts}}
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-text-sub">
+                  No posts yet. Check back soon.
+                </div>
+                {{/has_posts}}
+              </div>
+
+              <!-- Right Sidebar: About & Recent Posts -->
+              <aside class="w-full lg:w-80 flex-shrink-0">
+                <div class="sticky top-24 space-y-6">
+                  <!-- About Me Mini Card -->
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex items-center gap-4 mb-4">
+                      <div class="w-16 h-16 rounded-full bg-cover bg-center border-2 border-gray-100" style="background-image: url('/media/hedcut.png');"></div>
+                      <div>
+                        <h3 class="font-bold text-text-main">Bruce Hart</h3>
+                        <p class="text-xs text-text-sub">AI & Tech Writer</p>
+                      </div>
+                    </div>
+                    <p class="text-sm text-text-sub mb-4">
+                      Engineering leader exploring AI, automation, and the human side of software.
+                    </p>
+                    <a href="/about" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                      More about me
+                      <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                  </div>
+
+                  <!-- Recent Posts -->
+                  {{#has_recent_posts}}
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-4">Recent Posts</h2>
+                    <div class="flex flex-col gap-4">
+                      {{#recent_posts}}
+                      <a href="{{url}}" class="group">
+                        <h4 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mb-1">{{title}}</h4>
+                        <div class="flex items-center gap-2 text-xs text-text-sub">
+                          <span>{{published_date}}</span>
+                          <span>•</span>
+                          <span>{{reading_time}} min read</span>
+                        </div>
+                      </a>
+                      {{/recent_posts}}
+                    </div>
+                  </div>
+                  {{/has_recent_posts}}
+                </div>
+              </aside>
             </div>
-            {{/has_posts}}
-            {{^has_posts}}
-            <div class="rounded-2xl border border-dashed border-gray-200 bg-background-light p-10 text-center text-text-sub">
-              No posts yet. Check back soon.
-            </div>
-            {{/has_posts}}
           </div>
         </section>
       </main>
