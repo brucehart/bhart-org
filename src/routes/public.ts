@@ -27,10 +27,21 @@ export const handlePublicRoutes = async (
       listPublishedPosts(env.DB, nowIso, { limit: SIDEBAR_RECENT_POSTS_LIMIT }),
     ]);
 
-    const featured = posts.find((post) => post.featured === 1) ?? posts[0];
-    const remainingPosts = posts.filter((post) => post.id !== featured?.id);
-    const listPosts = remainingPosts.length ? remainingPosts : posts;
-    const heroImage = featured?.hero_image_url ?? DEFAULT_HERO_IMAGE;
+    const latestPost = posts[0];
+    const remainingPosts = posts.filter((post) => post.id !== latestPost?.id);
+    const listPosts = remainingPosts;
+    const heroImage = latestPost?.hero_image_url ?? DEFAULT_HERO_IMAGE;
+    const latestExcerptMarkdown = latestPost
+      ? latestPost.body_markdown
+          .split(/\n{2,}/)
+          .map((paragraph) => paragraph.trim())
+          .filter(Boolean)
+          .slice(0, 2)
+          .join('\n\n')
+      : '';
+    const latestExcerptHtml = latestPost
+      ? marked.parse(latestExcerptMarkdown || latestPost.summary)
+      : '';
 
     const tagFilters = [
       {
@@ -53,13 +64,26 @@ export const handlePublicRoutes = async (
     const view = {
       site_title: 'bhart.org - AI, Tech and Personal Blog',
       nav_is_home: true,
-      hero: featured
+      hero: latestPost
         ? {
-            title: featured.title,
-            url: `/articles/${featured.slug}`,
+            title: latestPost.title,
+            url: `/articles/${latestPost.slug}`,
           }
         : null,
       hero_image: heroImage,
+      has_latest_post: Boolean(latestPost),
+      latest_post: latestPost
+        ? {
+            title: latestPost.title,
+            summary: latestPost.summary,
+            published_date: formatDate(latestPost.published_at),
+            reading_time: latestPost.reading_time_minutes,
+            primary_tag: latestPost.tag_names[0] ?? 'General',
+            url: `/articles/${latestPost.slug}`,
+            image_url: latestPost.hero_image_url ?? DEFAULT_CARD_IMAGE,
+            excerpt_html: latestExcerptHtml,
+          }
+        : null,
       tag_filters: tagFilters,
       has_posts: listPosts.length > 0,
       posts: listPosts.map((post) => ({

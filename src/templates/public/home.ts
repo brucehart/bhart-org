@@ -99,8 +99,44 @@ export const homeTemplate = `<!DOCTYPE html>
 
               <!-- Main Content: Articles -->
               <div class="flex-1 min-w-0">
-                <h2 class="text-3xl font-bold tracking-tight text-text-main mb-8">Recent Articles</h2>
+                {{#has_latest_post}}
+                <div class="mb-10">
+                  <div class="flex flex-col gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Latest</p>
+                    <h2 class="text-3xl font-bold tracking-tight text-text-main">The newest article</h2>
+                  </div>
+                  {{#latest_post}}
+                  <article class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                    <div class="flex flex-col gap-4">
+                      <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">{{primary_tag}}</span>
+                        <span class="text-xs text-text-sub font-medium">{{published_date}}</span>
+                        <span class="text-xs text-text-sub font-medium">{{reading_time}} min read</span>
+                      </div>
+                      <h3 class="text-2xl font-bold text-text-main leading-tight">
+                        <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
+                      </h3>
+                      <p class="text-sm text-text-sub">{{summary}}</p>
+                      <div class="prose prose-sm prose-slate max-w-none text-text-main">
+                        {{{excerpt_html}}}
+                      </div>
+                      <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">
+                        Read the full piece
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                      </a>
+                    </div>
+                    <div class="relative overflow-hidden rounded-xl min-h-[220px]">
+                      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{image_url}}');"></div>
+                    </div>
+                  </article>
+                  {{/latest_post}}
+                </div>
+                {{/has_latest_post}}
+
                 {{#has_posts}}
+                <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-2xl font-bold tracking-tight text-text-main">More articles</h2>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {{#posts}}
                   <article class="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all hover:shadow-lg hover:shadow-primary/5">
@@ -126,11 +162,13 @@ export const homeTemplate = `<!DOCTYPE html>
                   {{/posts}}
                 </div>
                 {{/has_posts}}
+                {{^has_latest_post}}
                 {{^has_posts}}
                 <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-text-sub">
                   No posts yet. Check back soon.
                 </div>
                 {{/has_posts}}
+                {{/has_latest_post}}
               </div>
 
               <!-- Right Sidebar: About & Recent Posts -->

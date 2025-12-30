@@ -100,6 +100,13 @@ export const articleTemplate = `<!DOCTYPE html>
         </article>
         <aside class="lg:col-span-4 flex flex-col gap-6">
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="h-12 w-12 rounded-full bg-gray-300 overflow-hidden" style="background-image: url('{{author_avatar}}'); background-size: cover;"></div>
+              <div>
+                <p class="text-sm font-semibold text-text-main">{{author_name}}</p>
+                <p class="text-xs text-text-muted">AI & Tech Writer</p>
+              </div>
+            </div>
             <h3 class="text-lg font-bold mb-2">About the author</h3>
             <p class="text-sm text-text-muted">{{author_name}} writes about AI, technology, and the human side of innovation.</p>
           </div>
