@@ -1,5 +1,11 @@
 import { marked } from 'marked';
-import { getPostBySlug, listPublishedPosts, listTags } from '../db';
+import {
+  getPostBySlug,
+  listPublishedPostMonths,
+  listPublishedPosts,
+  listPublishedPostsByDateRange,
+  listTags,
+} from '../db';
 import { formatDate } from '../utils';
 import { DEFAULT_CARD_IMAGE, DEFAULT_HERO_IMAGE, HEADSHOT_IMAGE, htmlResponse } from '../shared';
 import { templates } from '../templates/index';
@@ -21,10 +27,11 @@ export const handlePublicRoutes = async (
     const tagFilter = url.searchParams.get('tag') ?? undefined;
     const nowIso = new Date().toISOString();
     const SIDEBAR_RECENT_POSTS_LIMIT = 5;
-    const [posts, tags, recentPosts] = await Promise.all([
+    const [posts, tags, recentPosts, monthCounts] = await Promise.all([
       listPublishedPosts(env.DB, nowIso, { limit: 9, tagSlug: tagFilter }),
       listTags(env.DB, nowIso),
       listPublishedPosts(env.DB, nowIso, { limit: SIDEBAR_RECENT_POSTS_LIMIT }),
+      listPublishedPostMonths(env.DB, nowIso),
     ]);
 
     const latestPost = posts[0];
@@ -61,6 +68,42 @@ export const handlePublicRoutes = async (
       })),
     ];
 
+    const monthLabels = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const monthGroups: { year: string; months: { label: string; count: number; month: string }[] }[] = [];
+    const monthGroupByYear = new Map<
+      string,
+      { year: string; months: { label: string; count: number; month: string }[] }
+    >();
+
+    for (const row of monthCounts) {
+      const [year, month] = row.month.split('-');
+      const monthIndex = Number.parseInt(month, 10) - 1;
+      if (!year || Number.isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) {
+        continue;
+      }
+      let group = monthGroupByYear.get(year);
+      if (!group) {
+        group = { year, months: [] };
+        monthGroupByYear.set(year, group);
+        monthGroups.push(group);
+      }
+      group.months.push({ label: monthLabels[monthIndex], count: row.post_count, month });
+    }
+
+    const currentYear = new Date().getFullYear().toString();
     const view = {
       site_title: 'bhart.org - AI, Tech and Personal Blog',
       nav_is_home: true,
@@ -101,6 +144,17 @@ export const handlePublicRoutes = async (
         slug: tag.slug,
         post_count: tag.post_count ?? 0,
       })),
+      has_posts_by_month: monthGroups.length > 0,
+      posts_by_month_groups: monthGroups.map((group) => ({
+        year: group.year,
+        year_url: `/archive?year=${group.year}`,
+        is_open: group.year === currentYear,
+        months: group.months.map((month) => ({
+          label: month.label,
+          count: month.count,
+          month_url: `/archive?year=${group.year}&month=${month.month}`,
+        })),
+      })),
       author_avatar_url: HEADSHOT_IMAGE,
       has_recent_posts: recentPosts.length > 0,
       recent_posts: recentPosts.map((post) => ({
@@ -121,6 +175,58 @@ export const handlePublicRoutes = async (
   // GET /projects
   if (path === '/projects' && method === 'GET') {
     return htmlResponse(templates.projects, { nav_is_projects: true });
+  }
+
+  // GET /archive
+  if (path === '/archive' && method === 'GET') {
+    const yearParam = url.searchParams.get('year');
+    const monthParam = url.searchParams.get('month');
+    if (!yearParam || !/^\d{4}$/.test(yearParam)) {
+      return htmlResponse(templates.notFound, {}, 404);
+    }
+    const year = Number.parseInt(yearParam, 10);
+    const month = monthParam ? Number.parseInt(monthParam, 10) : null;
+    if (monthParam && (!Number.isInteger(month) || month < 1 || month > 12)) {
+      return htmlResponse(templates.notFound, {}, 404);
+    }
+    const startDate = month
+      ? new Date(Date.UTC(year, month - 1, 1))
+      : new Date(Date.UTC(year, 0, 1));
+    const endDate = month
+      ? new Date(Date.UTC(year, month, 1))
+      : new Date(Date.UTC(year + 1, 0, 1));
+    const now = new Date();
+    const endIso = endDate > now ? now.toISOString() : endDate.toISOString();
+    const posts = await listPublishedPostsByDateRange(env.DB, startDate.toISOString(), endIso);
+    const monthLabels = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const archiveTitle = month
+      ? `${monthLabels[month - 1]} ${year}`
+      : `${year}`;
+    return htmlResponse(templates.archive, {
+      nav_is_home: true,
+      page_title: `bhart.org - ${archiveTitle} Archive`,
+      archive_title: archiveTitle,
+      has_posts: posts.length > 0,
+      posts: posts.map((post) => ({
+        title: post.title,
+        published_date: formatDate(post.published_at),
+        reading_time: post.reading_time_minutes,
+        url: `/articles/${post.slug}`,
+      })),
+    });
   }
 
   // GET /news

@@ -1,9 +1,9 @@
-export const newsTemplate = `<!DOCTYPE html>
+export const archiveTemplate = `<!DOCTYPE html>
 <html class="light" lang="en">
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Bruce Hart - News</title>
+    <title>{{page_title}}</title>
     {{> publicFavicon}}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
@@ -54,24 +54,37 @@ export const newsTemplate = `<!DOCTYPE html>
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow">
-        <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div class="flex flex-col gap-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">News</p>
-            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Updates, launches, and short notes.</h1>
-            <p class="text-lg text-text-sub max-w-2xl">
-              A lightweight feed for what I am shipping, learning, and exploring.
+        <section class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div class="flex flex-col gap-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Archive</p>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{archive_title}}</h1>
+            <p class="text-sm text-text-sub">
+              Browse posts from this time period. Jump back to the
+              <a class="text-primary font-semibold" href="/">home page</a>.
             </p>
           </div>
-          <div class="mt-10 flex flex-col gap-6">
-            <article class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-widest text-primary">Launch</p>
-              <h3 class="mt-3 text-xl font-bold">The blog is live</h3>
-              <p class="mt-2 text-sm text-text-sub">
-                The blog is live, and I will be sharing practical notes on AI, automation, and building software with real tradeoffs.
-                Wishing everyone a happy, safe, and productive 2026. Exciting time to be alive!
-              </p>
-            </article>
+
+          {{#has_posts}}
+          <div class="mt-8 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+            {{#posts}}
+            <div class="flex flex-col gap-2 p-6">
+              <a class="text-lg font-semibold text-text-main hover:text-primary transition-colors" href="{{url}}">
+                {{title}}
+              </a>
+              <div class="text-xs text-text-sub font-medium">
+                <span>{{published_date}}</span>
+                <span>•</span>
+                <span>{{reading_time}} min read</span>
+              </div>
+            </div>
+            {{/posts}}
           </div>
+          {{/has_posts}}
+          {{^has_posts}}
+          <div class="mt-8 rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-text-sub">
+            No posts published in this time period.
+          </div>
+          {{/has_posts}}
         </section>
       </main>
       {{> publicFooter}}

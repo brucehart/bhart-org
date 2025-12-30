@@ -94,6 +94,30 @@ export const listPublishedPosts = async (
   return results.map(mapPostRow);
 };
 
+export const listPublishedPostsByDateRange = async (
+  db: D1Database,
+  startIso: string,
+  endIso: string,
+): Promise<PostWithTags[]> => {
+  const query = `
+    SELECT
+      p.*, 
+      GROUP_CONCAT(t.name, ',') AS tag_names,
+      GROUP_CONCAT(t.slug, ',') AS tag_slugs
+    FROM posts p
+    LEFT JOIN post_tags pt ON pt.post_id = p.id
+    LEFT JOIN tags t ON t.id = pt.tag_id
+    WHERE p.status = 'published'
+      AND p.published_at IS NOT NULL
+      AND p.published_at >= ?
+      AND p.published_at < ?
+    GROUP BY p.id
+    ORDER BY p.published_at DESC
+  `;
+  const { results } = await db.prepare(query).bind(startIso, endIso).all<PostRecord>();
+  return results.map(mapPostRow);
+};
+
 export const listTags = async (db: D1Database, nowIso: string): Promise<TagRecord[]> => {
   const query = `
     SELECT t.*, COUNT(pt.post_id) as post_count
@@ -105,6 +129,28 @@ export const listTags = async (db: D1Database, nowIso: string): Promise<TagRecor
     ORDER BY t.name ASC
   `;
   const { results } = await db.prepare(query).bind(nowIso).all<TagRecord>();
+  return results;
+};
+
+export type PostMonthCount = {
+  month: string;
+  post_count: number;
+};
+
+export const listPublishedPostMonths = async (
+  db: D1Database,
+  nowIso: string,
+): Promise<PostMonthCount[]> => {
+  const query = `
+    SELECT
+      substr(p.published_at, 1, 7) AS month,
+      COUNT(*) AS post_count
+    FROM posts p
+    WHERE p.status = 'published' AND p.published_at IS NOT NULL AND p.published_at <= ?
+    GROUP BY substr(p.published_at, 1, 7)
+    ORDER BY month DESC
+  `;
+  const { results } = await db.prepare(query).bind(nowIso).all<PostMonthCount>();
   return results;
 };
 

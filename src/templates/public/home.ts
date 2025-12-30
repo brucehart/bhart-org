@@ -54,26 +54,19 @@ export const homeTemplate = `<!DOCTYPE html>
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow">
-        <section class="bg-white border-b border-gray-100">
-          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <section class="relative overflow-hidden border-b border-gray-100">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-sky-50"></div>
+          <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
+          <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
               <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Welcome to my blog</h1>
               <p class="text-base text-text-sub max-w-3xl mx-auto">
-                I write about practical AI, automation, and the human side of building software. 
+                I write about practical AI, automation, and the human side of building software.
                 Expect thoughtful takes, experiments, and honest tradeoffs from the field.
               </p>
             </div>
           </div>
         </section>
-        <div class="sticky top-16 z-40 w-full bg-background-light/95 backdrop-blur-sm border-b border-gray-100 py-4">
-          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2">
-              {{#tag_filters}}
-              <a class="{{chip_class}}" href="{{url}}">{{name}}</a>
-              {{/tag_filters}}
-            </div>
-          </div>
-        </div>
         <section class="py-12 bg-background-light">
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
@@ -103,15 +96,14 @@ export const homeTemplate = `<!DOCTYPE html>
                 <div class="mb-10">
                   <div class="flex flex-col gap-3">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Latest</p>
-                    <h2 class="text-3xl font-bold tracking-tight text-text-main">The newest article</h2>
                   </div>
                   {{#latest_post}}
-                  <article class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <article class="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                     <div class="flex flex-col gap-4">
-                      <div class="flex items-center gap-3">
-                        <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">{{primary_tag}}</span>
-                        <span class="text-xs text-text-sub font-medium">{{published_date}}</span>
-                        <span class="text-xs text-text-sub font-medium">{{reading_time}} min read</span>
+                      <div class="flex items-center gap-3 text-xs text-text-sub font-medium">
+                        <span>{{published_date}}</span>
+                        <span>•</span>
+                        <span>{{reading_time}} min read</span>
                       </div>
                       <h3 class="text-2xl font-bold text-text-main leading-tight">
                         <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
@@ -124,9 +116,6 @@ export const homeTemplate = `<!DOCTYPE html>
                         Read the full piece
                         <span class="material-symbols-outlined text-sm">arrow_forward</span>
                       </a>
-                    </div>
-                    <div class="relative overflow-hidden rounded-xl min-h-[220px]">
-                      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{image_url}}');"></div>
                     </div>
                   </article>
                   {{/latest_post}}
@@ -210,6 +199,30 @@ export const homeTemplate = `<!DOCTYPE html>
                     </div>
                   </div>
                   {{/has_recent_posts}}
+
+                  {{#has_posts_by_month}}
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-4">Posts by Month</h2>
+                    <div class="flex flex-col gap-3">
+                      {{#posts_by_month_groups}}
+                      <details class="group rounded-lg border border-gray-100 bg-background-light/60 px-3 py-2" {{#is_open}}open{{/is_open}}>
+                        <summary class="cursor-pointer list-none flex items-center justify-between text-sm font-semibold text-text-main">
+                          <a class="hover:text-primary transition-colors" href="{{year_url}}">{{year}}</a>
+                          <span class="material-symbols-outlined text-sm text-text-sub transition-transform group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <div class="mt-2 flex flex-col gap-2">
+                          {{#months}}
+                          <a class="flex items-center justify-between text-xs text-text-sub hover:text-primary transition-colors" href="{{month_url}}">
+                            <span>{{label}}</span>
+                            <span class="font-semibold text-text-main">{{count}}</span>
+                          </a>
+                          {{/months}}
+                        </div>
+                      </details>
+                      {{/posts_by_month_groups}}
+                    </div>
+                  </div>
+                  {{/has_posts_by_month}}
                 </div>
               </aside>
             </div>
