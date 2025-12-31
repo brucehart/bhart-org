@@ -201,6 +201,24 @@ export const homeTemplate = `<!DOCTYPE html>
                   </div>
                   {{/has_recent_posts}}
 
+                  {{#has_recent_news}}
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                      <h2 class="text-lg font-bold text-text-main">Recent News</h2>
+                      <a class="text-xs font-semibold text-primary hover:text-primary/80 transition-colors" href="/news">All news</a>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                      {{#recent_news}}
+                      <a href="/news" class="group">
+                        <div class="text-[11px] uppercase tracking-widest text-primary">{{category}}</div>
+                        <h4 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mt-1">{{title}}</h4>
+                        <div class="text-xs text-text-sub mt-1">{{published_date}}</div>
+                      </a>
+                      {{/recent_news}}
+                    </div>
+                  </div>
+                  {{/has_recent_news}}
+
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-3">Subscribe</h2>
                     <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{rss_url}}">

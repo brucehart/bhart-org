@@ -68,7 +68,12 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">TypeScript</p>
                 <span class="text-xs text-text-sub">Cloudflare Workers</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">bhart.org blog</h3>
+              <div class="mt-3 flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-100 bg-primary/10 text-primary">
+                  <span class="material-symbols-outlined text-[18px]">terminal</span>
+                </div>
+                <h3 class="text-xl font-bold">bhart.org blog</h3>
+              </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bhart-org</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Personal blog built on top of Cloudflare Workers.
@@ -126,7 +131,10 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">TypeScript</p>
                 <span class="text-xs text-text-sub">AI + automation</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Celebrity Death Bot</h3>
+              <div class="mt-3 flex items-center gap-3">
+                <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/Celebrity-Death-Bot.png" alt="Celebrity Death Bot logo" />
+                <h3 class="text-xl font-bold">Celebrity Death Bot</h3>
+              </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">celebrity-death-bot</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Watches Wikipedia for notable deaths, filters them, and publishes concise memorial posts via a public JSON API.
@@ -165,7 +173,10 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">TypeScript</p>
                 <span class="text-xs text-text-sub">Storytelling</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Bedtime Stories</h3>
+              <div class="mt-3 flex items-center gap-3">
+                <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/bedtime-stories-icon.png" alt="Bedtime Stories logo" />
+                <h3 class="text-xl font-bold">Bedtime Stories</h3>
+              </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bedtimestories</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Cloudflare Worker that serves LLM-generated bedtime stories for my kids.

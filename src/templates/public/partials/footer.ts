@@ -40,7 +40,7 @@ export const publicFooterTemplate = `
       <a class="hover:text-primary transition-colors" href="/work-with-me">Work With Me</a>
       <a class="hover:text-primary transition-colors" href="/contact">Contact</a>
     </div>
-    <div class="mt-16 flex flex-col items-center justify-between gap-8 md:flex-row">
+    <div class="mt-16 flex flex-col items-center gap-6 text-center">
       <div class="flex items-center gap-2">
         <div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
           <span class="material-symbols-outlined text-[14px]">terminal</span>

@@ -48,11 +48,13 @@ export const handlePublicRoutes = async (
     const tagFilter = url.searchParams.get('tag') ?? undefined;
     const nowIso = new Date().toISOString();
     const SIDEBAR_RECENT_POSTS_LIMIT = 5;
-    const [posts, tags, recentPosts, monthCounts] = await Promise.all([
+    const SIDEBAR_RECENT_NEWS_LIMIT = 3;
+    const [posts, tags, recentPosts, monthCounts, recentNews] = await Promise.all([
       listPublishedPosts(env.DB, nowIso, { limit: 9, tagSlug: tagFilter }),
       listTags(env.DB, nowIso),
       listPublishedPosts(env.DB, nowIso, { limit: SIDEBAR_RECENT_POSTS_LIMIT }),
       listPublishedPostMonths(env.DB, nowIso),
+      listPublishedNewsItems(env.DB, nowIso, SIDEBAR_RECENT_NEWS_LIMIT),
     ]);
 
     const latestPost = posts[0];
@@ -183,6 +185,12 @@ export const handlePublicRoutes = async (
         url: `/articles/${post.slug}`,
         published_date: formatDate(post.published_at),
         reading_time: post.reading_time_minutes,
+      })),
+      has_recent_news: recentNews.length > 0,
+      recent_news: recentNews.map((item) => ({
+        title: item.title,
+        category: item.category,
+        published_date: formatDate(item.published_at),
       })),
       show_email_subscribe: showEmailSubscribe,
     };
