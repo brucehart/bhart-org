@@ -2,13 +2,18 @@ import { marked } from 'marked';
 import {
   createMediaAsset,
   createPost,
+  createNewsItem,
   deleteMediaAsset,
   deletePost,
+  deleteNewsItem,
   getMediaAssetById,
+  getNewsItemById,
   getPostById,
+  listAdminNewsItems,
   listAdminPosts,
   listMediaAssets,
   updatePost,
+  updateNewsItem,
 } from '../db';
 import {
   buildMediaUrl,
@@ -35,7 +40,8 @@ import {
 } from '../utils';
 import type { PostStatus } from '../types';
 import { templates } from '../templates/index';
-import type { PostInput } from '../db';
+import type { NewsItemInput, PostInput } from '../db';
+import type { NewsStatus } from '../types';
 
 const listMediaItems = async (env: Env, limit = 24) => {
   try {
@@ -155,6 +161,60 @@ const parsePostForm = async (request: Request) => {
       featured,
       seo_title: seoTitle,
       seo_description: seoDescription,
+    },
+  };
+};
+
+const parseNewsForm = async (request: Request) => {
+  const data = await request.formData();
+  const category = getFormValue(data, 'category');
+  const title = getFormValue(data, 'title');
+  const bodyValue = data.get('body_markdown');
+  const bodyMarkdown = typeof bodyValue === 'string' ? bodyValue : '';
+  const statusInput = getFormValue(data, 'status') as NewsStatus;
+  const publishedAtInput = getFormValue(data, 'published_at');
+
+  const errors: string[] = [];
+  if (!category) {
+    errors.push('Category is required.');
+  }
+  if (!title) {
+    errors.push('Title is required.');
+  }
+  if (!bodyMarkdown.trim()) {
+    errors.push('Body is required.');
+  }
+
+  let publishedAt: string | null = null;
+  let status: NewsStatus = statusInput === 'published' ? 'published' : 'draft';
+  if (status === 'published') {
+    if (!publishedAtInput) {
+      errors.push('Publish time is required when status is published.');
+    } else {
+      const parsed = new Date(publishedAtInput);
+      if (Number.isNaN(parsed.getTime())) {
+        errors.push('Publish time is invalid.');
+      } else {
+        publishedAt = parsed.toISOString();
+      }
+    }
+  }
+
+  return {
+    errors,
+    values: {
+      category,
+      title,
+      body_markdown: bodyMarkdown,
+      status,
+      published_at: publishedAt,
+    } as NewsItemInput,
+    raw: {
+      category,
+      title,
+      body_markdown: bodyMarkdown,
+      status,
+      published_at: publishedAtInput,
     },
   };
 };
@@ -295,6 +355,167 @@ export const handleAdminRoutes = async (
       })),
     };
     return htmlResponse(templates.adminList, view);
+  }
+
+  // GET /admin/news
+  if (path === '/admin/news' && method === 'GET') {
+    const newsItems = await listAdminNewsItems(env.DB);
+    const view = {
+      user_email: sessionUser.email,
+      news_items: newsItems.map((item) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        status_label: item.status === 'published' ? 'Published' : 'Draft',
+        status_class:
+          item.status === 'published'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-yellow-100 text-yellow-700',
+        published_date: formatDateTime(item.published_at),
+        updated_date: formatDateTime(item.updated_at),
+      })),
+    };
+    return htmlResponse(templates.adminNewsList, view);
+  }
+
+  // GET /admin/news/new
+  if (path === '/admin/news/new' && method === 'GET') {
+    const view = {
+      page_title: 'New News Item',
+      page_heading: 'Create News Item',
+      page_subtitle: 'Share a short update with readers.',
+      form_action: '/admin/news',
+      category: '',
+      title: '',
+      body_markdown: '',
+      status_draft_selected: true,
+      status_published_selected: false,
+      published_at: '',
+      errors: [],
+      show_delete: false,
+      delete_action: '',
+      save_success: false,
+    };
+    return htmlResponse(templates.adminNewsEdit, view);
+  }
+
+  // POST /admin/news
+  if (path === '/admin/news' && method === 'POST') {
+    const parsed = await parseNewsForm(request);
+    if (parsed.errors.length) {
+      return htmlResponse(templates.adminNewsEdit, {
+        page_title: 'New News Item',
+        page_heading: 'Create News Item',
+        page_subtitle: 'Share a short update with readers.',
+        form_action: '/admin/news',
+        status_draft_selected: parsed.values.status === 'draft',
+        status_published_selected: parsed.values.status === 'published',
+        published_at: parsed.raw.published_at,
+        errors: parsed.errors,
+        show_delete: false,
+        delete_action: '',
+        save_success: false,
+        ...parsed.raw,
+      });
+    }
+
+    try {
+      const id = await createNewsItem(env.DB, parsed.values);
+      return redirectResponse(request, `/admin/news/${id}?saved=1`);
+    } catch (error) {
+      return htmlResponse(templates.adminNewsEdit, {
+        page_title: 'New News Item',
+        page_heading: 'Create News Item',
+        page_subtitle: 'Share a short update with readers.',
+        form_action: '/admin/news',
+        status_draft_selected: parsed.values.status === 'draft',
+        status_published_selected: parsed.values.status === 'published',
+        published_at: parsed.raw.published_at,
+        errors: ['Unable to create news item.'],
+        show_delete: false,
+        delete_action: '',
+        save_success: false,
+        ...parsed.raw,
+      });
+    }
+  }
+
+  // GET /admin/news/:id
+  const newsEditMatch = path.match(/^\/admin\/news\/([^/]+)$/);
+  if (newsEditMatch && method === 'GET') {
+    const newsId = newsEditMatch[1];
+    const item = await getNewsItemById(env.DB, newsId);
+    if (!item) {
+      return htmlResponse(templates.notFound, {}, 404);
+    }
+    const saved = url.searchParams.get('saved') === '1';
+    const view = {
+      page_title: `Edit - ${item.title}`,
+      page_heading: 'Edit News Item',
+      page_subtitle: 'Update the copy and publishing details.',
+      form_action: `/admin/news/${item.id}`,
+      category: item.category,
+      title: item.title,
+      body_markdown: item.body_markdown,
+      status_draft_selected: item.status === 'draft',
+      status_published_selected: item.status === 'published',
+      published_at: formatDateTimeLocal(item.published_at),
+      errors: [],
+      show_delete: true,
+      delete_action: `/admin/news/${item.id}/delete`,
+      save_success: saved,
+    };
+    return htmlResponse(templates.adminNewsEdit, view);
+  }
+
+  // POST /admin/news/:id
+  if (newsEditMatch && method === 'POST') {
+    const newsId = newsEditMatch[1];
+    const parsed = await parseNewsForm(request);
+    if (parsed.errors.length) {
+      return htmlResponse(templates.adminNewsEdit, {
+        page_title: 'Edit News Item',
+        page_heading: 'Edit News Item',
+        page_subtitle: 'Update the copy and publishing details.',
+        form_action: `/admin/news/${newsId}`,
+        status_draft_selected: parsed.values.status === 'draft',
+        status_published_selected: parsed.values.status === 'published',
+        published_at: parsed.raw.published_at,
+        errors: parsed.errors,
+        show_delete: true,
+        delete_action: `/admin/news/${newsId}/delete`,
+        save_success: false,
+        ...parsed.raw,
+      });
+    }
+
+    try {
+      await updateNewsItem(env.DB, newsId, parsed.values);
+      return redirectResponse(request, `/admin/news/${newsId}?saved=1`);
+    } catch (error) {
+      return htmlResponse(templates.adminNewsEdit, {
+        page_title: 'Edit News Item',
+        page_heading: 'Edit News Item',
+        page_subtitle: 'Update the copy and publishing details.',
+        form_action: `/admin/news/${newsId}`,
+        status_draft_selected: parsed.values.status === 'draft',
+        status_published_selected: parsed.values.status === 'published',
+        published_at: parsed.raw.published_at,
+        errors: ['Unable to update news item.'],
+        show_delete: true,
+        delete_action: `/admin/news/${newsId}/delete`,
+        save_success: false,
+        ...parsed.raw,
+      });
+    }
+  }
+
+  // POST /admin/news/:id/delete
+  const newsDeleteMatch = path.match(/^\/admin\/news\/([^/]+)\/delete$/);
+  if (newsDeleteMatch && method === 'POST') {
+    const newsId = newsDeleteMatch[1];
+    await deleteNewsItem(env.DB, newsId);
+    return redirectResponse(request, '/admin/news');
   }
 
   // GET /admin/posts/new

@@ -1,14 +1,19 @@
 import { estimateReadingTime, slugify } from '../utils';
 import {
   createPost,
+  createNewsItem,
+  getNewsItemById,
   getPostById,
   getPostBySlug,
+  listCodexNewsItems,
   listAllTags,
   listCodexPosts,
+  updateNewsItem,
   updatePost,
 } from '../db';
-import type { CodexPostCursor, PostInput } from '../db';
+import type { CodexNewsCursor, CodexPostCursor, NewsItemInput, PostInput } from '../db';
 import type { PostStatus } from '../types';
+import type { NewsStatus } from '../types';
 import {
   jsonError,
   jsonResponse,
@@ -28,6 +33,28 @@ import { checkRateLimit } from '../middleware/rateLimit';
 const RATE_LIMIT_CONFIG = {
   windowMs: 60 * 1000, // 1 minute
   maxRequests: 100, // 100 requests per minute
+};
+
+const serializeNewsItem = (item: {
+  id: string;
+  category: string;
+  title: string;
+  body_markdown: string;
+  status: string;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}) => {
+  return {
+    id: item.id,
+    category: item.category,
+    title: item.title,
+    body_markdown: item.body_markdown,
+    status: item.status,
+    published_at: item.published_at,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+  };
 };
 
 /**
@@ -352,6 +379,286 @@ export const handleApiRoutes = async (
       return jsonError(500, 'update_failed', 'Post updated but could not be reloaded.');
     }
     return jsonResponse({ post: serializePost(updated) });
+  }
+
+  // GET /news/:id
+  const newsMatch = codexPath.match(/^\/news\/([^/]+)$/);
+  if (newsMatch && method === 'GET') {
+    const newsId = decodeURIComponent(newsMatch[1]);
+    logCodexAudit(method, path, newsId);
+    const item = await getNewsItemById(env.DB, newsId);
+    if (!item) {
+      return jsonError(404, 'not_found', 'News item not found.');
+    }
+    return jsonResponse({ news_item: serializeNewsItem(item) });
+  }
+
+  // PATCH /news/:id
+  if (newsMatch && method === 'PATCH') {
+    const newsId = decodeURIComponent(newsMatch[1]);
+    logCodexAudit(method, path, newsId);
+    const item = await getNewsItemById(env.DB, newsId);
+    if (!item) {
+      return jsonError(404, 'not_found', 'News item not found.');
+    }
+
+    const payloadResult = await readJsonBody(request);
+    if (!payloadResult.ok) {
+      return payloadResult.response;
+    }
+
+    if (!isPlainObject(payloadResult.data)) {
+      return jsonError(400, 'invalid_request', 'Request body must be a JSON object.');
+    }
+
+    const payload = payloadResult.data;
+    const errors: string[] = [];
+    const updates: Partial<NewsItemInput> = {};
+
+    const expectedUpdatedAtRaw = payload.expected_updated_at;
+    let expectedUpdatedAt: string | null = null;
+    if (expectedUpdatedAtRaw !== undefined) {
+      if (typeof expectedUpdatedAtRaw !== 'string') {
+        errors.push('expected_updated_at must be an ISO timestamp string.');
+      } else {
+        const parsed = parseIsoTimestamp(expectedUpdatedAtRaw);
+        if (!parsed) {
+          errors.push('expected_updated_at must be a valid ISO timestamp.');
+        } else {
+          expectedUpdatedAt = parsed;
+        }
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'category')) {
+      const category = normalizeRequiredString(payload.category);
+      if (!category) {
+        errors.push('category is required.');
+      } else {
+        updates.category = category;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'title')) {
+      const title = normalizeRequiredString(payload.title);
+      if (!title) {
+        errors.push('title is required.');
+      } else {
+        updates.title = title;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'body_markdown')) {
+      if (typeof payload.body_markdown !== 'string') {
+        errors.push('body_markdown must be a string.');
+      } else if (!payload.body_markdown.trim()) {
+        errors.push('body_markdown is required.');
+      } else {
+        updates.body_markdown = payload.body_markdown;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'status')) {
+      if (payload.status !== 'draft' && payload.status !== 'published') {
+        errors.push('status must be draft or published.');
+      } else {
+        updates.status = payload.status;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'published_at')) {
+      const raw = payload.published_at;
+      if (raw === null) {
+        updates.published_at = null;
+      } else if (typeof raw === 'string') {
+        const parsed = parseIsoTimestamp(raw);
+        if (!parsed) {
+          errors.push('published_at must be a valid ISO timestamp.');
+        } else {
+          updates.published_at = parsed;
+        }
+      } else {
+        errors.push('published_at must be a string or null.');
+      }
+    }
+
+    if (errors.length) {
+      return jsonError(400, 'invalid_request', 'Validation failed.', errors);
+    }
+
+    if (expectedUpdatedAt && item.updated_at !== expectedUpdatedAt) {
+      return jsonError(409, 'conflict', 'News item has been updated since last read.', {
+        expected_updated_at: expectedUpdatedAt,
+        current_updated_at: item.updated_at,
+      });
+    }
+
+    const nextInput: NewsItemInput = {
+      category: item.category,
+      title: item.title,
+      body_markdown: item.body_markdown,
+      status: item.status as NewsStatus,
+      published_at: item.published_at,
+    };
+
+    Object.assign(nextInput, updates);
+
+    if (!nextInput.category.trim()) {
+      errors.push('category is required.');
+    }
+    if (!nextInput.title.trim()) {
+      errors.push('title is required.');
+    }
+    if (!nextInput.body_markdown.trim()) {
+      errors.push('body_markdown is required.');
+    }
+
+    if (nextInput.status === 'draft') {
+      nextInput.published_at = null;
+    } else if (!nextInput.published_at) {
+      errors.push('published_at is required when status is published.');
+    }
+
+    if (errors.length) {
+      return jsonError(400, 'invalid_request', 'Validation failed.', errors);
+    }
+
+    await updateNewsItem(env.DB, newsId, nextInput);
+    const updated = await getNewsItemById(env.DB, newsId);
+    if (!updated) {
+      return jsonError(500, 'server_error', 'Unable to load updated news item.');
+    }
+    return jsonResponse({ news_item: serializeNewsItem(updated) });
+  }
+
+  // POST /news
+  if (codexPath === '/news' && method === 'POST') {
+    logCodexAudit(method, path);
+
+    const payloadResult = await readJsonBody(request);
+    if (!payloadResult.ok) {
+      return payloadResult.response;
+    }
+
+    if (!isPlainObject(payloadResult.data)) {
+      return jsonError(400, 'invalid_request', 'Request body must be a JSON object.');
+    }
+
+    const payload = payloadResult.data;
+    const errors: string[] = [];
+
+    const category = normalizeRequiredString(payload.category);
+    if (!category) {
+      errors.push('category is required.');
+    }
+
+    const title = normalizeRequiredString(payload.title);
+    if (!title) {
+      errors.push('title is required.');
+    }
+
+    const bodyMarkdown =
+      typeof payload.body_markdown === 'string' ? payload.body_markdown.trim() : '';
+    if (!bodyMarkdown) {
+      errors.push('body_markdown is required.');
+    }
+
+    let status: NewsStatus = payload.status === 'published' ? 'published' : 'draft';
+    if (payload.status && payload.status !== 'draft' && payload.status !== 'published') {
+      errors.push('status must be draft or published.');
+    }
+
+    let publishedAt: string | null = null;
+    if (payload.published_at !== undefined) {
+      if (payload.published_at === null) {
+        publishedAt = null;
+      } else if (typeof payload.published_at === 'string') {
+        const parsed = parseIsoTimestamp(payload.published_at);
+        if (!parsed) {
+          errors.push('published_at must be a valid ISO timestamp.');
+        } else {
+          publishedAt = parsed;
+        }
+      } else {
+        errors.push('published_at must be a string or null.');
+      }
+    }
+
+    if (status === 'published' && !publishedAt) {
+      errors.push('published_at is required when status is published.');
+    }
+
+    if (errors.length) {
+      return jsonError(400, 'invalid_request', 'Validation failed.', errors);
+    }
+
+    const id = await createNewsItem(env.DB, {
+      category: category ?? '',
+      title: title ?? '',
+      body_markdown: bodyMarkdown,
+      status,
+      published_at: publishedAt,
+    });
+
+    const created = await getNewsItemById(env.DB, id);
+    if (!created) {
+      return jsonError(500, 'server_error', 'Unable to load created news item.');
+    }
+    return jsonResponse({ news_item: serializeNewsItem(created) }, 201);
+  }
+
+  // GET /news
+  if (codexPath === '/news' && method === 'GET') {
+    logCodexAudit(method, path);
+    const statusParam = url.searchParams.get('status') ?? undefined;
+    if (statusParam && statusParam !== 'draft' && statusParam !== 'published') {
+      return jsonError(400, 'invalid_request', 'status must be draft or published.');
+    }
+    const query = url.searchParams.get('q')?.trim() || undefined;
+    const limitRaw = url.searchParams.get('limit');
+    let limit = 20;
+    if (limitRaw) {
+      const parsed = Number(limitRaw);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        return jsonError(400, 'invalid_request', 'limit must be a positive number.');
+      }
+      limit = Math.min(Math.floor(parsed), 100);
+    }
+
+    const cursorRaw = url.searchParams.get('cursor');
+    let cursor: CodexNewsCursor | undefined;
+    if (cursorRaw) {
+      const [updatedAtRaw, id] = cursorRaw.split('|');
+      const parsed = updatedAtRaw ? parseIsoTimestamp(updatedAtRaw) : null;
+      if (!parsed || !id) {
+        return jsonError(400, 'invalid_request', 'cursor must be "<updated_at>|<id>".');
+      }
+      cursor = { updatedAt: parsed, id };
+    }
+
+    const items = await listCodexNewsItems(env.DB, {
+      status: statusParam as NewsStatus | undefined,
+      query,
+      limit: limit + 1,
+      cursor,
+    });
+
+    const hasNext = items.length > limit;
+    const pageItems = hasNext ? items.slice(0, limit) : items;
+    const last = pageItems[pageItems.length - 1];
+    const nextCursor = hasNext && last ? `${last.updated_at}|${last.id}` : null;
+
+    return jsonResponse({
+      news_items: pageItems.map((item) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        status: item.status,
+        updated_at: item.updated_at,
+        published_at: item.published_at,
+      })),
+      next_cursor: nextCursor,
+    });
   }
 
   // POST /posts

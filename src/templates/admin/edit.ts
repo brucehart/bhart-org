@@ -42,6 +42,7 @@ export const adminEditTemplate = `<!DOCTYPE html>
             {{#show_preview}}
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="{{preview_url}}" target="_blank" rel="noreferrer">Preview Draft</a>
             {{/show_preview}}
+            <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/news">News</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/media">Media</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin">Back to list</a>
           </div>

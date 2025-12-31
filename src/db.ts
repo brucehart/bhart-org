@@ -3,6 +3,8 @@ import type {
   AuthorizedUser,
   MediaAsset,
   MediaAssetRecord,
+  NewsItemRecord,
+  NewsStatus,
   PostRecord,
   PostWithTags,
   SessionUser,
@@ -25,6 +27,14 @@ export type PostInput = {
   seo_title: string | null;
   seo_description: string | null;
   tags: string[];
+};
+
+export type NewsItemInput = {
+  category: string;
+  title: string;
+  body_markdown: string;
+  status: NewsStatus;
+  published_at: string | null;
 };
 
 const parseTags = (value?: string | null): string[] => {
@@ -272,6 +282,60 @@ export const listCodexPosts = async (
   return results.map(mapPostRow);
 };
 
+export type CodexNewsCursor = {
+  updatedAt: string;
+  id: string;
+};
+
+export type ListCodexNewsOptions = {
+  limit?: number;
+  status?: 'draft' | 'published';
+  query?: string;
+  cursor?: CodexNewsCursor;
+};
+
+export const listCodexNewsItems = async (
+  db: D1Database,
+  options: ListCodexNewsOptions = {},
+): Promise<NewsItemRecord[]> => {
+  const params: unknown[] = [];
+  const conditions: string[] = [];
+
+  if (options.status) {
+    conditions.push('status = ?');
+    params.push(options.status);
+  }
+
+  if (options.query) {
+    const escapedQuery = escapeLikePattern(options.query.toLowerCase());
+    const term = `%${escapedQuery}%`;
+    conditions.push(
+      '(LOWER(title) LIKE ? ESCAPE \'\\\' OR LOWER(category) LIKE ? ESCAPE \'\\\' OR LOWER(body_markdown) LIKE ? ESCAPE \'\\\')',
+    );
+    params.push(term, term, term);
+  }
+
+  if (options.cursor) {
+    conditions.push('(updated_at < ? OR (updated_at = ? AND id < ?))');
+    params.push(options.cursor.updatedAt, options.cursor.updatedAt, options.cursor.id);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const limit = options.limit ?? 20;
+  params.push(limit);
+
+  const query = `
+    SELECT *
+    FROM news_items
+    ${where}
+    ORDER BY updated_at DESC
+    LIMIT ?
+  `;
+
+  const { results } = await db.prepare(query).bind(...params).all<NewsItemRecord>();
+  return results;
+};
+
 export const listAllTags = async (db: D1Database): Promise<TagRecord[]> => {
   const query = `
     SELECT t.*, COUNT(pt.post_id) as post_count
@@ -461,6 +525,102 @@ export const updatePost = async (db: D1Database, id: string, input: PostInput) =
 
 export const deletePost = async (db: D1Database, id: string) => {
   await db.prepare('DELETE FROM posts WHERE id = ?').bind(id).run();
+};
+
+export const listPublishedNewsItems = async (
+  db: D1Database,
+  nowIso: string,
+  limit = 50,
+): Promise<NewsItemRecord[]> => {
+  const query = `
+    SELECT *
+    FROM news_items
+    WHERE status = 'published' AND published_at IS NOT NULL AND published_at <= ?
+    ORDER BY published_at DESC
+    LIMIT ?
+  `;
+  const { results } = await db.prepare(query).bind(nowIso, limit).all<NewsItemRecord>();
+  return results;
+};
+
+export const listAdminNewsItems = async (db: D1Database): Promise<NewsItemRecord[]> => {
+  const query = `
+    SELECT *
+    FROM news_items
+    ORDER BY updated_at DESC
+  `;
+  const { results } = await db.prepare(query).all<NewsItemRecord>();
+  return results;
+};
+
+export const getNewsItemById = async (
+  db: D1Database,
+  id: string,
+): Promise<NewsItemRecord | null> => {
+  return db.prepare('SELECT * FROM news_items WHERE id = ?').bind(id).first<NewsItemRecord>();
+};
+
+export const createNewsItem = async (db: D1Database, input: NewsItemInput) => {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await db
+    .prepare(
+      `INSERT INTO news_items (
+        id,
+        category,
+        title,
+        body_markdown,
+        status,
+        published_at,
+        created_at,
+        updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .bind(
+      id,
+      input.category,
+      input.title,
+      input.body_markdown,
+      input.status,
+      input.published_at,
+      now,
+      now,
+    )
+    .run();
+  return id;
+};
+
+export const updateNewsItem = async (
+  db: D1Database,
+  id: string,
+  input: NewsItemInput,
+) => {
+  const now = new Date().toISOString();
+  await db
+    .prepare(
+      `UPDATE news_items SET
+        category = ?,
+        title = ?,
+        body_markdown = ?,
+        status = ?,
+        published_at = ?,
+        updated_at = ?
+      WHERE id = ?`
+    )
+    .bind(
+      input.category,
+      input.title,
+      input.body_markdown,
+      input.status,
+      input.published_at,
+      now,
+      id,
+    )
+    .run();
+};
+
+export const deleteNewsItem = async (db: D1Database, id: string) => {
+  await db.prepare('DELETE FROM news_items WHERE id = ?').bind(id).run();
 };
 
 export const getAuthorizedUserByEmail = async (db: D1Database, email: string) => {
