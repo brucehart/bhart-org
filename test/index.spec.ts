@@ -227,7 +227,7 @@ describe('Codex API', () => {
           body_markdown: 'This is a test post body.',
           tags: ['ai', 'personal'],
           author_name: 'Bruce Hart',
-          author_email: 'hello@bhart.org',
+          author_email: 'bruce@bhart.org',
         }),
       }),
     );

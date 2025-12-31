@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import { EmailMessage } from 'cloudflare:email';
 import {
   getPostBySlug,
   listPublishedPostMonths,
@@ -8,8 +9,16 @@ import {
   listTags,
 } from '../db';
 import { formatDate } from '../utils';
-import { DEFAULT_CARD_IMAGE, DEFAULT_HERO_IMAGE, HEADSHOT_IMAGE, htmlResponse } from '../shared';
+import {
+  DEFAULT_CARD_IMAGE,
+  DEFAULT_HERO_IMAGE,
+  HEADSHOT_IMAGE,
+  htmlResponse,
+  normalizeRequiredString,
+  redirectResponse,
+} from '../shared';
 import { templates } from '../templates/index';
+import { checkRateLimit, getRateLimitClientId } from '../middleware/rateLimit';
 
 const escapeXml = (value: string) => {
   return value.replace(/[<>&'"]/g, (char) => {
@@ -29,6 +38,37 @@ const escapeXml = (value: string) => {
     }
   });
 };
+
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const cleanHeaderValue = (value: string) => value.replace(/[\r\n]+/g, ' ').trim();
+
+const CONTACT_RATE_LIMIT_CONFIG = {
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  maxRequests: 5,
+};
+
+const CONTACT_MIN_FILL_MS = 3000;
+const CONTACT_MESSAGE_LIMIT = 5000;
+
+const DISPOSABLE_DOMAINS = new Set([
+  '10minutemail.com',
+  '10minutemail.net',
+  'dispostable.com',
+  'guerrillamail.com',
+  'mailinator.com',
+  'mailnesia.com',
+  'mohmal.com',
+  'tempmail.com',
+  'throwawaymail.com',
+  'yopmail.com',
+]);
+
+const getEmailDomain = (value: string) => {
+  const parts = value.toLowerCase().split('@');
+  return parts.length === 2 ? parts[1] : '';
+};
+
 
 /**
  * Handle public blog routes (/, /about, /articles/*, etc.)
@@ -342,10 +382,213 @@ export const handlePublicRoutes = async (
 
   // GET /contact
   if (path === '/contact' && method === 'GET') {
+    const contactSent = url.searchParams.get('sent') === '1';
+    const contactNoticeSuccess = contactSent;
+    const contactNoticeMessage = contactSent ? 'Thanks for reaching out. I will get back to you soon.' : '';
     return htmlResponse(templates.contact, {
       nav_is_contact: true,
       show_email_subscribe: showEmailSubscribe,
+      contact_notice_success: contactNoticeSuccess,
+      contact_notice_message: contactNoticeSuccess ? contactNoticeMessage : '',
+      contact_started_at: Date.now().toString(),
     });
+  }
+
+  // POST /contact
+  if (path === '/contact' && method === 'POST') {
+    const rateLimitError = await checkRateLimit(
+      request,
+      env,
+      CONTACT_RATE_LIMIT_CONFIG,
+      getRateLimitClientId(request, true),
+    );
+    if (rateLimitError) {
+      return htmlResponse(
+        templates.contact,
+        {
+          nav_is_contact: true,
+          show_email_subscribe: showEmailSubscribe,
+          contact_notice_error: true,
+          contact_notice_message: 'Too many requests. Please wait a bit and try again.',
+          contact_started_at: Date.now().toString(),
+        },
+        429,
+      );
+    }
+
+    let form: FormData;
+    try {
+      form = await request.formData();
+    } catch {
+      return htmlResponse(
+        templates.contact,
+        {
+          nav_is_contact: true,
+          show_email_subscribe: showEmailSubscribe,
+          contact_notice_error: true,
+          contact_notice_message: 'Please submit the form again.',
+          contact_started_at: Date.now().toString(),
+        },
+        400,
+      );
+    }
+
+    const fromRaw = normalizeRequiredString(form.get('from'));
+    const subjectRaw = normalizeRequiredString(form.get('subject'));
+    const messageRaw = normalizeRequiredString(form.get('message'));
+    const contactView = {
+      nav_is_contact: true,
+      show_email_subscribe: showEmailSubscribe,
+      contact_from: typeof fromRaw === 'string' ? fromRaw : '',
+      contact_subject: typeof subjectRaw === 'string' ? subjectRaw : '',
+      contact_message: typeof messageRaw === 'string' ? messageRaw : '',
+      contact_started_at: Date.now().toString(),
+    };
+
+    const honeypotValue = normalizeRequiredString(form.get('company'));
+    if (honeypotValue) {
+      return redirectResponse(request, '/contact?sent=1');
+    }
+
+    const startedAtRaw = normalizeRequiredString(form.get('form_started_at'));
+    const startedAt = startedAtRaw ? Number.parseInt(startedAtRaw, 10) : Number.NaN;
+    if (!startedAt || Number.isNaN(startedAt)) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please refresh the page and try again.',
+        },
+        400,
+      );
+    }
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs < CONTACT_MIN_FILL_MS) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please take a moment before submitting.',
+        },
+        400,
+      );
+    }
+
+    if (!fromRaw || !subjectRaw || !messageRaw) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please fill out all fields before sending.',
+        },
+        400,
+      );
+    }
+
+    if (!isValidEmail(fromRaw)) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please enter a valid email address.',
+        },
+        400,
+      );
+    }
+
+    if (messageRaw.length > CONTACT_MESSAGE_LIMIT) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please keep messages under 5,000 characters.',
+        },
+        400,
+      );
+    }
+
+    const emailDomain = getEmailDomain(fromRaw);
+    if (emailDomain && DISPOSABLE_DOMAINS.has(emailDomain)) {
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: 'Please use a non-disposable email address.',
+        },
+        400,
+      );
+    }
+
+    const from = cleanHeaderValue(fromRaw).slice(0, 320);
+    const subject = cleanHeaderValue(subjectRaw).slice(0, 200);
+    const message = messageRaw.trim().slice(0, CONTACT_MESSAGE_LIMIT);
+    const contactId = crypto.randomUUID();
+    const nowIso = new Date().toISOString();
+    const userAgent = request.headers.get('user-agent') ?? '';
+    const senderIp = request.headers.get('cf-connecting-ip') ?? '';
+
+    try {
+      await env.DB.prepare(
+        'INSERT INTO contact_messages (id, from_email, subject, message, created_at, sender_ip, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      )
+        .bind(contactId, from, subject, message, nowIso, senderIp, userAgent)
+        .run();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: message,
+        },
+        500,
+      );
+    }
+
+    const messageId = `<${crypto.randomUUID()}@bhart.org>`;
+    const sentAt = new Date().toUTCString();
+    const raw = [
+      'From: "bhart.org contact form" <contact@bhart.org>',
+      'To: bruce@bhart.org',
+      `Reply-To: ${from}`,
+      `Subject: ${subject}`,
+      `Message-ID: ${messageId}`,
+      `Date: ${sentAt}`,
+      'Content-Type: text/plain; charset="utf-8"',
+      'Content-Transfer-Encoding: 7bit',
+      '',
+      `From: ${from}`,
+      `Subject: ${subject}`,
+      '',
+      message,
+    ].join('\r\n');
+
+    try {
+      const email = new EmailMessage('contact@bhart.org', 'bruce@bhart.org', raw);
+      await env.SEND_EMAIL.send(email);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to send your message.';
+      return htmlResponse(
+        templates.contact,
+        {
+          ...contactView,
+          contact_notice_error: true,
+          contact_notice_message: message,
+        },
+        500,
+      );
+    }
+
+    return redirectResponse(request, '/contact?sent=1');
   }
 
   // GET /articles/:slug

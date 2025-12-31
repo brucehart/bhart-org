@@ -93,8 +93,8 @@ export const workWithMeTemplate = `<!DOCTYPE html>
             <p class="mt-2 text-sm text-text-sub">
               Send a note with a brief overview and timeline. I will reply with next steps.
             </p>
-            <a class="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors" href="mailto:hello@bhart.org">
-              hello@bhart.org
+            <a class="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors" href="/contact">
+              Contact me
               <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
           </div>

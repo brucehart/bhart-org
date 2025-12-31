@@ -92,7 +92,10 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">HTML</p>
                 <span class="text-xs text-text-sub">Workers tools</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Web Tools</h3>
+              <div class="mt-3 flex items-center gap-3">
+                <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/webtools.png" alt="Web Tools logo" />
+                <h3 class="text-xl font-bold">Web Tools</h3>
+              </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">web-tools</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Simple web based tools that run in Cloudflare Workers.

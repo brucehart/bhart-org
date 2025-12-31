@@ -7,4 +7,5 @@ interface Env {
   CODEX_API_TOKEN: string;
   SHOW_EMAIL_SUBSCRIBE?: string;
   RATE_LIMITER: DurableObjectNamespace;
+  SEND_EMAIL: SendEmail;
 }

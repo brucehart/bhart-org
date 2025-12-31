@@ -62,25 +62,65 @@ export const contactTemplate = `<!DOCTYPE html>
               I am always open to thoughtful collaborations, research ideas, and product challenges.
             </p>
           </div>
-          <div class="mt-10 grid gap-6 md:grid-cols-2">
+          <div class="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h3 class="text-xl font-bold">Email</h3>
+              <h3 class="text-xl font-bold">Send a note</h3>
               <p class="mt-2 text-sm text-text-sub">
-                The fastest way to reach me is email. I usually reply within a few days.
+                If there is something worth building or exploring together, I would love to hear about it.
               </p>
-              <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="mailto:hello@bhart.org">
-                hello@bhart.org
-                <span class="material-symbols-outlined text-sm">north_east</span>
-              </a>
+              {{#contact_notice_success}}
+              <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                {{contact_notice_message}}
+              </div>
+              {{/contact_notice_success}}
+              {{#contact_notice_error}}
+              <div class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+                {{contact_notice_message}}
+              </div>
+              {{/contact_notice_error}}
+              <form class="mt-6 grid gap-4" action="/contact" method="post">
+                <input type="hidden" name="form_started_at" value="{{contact_started_at}}" />
+                <label class="hidden">
+                  Leave this field empty
+                  <input type="text" name="company" tabindex="-1" autocomplete="off" />
+                </label>
+                <label class="grid gap-2 text-sm font-semibold text-text-main">
+                  From
+                  <input class="h-11 rounded-lg border border-border-light px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" type="email" name="from" placeholder="you@example.com" value="{{contact_from}}" required autocomplete="email" />
+                </label>
+                <label class="grid gap-2 text-sm font-semibold text-text-main">
+                  Subject
+                  <input class="h-11 rounded-lg border border-border-light px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" type="text" name="subject" placeholder="What is on your mind?" value="{{contact_subject}}" required />
+                </label>
+                <label class="grid gap-2 text-sm font-semibold text-text-main">
+                  Message
+                  <textarea class="min-h-[140px] rounded-lg border border-border-light px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" name="message" placeholder="A few details go a long way." required>{{contact_message}}</textarea>
+                </label>
+                <button class="mt-2 inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors" type="submit">
+                  Send message
+                </button>
+              </form>
             </div>
-            <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h3 class="text-xl font-bold">Social</h3>
-              <p class="mt-2 text-sm text-text-sub">
-                Follow along for short updates and project notes.
-              </p>
-              <div class="mt-4 flex items-center gap-4 text-sm font-semibold">
-                <a class="text-text-main hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
-                <a class="text-text-main hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
+            <div class="flex flex-col gap-6">
+              <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h3 class="text-xl font-bold">Email</h3>
+                <p class="mt-2 text-sm text-text-sub">
+                  The fastest way to reach me is email. I usually reply within a few days.
+                </p>
+                <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="mailto:bruce@bhart.org">
+                  bruce@bhart.org
+                  <span class="material-symbols-outlined text-sm">north_east</span>
+                </a>
+              </div>
+              <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h3 class="text-xl font-bold">Social</h3>
+                <p class="mt-2 text-sm text-text-sub">
+                  Follow along for short updates and project notes.
+                </p>
+                <div class="mt-4 flex items-center gap-4 text-sm font-semibold">
+                  <a class="text-text-main hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
+                  <a class="text-text-main hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
+                </div>
               </div>
             </div>
           </div>

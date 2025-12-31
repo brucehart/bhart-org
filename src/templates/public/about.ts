@@ -79,11 +79,11 @@ export const aboutTemplate = `<!DOCTYPE html>
                     Hi, I'm Bruce.
                   </h1>
                   <p class="text-muted-light text-lg lg:text-xl font-normal leading-relaxed max-w-[600px] mx-auto lg:mx-0">
-                    I bridge the gap between humanity and artificial intelligence. Welcome to my digital garden where I explore AI, technology, and life.
+                    I build software that respects people, not just specs. This is where I think out loud about AI, technology, and the messy parts of building a good life around them.
                   </p>
                 </div>
                 <div class="flex gap-4 justify-center lg:justify-start pt-2">
-                  <a class="flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white text-base font-bold leading-normal transition-all shadow-lg shadow-primary/20" href="mailto:hello@bhart.org">
+                  <a class="flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white text-base font-bold leading-normal transition-all shadow-lg shadow-primary/20" href="/contact">
                     Get in Touch
                   </a>
                   <a class="flex items-center justify-center rounded-lg h-12 px-6 bg-transparent border border-border-light text-text-light hover:bg-black/5 text-base font-bold leading-normal transition-all" href="/">
@@ -109,7 +109,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                   Core Interests
                 </h2>
                 <p class="text-muted-light text-base lg:text-lg font-normal max-w-[720px] mx-auto lg:mx-0">
-                  My work and hobbies revolve around three pillars, creating a synergy between logic and creativity.
+                  Three threads keep showing up in my week: curiosity, craft, and the people I care about. They pull me between deep work and simple joys.
                 </p>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -120,7 +120,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Artificial Intelligence</h3>
                     <p class="text-muted-light text-sm leading-relaxed">
-                      Exploring LLMs, Generative Art, and automation workflows that enhance human productivity.
+                      I like practical AI: assistants that save time, honest automation, and small experiments that reveal what actually works.
                     </p>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Technology</h3>
                     <p class="text-muted-light text-sm leading-relaxed">
-                      Deep diving into modern web development, testing new gadgets, and advocating for clean coding practices.
+                      I enjoy building useful software, tinkering on side projects, learning new tools, and keeping things readable enough for future me to understand.
                     </p>
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Personal Pursuits</h3>
                     <p class="text-muted-light text-sm leading-relaxed">
-                      Unplugging with long hikes, capturing candid moments through photography, and brewing the perfect coffee.
+                      Family time with my wife, Stefanie, and our kids, James and Grace, plus Dayton Flyers basketball, fantasy football, and math puzzles that keep me humble.
                     </p>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export const aboutTemplate = `<!DOCTYPE html>
             <div class="flex flex-col gap-6">
               <h2 class="text-text-light text-3xl font-bold font-display">Career Timeline</h2>
               <p class="text-muted-light leading-relaxed">
-                Experienced engineering leader with a history of delivering innovative technical solutions and solving hard problems. Delivers growth through strong technical performance, team mentorship, and trusted customer relationships. Specializes in the development of complex cyber capabilities targeting embedded systems and communications networks. Background in digital signal processing, algorithm design, and software engineering.
+                I have spent my career toggling between hands-on building and helping teams do their best work. I care about clear thinking, honest tradeoffs, and leaving systems better than I found them. Outside work, I am a cancer survivor, a former Army brat who bounced around the US and the world, and a Southern California high school grad who now calls Bellbrook, Ohio home.
               </p>
               <div class="rounded-xl border border-border-light bg-white p-6">
                 <h3 class="text-text-light text-lg font-bold font-display mb-4">Skills &amp; Tools</h3>
@@ -226,6 +226,10 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col pb-8 pt-4">
                 <p class="text-text-light text-lg font-bold leading-normal font-display">Senior Director - Cyber Analytics, KBR</p>
                 <p class="text-muted-light text-sm font-medium mb-2">09/2020 - 05/2024</p>
+                <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
+                  <li>More of the same! Built teams and delivered programs after Centauri joined KBR.</li>
+                  <li>KBR acquired Centauri for $800M: <a class="text-primary hover:text-primary/80 transition-colors" href="https://www.kbr.com/en/insights-news/press-release/kbr-acquire-centauri-significantly-expanding-its-military-space-defense">press release</a>.</li>
+                </ul>
               </div>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>

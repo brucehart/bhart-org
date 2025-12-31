@@ -13,19 +13,25 @@ export interface RateLimitConfig {
 /**
  * Get client identifier from request
  */
-const getClientId = (request: Request): string => {
+export const getRateLimitClientId = (request: Request, includeUserAgent = false): string => {
   // Try CF-Connecting-IP first (Cloudflare header)
   const cfIp = request.headers.get('cf-connecting-ip');
-  if (cfIp) {
-    return cfIp;
+  let ip = cfIp ?? '';
+  if (!ip) {
+    // Fall back to X-Forwarded-For
+    const forwarded = request.headers.get('x-forwarded-for');
+    if (forwarded) {
+      ip = forwarded.split(',')[0].trim();
+    }
   }
-  // Fall back to X-Forwarded-For
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
+  if (!ip) {
+    ip = 'unknown';
   }
-  // Default fallback
-  return 'unknown';
+  if (!includeUserAgent) {
+    return ip;
+  }
+  const userAgent = request.headers.get('user-agent') ?? 'unknown';
+  return `${ip}|${userAgent}`;
 };
 
 /**
@@ -36,8 +42,9 @@ export const checkRateLimit = async (
   request: Request,
   env: Env,
   config: RateLimitConfig,
+  clientIdOverride?: string,
 ): Promise<Response | null> => {
-  const clientId = getClientId(request);
+  const clientId = clientIdOverride ?? getRateLimitClientId(request);
   const limiterId = env.RATE_LIMITER.idFromName(clientId);
   const limiter = env.RATE_LIMITER.get(limiterId);
   const response = await limiter.fetch('https://rate-limit/check', {
