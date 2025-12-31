@@ -1,6 +1,7 @@
 export const publicFooterTemplate = `
 <footer class="bg-white border-t border-gray-200">
   <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    {{#show_email_subscribe}}
     <div class="rounded-3xl bg-background-light p-8 md:p-12 lg:p-16 relative overflow-hidden">
       <div class="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
       <div class="absolute -left-24 -bottom-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
@@ -31,6 +32,7 @@ export const publicFooterTemplate = `
         </form>
       </div>
     </div>
+    {{/show_email_subscribe}}
     <div class="mt-10 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-text-sub">
       <a class="hover:text-primary transition-colors" href="/about">About</a>
       <a class="hover:text-primary transition-colors" href="/projects">Projects</a>

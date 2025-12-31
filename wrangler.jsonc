@@ -11,6 +11,22 @@
 	"observability": {
 		"enabled": true
 	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "RATE_LIMITER",
+				"class_name": "RateLimiter"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"RateLimiter"
+			]
+		}
+	],
 	"r2_buckets": [
 		{
 			"binding": "MEDIA_BUCKET",
@@ -23,5 +39,8 @@
 			"database_name": "bhart-org",
 			"database_id": "f158083c-7a7a-48d9-b3c4-97d43b5520a1"
 		}
-	]
+	],
+	"vars":{
+		"SHOW_EMAIL_SUBSCRIBE": "no"
+	}
 }

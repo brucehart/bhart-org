@@ -72,7 +72,7 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
               <!-- Left Sidebar: Tags -->
-              <aside class="order-2 w-full lg:order-none lg:w-64 flex-shrink-0">
+              <aside class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
@@ -162,7 +162,7 @@ export const homeTemplate = `<!DOCTYPE html>
               </div>
 
               <!-- Right Sidebar: About & Recent Posts -->
-              <aside class="w-full lg:w-80 flex-shrink-0">
+              <aside class="order-2 w-full lg:order-none lg:w-80 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
                   <!-- About Me Mini Card -->
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
@@ -207,6 +207,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       <span class="material-symbols-outlined text-[18px]">rss_feed</span>
                       RSS feed
                     </a>
+                    {{#show_email_subscribe}}
                     <form class="mt-4 flex flex-col gap-3">
                       <label class="text-xs font-semibold text-text-sub" for="subscribe-email-home">Email updates</label>
                       <input
@@ -236,6 +237,7 @@ export const homeTemplate = `<!DOCTYPE html>
                         Join by email
                       </button>
                     </form>
+                    {{/show_email_subscribe}}
                   </div>
 
                   {{#has_posts_by_month}}

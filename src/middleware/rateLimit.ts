@@ -1,12 +1,6 @@
 /**
- * Simple in-memory rate limiter using sliding window algorithm
+ * Durable Object-backed rate limiter using a sliding window.
  */
-
-interface RateLimitEntry {
-  timestamps: number[];
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>();
 
 /**
  * Rate limiter configuration
@@ -38,65 +32,100 @@ const getClientId = (request: Request): string => {
  * Check if request is rate limited
  * @returns null if allowed, Response with 429 status if rate limited
  */
-export const checkRateLimit = (
+export const checkRateLimit = async (
   request: Request,
+  env: Env,
   config: RateLimitConfig,
-): Response | null => {
+): Promise<Response | null> => {
   const clientId = getClientId(request);
-  const now = Date.now();
-  const windowStart = now - config.windowMs;
+  const limiterId = env.RATE_LIMITER.idFromName(clientId);
+  const limiter = env.RATE_LIMITER.get(limiterId);
+  const response = await limiter.fetch('https://rate-limit/check', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(config),
+  });
 
-  // Get or create entry
-  let entry = rateLimitStore.get(clientId);
-  if (!entry) {
-    entry = { timestamps: [] };
-    rateLimitStore.set(clientId, entry);
+  if (response.status === 429) {
+    return response;
   }
-
-  // Remove timestamps outside the window
-  entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
-
-  // Check if limit exceeded
-  if (entry.timestamps.length >= config.maxRequests) {
+  if (!response.ok) {
     return new Response(
       JSON.stringify({
         error: {
-          code: 'rate_limit_exceeded',
-          message: 'Too many requests. Please try again later.',
+          code: 'rate_limit_error',
+          message: 'Rate limiter unavailable.',
         },
       }),
       {
-        status: 429,
+        status: 503,
         headers: {
           'content-type': 'application/json',
-          'retry-after': Math.ceil(config.windowMs / 1000).toString(),
         },
       },
     );
   }
-
-  // Add current timestamp
-  entry.timestamps.push(now);
-
   return null;
 };
 
-/**
- * Clean up old entries periodically (optional, for memory management)
- */
-export const cleanupRateLimitStore = (maxAge: number) => {
-  const cutoff = Date.now() - maxAge;
-  for (const [clientId, entry] of rateLimitStore.entries()) {
-    entry.timestamps = entry.timestamps.filter((ts) => ts > cutoff);
-    if (entry.timestamps.length === 0) {
-      rateLimitStore.delete(clientId);
-    }
-  }
-};
+export class RateLimiter {
+  private state: DurableObjectState;
 
-/**
- * Clear all rate limit data (for testing)
- */
-export const clearRateLimitStore = () => {
-  rateLimitStore.clear();
-};
+  constructor(state: DurableObjectState) {
+    this.state = state;
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    if (request.method !== 'POST') {
+      return new Response('Method Not Allowed', { status: 405 });
+    }
+
+    let payload: { windowMs?: number; maxRequests?: number } | null = null;
+    try {
+      payload = (await request.json()) as { windowMs?: number; maxRequests?: number };
+    } catch {
+      payload = null;
+    }
+
+    const windowMs = payload?.windowMs;
+    const maxRequests = payload?.maxRequests;
+    if (!windowMs || !maxRequests) {
+      return new Response('Bad Request', { status: 400 });
+    }
+
+    const now = Date.now();
+    const windowStart = now - windowMs;
+    const timestamps = (await this.state.storage.get<number[]>('timestamps')) ?? [];
+    const filtered = timestamps.filter((ts) => ts > windowStart);
+
+    if (filtered.length >= maxRequests) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'rate_limit_exceeded',
+            message: 'Too many requests. Please try again later.',
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            'content-type': 'application/json',
+            'retry-after': Math.ceil(windowMs / 1000).toString(),
+          },
+        },
+      );
+    }
+
+    filtered.push(now);
+    await this.state.storage.put('timestamps', filtered);
+
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+  }
+}
