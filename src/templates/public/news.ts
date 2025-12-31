@@ -63,14 +63,25 @@ export const newsTemplate = `<!DOCTYPE html>
             </p>
           </div>
           <div class="mt-10 flex flex-col gap-6">
+            {{#has_news_items}}
+            {{#news_items}}
             <article class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-widest text-primary">Launch</p>
-              <h3 class="mt-3 text-xl font-bold">The blog is live!</h3>
-              <p class="mt-2 text-sm text-text-sub">
-                I will be sharing practical notes on AI, automation, and building software with real tradeoffs.
-                Wishing everyone a happy, safe, and productive 2026. Exciting time to be alive!
-              </p>
+              <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-primary">
+                <span>{{category}}</span>
+                <span class="text-text-sub font-medium normal-case tracking-normal">{{published_date}}</span>
+              </div>
+              <h3 class="mt-3 text-xl font-bold">{{title}}</h3>
+              <div class="prose prose-sm prose-slate mt-2 text-text-sub">
+                {{{body_html}}}
+              </div>
             </article>
+            {{/news_items}}
+            {{/has_news_items}}
+            {{^has_news_items}}
+            <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-text-sub">
+              No news items yet. Check back soon.
+            </div>
+            {{/has_news_items}}
           </div>
         </section>
       </main>

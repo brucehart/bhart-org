@@ -35,6 +35,23 @@ Local dev: `npm run dev`, then call `http://bhart-org.bruce-hart.workers.dev/api
   - Recompute: `recompute: { slugFromTitle: true, readingTime: true }`
   - Concurrency: `expected_updated_at` (ISO timestamp) -> returns `409` on mismatch
 
+- `GET /news`
+  - Query params: `status=draft|published`, `q=<text>`, `limit`, `cursor`
+  - Returns: `{ news_items: [{ id, title, category, status, updated_at, published_at }], next_cursor }`
+  - `next_cursor` format: `<updated_at>|<id>` (use as the next `cursor`)
+
+- `GET /news/:id`
+  - Returns full news item including `body_markdown`
+
+- `POST /news`
+  - Creates a new news item.
+  - Required: `category`, `title`, `body_markdown`
+  - Optional: `status` (`draft` default), `published_at` (required if `status=published`)
+
+- `PATCH /news/:id`
+  - Partial updates. Fields: `category`, `title`, `body_markdown`, `status`, `published_at`
+  - Concurrency: `expected_updated_at` (ISO timestamp) -> returns `409` on mismatch
+
 - `GET /tags`
   - Returns `{ tags: [{ id, name, slug, post_count }] }`
 
@@ -44,6 +61,12 @@ Local dev: `npm run dev`, then call `http://bhart-org.bruce-hart.workers.dev/api
 2. `GET /posts/:id` to load the current source-of-truth.
 3. Prepare a minimal edit (update only the needed fields).
 4. `PATCH /posts/:id` with `expected_updated_at`.
+
+News workflow mirrors posts:
+1. `GET /news?status=draft&q=...` to locate the target item.
+2. `GET /news/:id` to load the current source-of-truth.
+3. Prepare a minimal edit (update only the needed fields).
+4. `PATCH /news/:id` with `expected_updated_at`.
 
 ### Example
 

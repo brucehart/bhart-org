@@ -16,6 +16,8 @@ import { publicFooterCompactTemplate } from './public/partials/footerCompact';
 import { adminListTemplate } from './admin/list';
 import { adminMediaTemplate } from './admin/media';
 import { adminEditTemplate } from './admin/edit';
+import { adminNewsListTemplate } from './admin/newsList';
+import { adminNewsEditTemplate } from './admin/newsEdit';
 
 // Auth templates
 import { loginTemplate } from './auth/login';
@@ -37,6 +39,8 @@ export const templates = {
   adminList: adminListTemplate,
   adminMedia: adminMediaTemplate,
   adminEdit: adminEditTemplate,
+  adminNewsList: adminNewsListTemplate,
+  adminNewsEdit: adminNewsEditTemplate,
   login: loginTemplate,
   unauthorized: unauthorizedTemplate,
   notFound: notFoundTemplate,

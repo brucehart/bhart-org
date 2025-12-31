@@ -4,6 +4,7 @@ import {
   listPublishedPostMonths,
   listPublishedPosts,
   listPublishedPostsByDateRange,
+  listPublishedNewsItems,
   listTags,
 } from '../db';
 import { formatDate } from '../utils';
@@ -308,9 +309,18 @@ export const handlePublicRoutes = async (
 
   // GET /news
   if (path === '/news' && method === 'GET') {
+    const nowIso = new Date().toISOString();
+    const newsItems = await listPublishedNewsItems(env.DB, nowIso);
     return htmlResponse(templates.news, {
       nav_is_news: true,
       show_email_subscribe: showEmailSubscribe,
+      has_news_items: newsItems.length > 0,
+      news_items: newsItems.map((item) => ({
+        category: item.category,
+        title: item.title,
+        body_html: marked.parse(item.body_markdown),
+        published_date: formatDate(item.published_at),
+      })),
     });
   }
 

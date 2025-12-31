@@ -73,3 +73,16 @@ export type MediaAssetRecord = {
 export type MediaAsset = Omit<MediaAssetRecord, 'tags'> & {
   tags: string[];
 };
+
+export type NewsStatus = 'draft' | 'published';
+
+export type NewsItemRecord = {
+  id: string;
+  category: string;
+  title: string;
+  body_markdown: string;
+  status: NewsStatus;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
