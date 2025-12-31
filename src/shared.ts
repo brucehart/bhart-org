@@ -12,9 +12,11 @@ export const DEFAULT_CARD_IMAGE =
 export const HEADSHOT_IMAGE = '/media/hedcut.png';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/hartbruce/';
 export const GITHUB_URL = 'https://github.com/brucehart';
+export const RSS_URL = '/rss.xml';
 export const BASE_VIEW = {
   linkedin_url: LINKEDIN_URL,
   github_url: GITHUB_URL,
+  rss_url: RSS_URL,
 };
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 export const OAUTH_STATE_TTL_SECONDS = 60 * 10;

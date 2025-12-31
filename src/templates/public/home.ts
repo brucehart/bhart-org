@@ -5,6 +5,7 @@ export const homeTemplate = `<!DOCTYPE html>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{site_title}}</title>
     {{> publicFavicon}}
+    <link rel="alternate" type="application/rss+xml" title="bhart.org RSS" href="{{rss_url}}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -71,7 +72,7 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
               <!-- Left Sidebar: Tags -->
-              <aside class="w-full lg:w-64 flex-shrink-0">
+              <aside class="order-2 w-full lg:order-none lg:w-64 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
@@ -91,7 +92,7 @@ export const homeTemplate = `<!DOCTYPE html>
               </aside>
 
               <!-- Main Content: Articles -->
-              <div class="flex-1 min-w-0">
+              <div class="order-1 flex-1 min-w-0 lg:order-none">
                 {{#has_latest_post}}
                 <div class="mb-10">
                   <div class="flex flex-col gap-3">
@@ -199,6 +200,43 @@ export const homeTemplate = `<!DOCTYPE html>
                     </div>
                   </div>
                   {{/has_recent_posts}}
+
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-3">Subscribe</h2>
+                    <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{rss_url}}">
+                      <span class="material-symbols-outlined text-[18px]">rss_feed</span>
+                      RSS feed
+                    </a>
+                    <form class="mt-4 flex flex-col gap-3">
+                      <label class="text-xs font-semibold text-text-sub" for="subscribe-email-home">Email updates</label>
+                      <input
+                        autocomplete="email"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main placeholder:text-text-sub focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        id="subscribe-email-home"
+                        name="email"
+                        placeholder="you@example.com"
+                        type="email"
+                      />
+                      <label class="flex flex-col gap-2 text-xs text-text-sub" for="subscribe-frequency-home">
+                        <span class="text-xs font-semibold text-text-sub">Frequency</span>
+                        <select
+                          class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                          id="subscribe-frequency-home"
+                          name="frequency-home"
+                        >
+                          <option value="daily">Daily</option>
+                          <option value="weekly" selected>Weekly</option>
+                          <option value="instant">As it happens</option>
+                        </select>
+                      </label>
+                      <button
+                        class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                        type="submit"
+                      >
+                        Join by email
+                      </button>
+                    </form>
+                  </div>
 
                   {{#has_posts_by_month}}
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">

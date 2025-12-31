@@ -46,6 +46,10 @@ export const publicFooterTemplate = `
         <p class="text-sm font-semibold text-text-main">bhart.org</p>
       </div>
       <div class="flex items-center gap-4 text-xs font-semibold text-text-sub">
+        <a class="inline-flex items-center gap-1 hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
+          <span class="material-symbols-outlined text-[16px]">rss_feed</span>
+          RSS
+        </a>
         <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
         <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
       </div>

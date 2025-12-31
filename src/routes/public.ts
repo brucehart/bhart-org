@@ -10,6 +10,25 @@ import { formatDate } from '../utils';
 import { DEFAULT_CARD_IMAGE, DEFAULT_HERO_IMAGE, HEADSHOT_IMAGE, htmlResponse } from '../shared';
 import { templates } from '../templates/index';
 
+const escapeXml = (value: string) => {
+  return value.replace(/[<>&'"]/g, (char) => {
+    switch (char) {
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
+      case "'":
+        return '&apos;';
+      case '"':
+        return '&quot;';
+      default:
+        return char;
+    }
+  });
+};
+
 /**
  * Handle public blog routes (/, /about, /articles/*, etc.)
  * Returns Response if route matches, null otherwise
@@ -165,6 +184,55 @@ export const handlePublicRoutes = async (
       })),
     };
     return htmlResponse(templates.home, view);
+  }
+
+  // GET /rss.xml
+  if (path === '/rss.xml' && method === 'GET') {
+    const nowIso = new Date().toISOString();
+    const posts = await listPublishedPosts(env.DB, nowIso, { limit: 50 });
+    const origin = new URL(request.url).origin;
+    const feedUrl = `${origin}/rss.xml`;
+    const items = posts
+      .map((post) => {
+        const link = `${origin}/articles/${post.slug}`;
+        const title = escapeXml(post.title);
+        const description = escapeXml(post.summary);
+        const pubDate = post.published_at
+          ? new Date(post.published_at).toUTCString()
+          : new Date().toUTCString();
+        return [
+          '<item>',
+          `<title>${title}</title>`,
+          `<link>${link}</link>`,
+          `<guid isPermaLink="true">${link}</guid>`,
+          `<pubDate>${pubDate}</pubDate>`,
+          `<description>${description}</description>`,
+          '</item>',
+        ].join('');
+      })
+      .join('');
+
+    const rss = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+      '<channel>',
+      '<title>bhart.org</title>',
+      `<link>${origin}</link>`,
+      '<description>AI, tech, and personal writing from Bruce Hart.</description>',
+      `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
+      `<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`,
+      '<language>en-us</language>',
+      items,
+      '</channel>',
+      '</rss>',
+    ].join('');
+
+    return new Response(rss, {
+      status: 200,
+      headers: {
+        'content-type': 'application/rss+xml; charset=utf-8',
+      },
+    });
   }
 
   // GET /about

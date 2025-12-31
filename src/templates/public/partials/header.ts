@@ -16,11 +16,17 @@ export const publicHeaderTemplate = `
       <a class="{{#nav_is_contact}}text-primary text-sm font-bold leading-normal{{/nav_is_contact}}{{^nav_is_contact}}text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors{{/nav_is_contact}}" href="/contact">Contact</a>
     </nav>
     <div class="flex items-center gap-4 text-sm font-medium text-muted-light">
+      <a class="flex items-center text-text-light hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
+        <span class="material-symbols-outlined text-[20px]">rss_feed</span>
+      </a>
       <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
       <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
     </div>
   </div>
-  <div class="md:hidden flex items-center text-text-light">
+  <div class="md:hidden flex items-center gap-3 text-text-light">
+    <a class="flex items-center text-text-light hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
+      <span class="material-symbols-outlined text-[22px]">rss_feed</span>
+    </a>
     <span class="material-symbols-outlined cursor-pointer">menu</span>
   </div>
 </header>

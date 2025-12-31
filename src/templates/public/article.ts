@@ -6,6 +6,7 @@ export const articleTemplate = `<!DOCTYPE html>
     <title>{{page_title}}</title>
     {{> publicFavicon}}
     <meta name="description" content="{{seo_description}}" />
+    <link rel="alternate" type="application/rss+xml" title="bhart.org RSS" href="{{rss_url}}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -113,6 +114,42 @@ export const articleTemplate = `<!DOCTYPE html>
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 class="text-lg font-bold mb-2">More reading</h3>
             <p class="text-sm text-text-muted">Return to the <a class="text-primary font-semibold" href="/">home page</a> for the latest posts.</p>
+          </div>
+          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-bold mb-2">Subscribe</h3>
+            <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{rss_url}}">
+              <span class="material-symbols-outlined text-[18px]">rss_feed</span>
+              RSS feed
+            </a>
+            <form class="mt-4 flex flex-col gap-3">
+              <label class="text-xs font-semibold text-text-muted" for="subscribe-email-article">Email updates</label>
+              <input
+                autocomplete="email"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                id="subscribe-email-article"
+                name="email"
+                placeholder="you@example.com"
+                type="email"
+              />
+              <label class="flex flex-col gap-2 text-xs text-text-muted" for="subscribe-frequency-article">
+                <span class="text-xs font-semibold text-text-muted">Frequency</span>
+                <select
+                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  id="subscribe-frequency-article"
+                  name="frequency-article"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly" selected>Weekly</option>
+                  <option value="instant">As it happens</option>
+                </select>
+              </label>
+              <button
+                class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                type="submit"
+              >
+                Join by email
+              </button>
+            </form>
           </div>
         </aside>
       </div>
