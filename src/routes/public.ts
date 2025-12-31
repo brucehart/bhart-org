@@ -8,7 +8,7 @@ import {
   listPublishedNewsItems,
   listTags,
 } from '../db';
-import { formatDate } from '../utils';
+import { createEasternDate, formatDate, formatRssDate, getEasternYear } from '../utils';
 import {
   DEFAULT_CARD_IMAGE,
   DEFAULT_HERO_IMAGE,
@@ -166,7 +166,7 @@ export const handlePublicRoutes = async (
       group.months.push({ label: monthLabels[monthIndex], count: row.post_count, month });
     }
 
-    const currentYear = new Date().getFullYear().toString();
+    const currentYear = getEasternYear();
     const view = {
       site_title: 'bhart.org - AI, Tech and Personal Blog',
       nav_is_home: true,
@@ -248,9 +248,7 @@ export const handlePublicRoutes = async (
         const link = `${origin}/articles/${post.slug}`;
         const title = escapeXml(post.title);
         const description = escapeXml(post.summary);
-        const pubDate = post.published_at
-          ? new Date(post.published_at).toUTCString()
-          : new Date().toUTCString();
+        const pubDate = formatRssDate(post.published_at);
         return [
           '<item>',
           `<title>${title}</title>`,
@@ -271,7 +269,7 @@ export const handlePublicRoutes = async (
       `<link>${origin}</link>`,
       '<description>AI, tech, and personal writing from Bruce Hart.</description>',
       `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
-      `<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`,
+      `<lastBuildDate>${formatRssDate()}</lastBuildDate>`,
       '<language>en-us</language>',
       items,
       '</channel>',
@@ -315,11 +313,11 @@ export const handlePublicRoutes = async (
       return htmlResponse(templates.notFound, {}, 404);
     }
     const startDate = month
-      ? new Date(Date.UTC(year, month - 1, 1))
-      : new Date(Date.UTC(year, 0, 1));
+      ? createEasternDate(year, month, 1)
+      : createEasternDate(year, 1, 1);
     const endDate = month
-      ? new Date(Date.UTC(year, month, 1))
-      : new Date(Date.UTC(year + 1, 0, 1));
+      ? createEasternDate(year, month + 1, 1)
+      : createEasternDate(year + 1, 1, 1);
     const now = new Date();
     const endIso = endDate > now ? now.toISOString() : endDate.toISOString();
     const posts = await listPublishedPostsByDateRange(env.DB, startDate.toISOString(), endIso);

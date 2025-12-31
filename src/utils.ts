@@ -1,4 +1,58 @@
 export const SESSION_COOKIE_NAME = 'bhart_session';
+const EASTERN_TIME_ZONE = 'America/New_York';
+
+const getTimeZoneParts = (date: Date, timeZone: string) => {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+  const values: Record<string, string> = {};
+  for (const part of parts) {
+    if (part.type !== 'literal') {
+      values[part.type] = part.value;
+    }
+  }
+  return {
+    year: values.year,
+    month: values.month,
+    day: values.day,
+    hour: values.hour,
+    minute: values.minute,
+    second: values.second,
+  };
+};
+
+const getTimeZoneOffsetMs = (date: Date, timeZone: string) => {
+  const parts = getTimeZoneParts(date, timeZone);
+  const asUtc = Date.UTC(
+    Number.parseInt(parts.year, 10),
+    Number.parseInt(parts.month, 10) - 1,
+    Number.parseInt(parts.day, 10),
+    Number.parseInt(parts.hour, 10),
+    Number.parseInt(parts.minute, 10),
+    Number.parseInt(parts.second, 10),
+  );
+  return asUtc - date.getTime();
+};
+
+export const createEasternDate = (
+  year: number,
+  month: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+) => {
+  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  const offsetMs = getTimeZoneOffsetMs(utcDate, EASTERN_TIME_ZONE);
+  return new Date(utcDate.getTime() - offsetMs);
+};
 
 export const slugify = (value: string): string => {
   return value
@@ -22,6 +76,7 @@ export const formatDate = (iso: string | null): string => {
   }
   const date = new Date(iso);
   return date.toLocaleDateString('en-US', {
+    timeZone: EASTERN_TIME_ZONE,
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -33,15 +88,16 @@ export const formatDateTime = (iso: string | null): string => {
     return '—';
   }
   const date = new Date(iso);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const year = date.getFullYear();
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
+  const formatted = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TIME_ZONE,
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date);
+  return formatted.replace(',', '');
 };
 
 export const formatDateTimeLocal = (iso: string | null): string => {
@@ -49,8 +105,58 @@ export const formatDateTimeLocal = (iso: string | null): string => {
     return '';
   }
   const date = new Date(iso);
-  const pad = (value: number) => String(value).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  const parts = getTimeZoneParts(date, EASTERN_TIME_ZONE);
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+};
+
+export const parseEasternDateTimeInput = (value: string): Date | null => {
+  if (!value) {
+    return null;
+  }
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+  const year = Number.parseInt(match[1], 10);
+  const month = Number.parseInt(match[2], 10);
+  const day = Number.parseInt(match[3], 10);
+  const hour = Number.parseInt(match[4], 10);
+  const minute = Number.parseInt(match[5], 10);
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(hour) ||
+    !Number.isFinite(minute)
+  ) {
+    return null;
+  }
+  return createEasternDate(year, month, day, hour, minute);
+};
+
+export const getEasternYear = () => getTimeZoneParts(new Date(), EASTERN_TIME_ZONE).year;
+
+export const formatRssDate = (iso?: string | null) => {
+  const date = iso ? new Date(iso) : new Date();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: EASTERN_TIME_ZONE,
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZoneName: 'short',
+  }).formatToParts(date);
+  const values: Record<string, string> = {};
+  for (const part of parts) {
+    if (part.type !== 'literal') {
+      values[part.type] = part.value;
+    }
+  }
+  return `${values.weekday}, ${values.day} ${values.month} ${values.year} ${values.hour}:${values.minute}:${values.second} ${values.timeZoneName}`;
 };
 
 export const estimateReadingTime = (markdown: string): number => {

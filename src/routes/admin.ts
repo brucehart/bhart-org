@@ -33,6 +33,7 @@ import {
   getFormValue,
   getImageDimensions,
   humanizeFilename,
+  parseEasternDateTimeInput,
   sanitizeFilename,
   slugify,
   splitTags,
@@ -116,8 +117,8 @@ const parsePostForm = async (request: Request) => {
     if (!publishedAtInput) {
       errors.push('Publish time is required when status is published.');
     } else {
-      const parsed = new Date(publishedAtInput);
-      if (Number.isNaN(parsed.getTime())) {
+      const parsed = parseEasternDateTimeInput(publishedAtInput);
+      if (!parsed || Number.isNaN(parsed.getTime())) {
         errors.push('Publish time is invalid.');
       } else {
         publishedAt = parsed.toISOString();
@@ -191,8 +192,8 @@ const parseNewsForm = async (request: Request) => {
     if (!publishedAtInput) {
       errors.push('Publish time is required when status is published.');
     } else {
-      const parsed = new Date(publishedAtInput);
-      if (Number.isNaN(parsed.getTime())) {
+      const parsed = parseEasternDateTimeInput(publishedAtInput);
+      if (!parsed || Number.isNaN(parsed.getTime())) {
         errors.push('Publish time is invalid.');
       } else {
         publishedAt = parsed.toISOString();
