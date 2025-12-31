@@ -48,7 +48,7 @@ export const handleApiRoutes = async (
   }
 
   // Check rate limit
-  const rateLimitError = checkRateLimit(request, RATE_LIMIT_CONFIG);
+  const rateLimitError = await checkRateLimit(request, env, RATE_LIMIT_CONFIG);
   if (rateLimitError) {
     return rateLimitError;
   }

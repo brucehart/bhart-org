@@ -6,6 +6,7 @@ import { handleMediaRoutes } from './routes/media';
 import { handlePublicRoutes } from './routes/public';
 import { htmlResponse } from './shared';
 import { templates } from './templates/index';
+export { RateLimiter } from './middleware/rateLimit';
 
 marked.setOptions({
   mangle: false,

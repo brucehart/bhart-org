@@ -65,9 +65,9 @@ export const newsTemplate = `<!DOCTYPE html>
           <div class="mt-10 flex flex-col gap-6">
             <article class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <p class="text-xs font-semibold uppercase tracking-widest text-primary">Launch</p>
-              <h3 class="mt-3 text-xl font-bold">The blog is live</h3>
+              <h3 class="mt-3 text-xl font-bold">The blog is live!</h3>
               <p class="mt-2 text-sm text-text-sub">
-                The blog is live, and I will be sharing practical notes on AI, automation, and building software with real tradeoffs.
+                I will be sharing practical notes on AI, automation, and building software with real tradeoffs.
                 Wishing everyone a happy, safe, and productive 2026. Exciting time to be alive!
               </p>
             </article>

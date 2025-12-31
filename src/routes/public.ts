@@ -40,6 +40,7 @@ export const handlePublicRoutes = async (
   method: string,
 ): Promise<Response | null> => {
   const path = url.pathname;
+  const showEmailSubscribe = env.SHOW_EMAIL_SUBSCRIBE?.trim().toLowerCase() !== 'no';
 
   // GET /
   if (path === '/' && method === 'GET') {
@@ -182,6 +183,7 @@ export const handlePublicRoutes = async (
         published_date: formatDate(post.published_at),
         reading_time: post.reading_time_minutes,
       })),
+      show_email_subscribe: showEmailSubscribe,
     };
     return htmlResponse(templates.home, view);
   }
@@ -237,12 +239,18 @@ export const handlePublicRoutes = async (
 
   // GET /about
   if (path === '/about' && method === 'GET') {
-    return htmlResponse(templates.about, { nav_is_about: true });
+    return htmlResponse(templates.about, {
+      nav_is_about: true,
+      show_email_subscribe: showEmailSubscribe,
+    });
   }
 
   // GET /projects
   if (path === '/projects' && method === 'GET') {
-    return htmlResponse(templates.projects, { nav_is_projects: true });
+    return htmlResponse(templates.projects, {
+      nav_is_projects: true,
+      show_email_subscribe: showEmailSubscribe,
+    });
   }
 
   // GET /archive
@@ -294,22 +302,32 @@ export const handlePublicRoutes = async (
         reading_time: post.reading_time_minutes,
         url: `/articles/${post.slug}`,
       })),
+      show_email_subscribe: showEmailSubscribe,
     });
   }
 
   // GET /news
   if (path === '/news' && method === 'GET') {
-    return htmlResponse(templates.news, { nav_is_news: true });
+    return htmlResponse(templates.news, {
+      nav_is_news: true,
+      show_email_subscribe: showEmailSubscribe,
+    });
   }
 
   // GET /work-with-me
   if (path === '/work-with-me' && method === 'GET') {
-    return htmlResponse(templates.workWithMe, { nav_is_work: true });
+    return htmlResponse(templates.workWithMe, {
+      nav_is_work: true,
+      show_email_subscribe: showEmailSubscribe,
+    });
   }
 
   // GET /contact
   if (path === '/contact' && method === 'GET') {
-    return htmlResponse(templates.contact, { nav_is_contact: true });
+    return htmlResponse(templates.contact, {
+      nav_is_contact: true,
+      show_email_subscribe: showEmailSubscribe,
+    });
   }
 
   // GET /articles/:slug
@@ -339,6 +357,7 @@ export const handlePublicRoutes = async (
       hero_image_alt: post.hero_image_alt || post.title,
       body_html: bodyHtml,
       tags: post.tag_names.map((name) => ({ name })),
+      show_email_subscribe: showEmailSubscribe,
     };
     return htmlResponse(templates.article, view);
   }

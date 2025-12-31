@@ -121,6 +121,7 @@ export const articleTemplate = `<!DOCTYPE html>
               <span class="material-symbols-outlined text-[18px]">rss_feed</span>
               RSS feed
             </a>
+            {{#show_email_subscribe}}
             <form class="mt-4 flex flex-col gap-3">
               <label class="text-xs font-semibold text-text-muted" for="subscribe-email-article">Email updates</label>
               <input
@@ -150,6 +151,7 @@ export const articleTemplate = `<!DOCTYPE html>
                 Join by email
               </button>
             </form>
+            {{/show_email_subscribe}}
           </div>
         </aside>
       </div>
