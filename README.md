@@ -4,9 +4,9 @@ A Cloudflare Workers + D1 powered blog with Mustache templates, Markdown content
 
 ## Features
 
-- Public pages: home, about, and article detail pages.
-- Admin area: Google OAuth login, post create/edit/delete, tags, drafts, publishing time.
-- Markdown articles rendered server-side.
+- Public pages: home, about, projects, news, work-with-me, contact, archive, and article detail pages.
+- Admin area: Google OAuth login, post/news create/edit/delete, tags, drafts, featured images, and scheduling.
+- Markdown articles rendered server-side with RSS feed support.
 - Media library backed by R2 with metadata stored in D1.
 
 ## Requirements
@@ -83,10 +83,18 @@ Images uploaded in the admin are stored in R2 and indexed in D1.
 
 - `/` home page
 - `/about` about page
+- `/projects` projects page
+- `/news` news page
+- `/work-with-me` services page
+- `/contact` contact page
+- `/archive` archive page
 - `/articles/:slug` article page
+- `/rss.xml` RSS feed
 - `/admin` post list (requires login)
 - `/admin/posts/new` new post
 - `/admin/posts/:id` edit post
+- `/admin/news/new` new news item
+- `/admin/news/:id` edit news item
 - `/admin/media` media library
 - `/media/<key>` media asset delivery (public)
 
