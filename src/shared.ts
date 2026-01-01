@@ -283,3 +283,17 @@ export const getRedirectUri = (request: Request, env: Env) => {
 export const buildMediaUrl = (key: string) => {
   return `/media/${key}`;
 };
+
+export const resolveHeroImageUrl = (value: string | null) => {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return buildMediaUrl(trimmed);
+};
