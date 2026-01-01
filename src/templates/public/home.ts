@@ -101,6 +101,9 @@ export const homeTemplate = `<!DOCTYPE html>
                   {{#latest_post}}
                   <article class="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                     <div class="flex flex-col gap-4">
+                      <div class="overflow-hidden rounded-2xl border border-gray-100">
+                        <img alt="{{image_alt}}" class="h-64 w-full object-cover" src="{{image_url}}" />
+                      </div>
                       <div class="flex items-center gap-3 text-xs text-text-sub font-medium">
                         <span>{{published_date}}</span>
                         <span>•</span>

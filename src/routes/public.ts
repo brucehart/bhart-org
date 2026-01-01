@@ -15,6 +15,7 @@ import {
   HEADSHOT_IMAGE,
   htmlResponse,
   normalizeRequiredString,
+  resolveHeroImageUrl,
   redirectResponse,
 } from '../shared';
 import { templates } from '../templates/index';
@@ -100,7 +101,8 @@ export const handlePublicRoutes = async (
     const latestPost = posts[0];
     const remainingPosts = posts.filter((post) => post.id !== latestPost?.id);
     const listPosts = remainingPosts;
-    const heroImage = latestPost?.hero_image_url ?? DEFAULT_HERO_IMAGE;
+    const heroImage =
+      resolveHeroImageUrl(latestPost?.hero_image_url ?? null) ?? DEFAULT_HERO_IMAGE;
     const latestExcerptMarkdown = latestPost
       ? latestPost.body_markdown
           .split(/\n{2,}/)
@@ -186,7 +188,9 @@ export const handlePublicRoutes = async (
             reading_time: latestPost.reading_time_minutes,
             primary_tag: latestPost.tag_names[0] ?? 'General',
             url: `/articles/${latestPost.slug}`,
-            image_url: latestPost.hero_image_url ?? DEFAULT_CARD_IMAGE,
+            image_url:
+              resolveHeroImageUrl(latestPost.hero_image_url ?? null) ?? DEFAULT_CARD_IMAGE,
+            image_alt: latestPost.hero_image_alt || latestPost.title,
             excerpt_html: latestExcerptHtml,
           }
         : null,
@@ -200,7 +204,7 @@ export const handlePublicRoutes = async (
         reading_time: post.reading_time_minutes,
         primary_tag: post.tag_names[0] ?? 'General',
         url: `/articles/${post.slug}`,
-        image_url: post.hero_image_url ?? DEFAULT_CARD_IMAGE,
+        image_url: resolveHeroImageUrl(post.hero_image_url ?? null) ?? DEFAULT_CARD_IMAGE,
       })),
       sidebar_tags: tags.map((tag) => ({
         name: tag.name,
@@ -612,7 +616,7 @@ export const handlePublicRoutes = async (
       published_at: post.published_at,
       published_date: formatDate(post.published_at),
       reading_time: post.reading_time_minutes,
-      hero_image_url: post.hero_image_url,
+      hero_image_url: resolveHeroImageUrl(post.hero_image_url),
       hero_image_alt: post.hero_image_alt || post.title,
       body_html: bodyHtml,
       tags: post.tag_names.map((name) => ({ name })),
