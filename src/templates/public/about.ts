@@ -69,7 +69,7 @@ export const aboutTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-light transition-colors duration-200">
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="layout-container flex h-full grow flex-col items-center">
+      <main class="layout-container flex h-full grow flex-col items-center" id="main-content">
         <section class="w-full max-w-[960px] px-6 lg:px-0 py-12 lg:py-20">
           <div class="@container">
             <div class="flex flex-col-reverse gap-10 lg:gap-16 lg:flex-row items-center">
@@ -79,7 +79,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                     Hi, I'm Bruce.
                   </h1>
                   <p class="text-muted-light text-lg lg:text-xl font-normal leading-relaxed max-w-[600px] mx-auto lg:mx-0">
-                    I build software that respects people, not just specs. This is where I think out loud about AI, technology, and the messy parts of building a good life around them.
+                    I try to build software that respects people, not just specs. This is where I think out loud about AI, technology, and the messy parts of building a good life around them. I sometimes change my mind in public. Outside work, I’m a husband and father of two, a cancer survivor, a former Army brat who bounced around the U.S. and the world. These days I call Bellbrook, Ohio home.
                   </p>
                 </div>
                 <div class="flex gap-4 justify-center lg:justify-start pt-2">
@@ -87,16 +87,17 @@ export const aboutTemplate = `<!DOCTYPE html>
                     Get in Touch
                   </a>
                   <a class="flex items-center justify-center rounded-lg h-12 px-6 bg-transparent border border-border-light text-text-light hover:bg-black/5 text-base font-bold leading-normal transition-all" href="/">
-                    Read my Blog
+                    Read my blog
                   </a>
                 </div>
               </div>
               <div class="w-full max-w-[400px] lg:w-1/2 aspect-square lg:aspect-[4/5] relative group">
                 <div class="absolute inset-0 bg-primary rounded-xl translate-x-2 translate-y-2 lg:translate-x-4 lg:translate-y-4 opacity-20 transition-transform group-hover:translate-x-3 group-hover:translate-y-3"></div>
-                <div
-                  class="relative h-full w-full bg-center bg-no-repeat bg-cover rounded-xl border border-border-light shadow-sm overflow-hidden"
-                  style="background-image: url('/media/headshot.png');"
-                ></div>
+                <img
+                  alt="Headshot of Bruce Hart"
+                  class="relative h-full w-full rounded-xl border border-border-light shadow-sm object-cover"
+                  src="/media/headshot.png"
+                />
               </div>
             </div>
           </div>
@@ -115,7 +116,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-background-light p-6 transition-transform hover:-translate-y-1 hover:shadow-md">
                   <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined text-3xl">psychology</span>
+                    <span aria-hidden="true" class="material-symbols-outlined text-3xl">psychology</span>
                   </div>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Artificial Intelligence</h3>
@@ -126,7 +127,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                 </div>
                 <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-background-light p-6 transition-transform hover:-translate-y-1 hover:shadow-md">
                   <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined text-3xl">memory</span>
+                    <span aria-hidden="true" class="material-symbols-outlined text-3xl">memory</span>
                   </div>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Technology</h3>
@@ -137,7 +138,7 @@ export const aboutTemplate = `<!DOCTYPE html>
                 </div>
                 <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-background-light p-6 transition-transform hover:-translate-y-1 hover:shadow-md">
                   <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined text-3xl">photo_camera</span>
+                    <span aria-hidden="true" class="material-symbols-outlined text-3xl">photo_camera</span>
                   </div>
                   <div class="flex flex-col gap-2">
                     <h3 class="text-text-light text-xl font-bold font-display">Personal Pursuits</h3>
@@ -155,7 +156,7 @@ export const aboutTemplate = `<!DOCTYPE html>
             <div class="flex flex-col gap-6">
               <h2 class="text-text-light text-3xl font-bold font-display">Career Timeline</h2>
               <p class="text-muted-light leading-relaxed">
-                I have spent my career toggling between hands-on building and helping teams do their best work. I care about clear thinking, honest tradeoffs, and leaving systems better than I found them. Outside work, I am a cancer survivor, a former Army brat who bounced around the US and the world, and a Southern California high school grad who now calls Bellbrook, Ohio home.
+                I’ve spent my career bouncing between hands-on building and helping teams do their best work. I care about clear thinking, honest tradeoffs, and leaving systems better than I found them.
               </p>
               <div class="rounded-xl border border-border-light bg-white p-6">
                 <h3 class="text-text-light text-lg font-bold font-display mb-4">Skills &amp; Tools</h3>
@@ -204,7 +205,7 @@ export const aboutTemplate = `<!DOCTYPE html>
             <div class="grid grid-cols-[40px_1fr] gap-x-4">
               <div class="flex flex-col items-center gap-1 pt-1">
                 <div class="text-primary bg-background-light z-10">
-                  <span class="material-symbols-outlined">science</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">science</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -219,7 +220,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">analytics</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">analytics</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -228,13 +229,13 @@ export const aboutTemplate = `<!DOCTYPE html>
                 <p class="text-muted-light text-sm font-medium mb-2">09/2020 - 05/2024</p>
                 <ul class="text-muted-light text-sm leading-relaxed list-disc pl-4">
                   <li>More of the same! Built teams and delivered programs after Centauri joined KBR.</li>
-                  <li>KBR acquired Centauri for $800M: <a class="text-primary hover:text-primary/80 transition-colors" href="https://www.kbr.com/en/insights-news/press-release/kbr-acquire-centauri-significantly-expanding-its-military-space-defense">press release</a>.</li>
+                  <li>Centauri was acquired by KBR ($800M): <a class="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors" href="https://www.kbr.com/en/insights-news/press-release/kbr-acquire-centauri-significantly-expanding-its-military-space-defense">press release</a>.</li>
                 </ul>
               </div>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">leaderboard</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">leaderboard</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -249,7 +250,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">memory</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">memory</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -265,7 +266,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">code</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">code</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -281,7 +282,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">query_stats</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">query_stats</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -296,7 +297,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">terminal</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">terminal</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -311,7 +312,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">school</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">school</span>
                 </div>
                 <div class="w-[2px] bg-border-light h-full grow"></div>
               </div>
@@ -323,7 +324,7 @@ export const aboutTemplate = `<!DOCTYPE html>
               <div class="flex flex-col items-center gap-1 pb-1">
                 <div class="w-[2px] bg-border-light h-4"></div>
                 <div class="text-muted-light">
-                  <span class="material-symbols-outlined">school</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">school</span>
                 </div>
               </div>
               <div class="flex flex-col pt-4">

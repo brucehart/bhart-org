@@ -136,7 +136,7 @@ export const adminEditTemplate = `<!DOCTYPE html>
                 <h3 class="text-lg font-bold">Images</h3>
                 <div>
                   <label class="block text-sm font-semibold mb-2" for="hero_image_url">Featured image URL</label>
-                  <input class="w-full rounded-lg border-gray-200" id="hero_image_url" name="hero_image_url" type="url" value="{{hero_image_url}}" />
+                  <input class="w-full rounded-lg border-gray-200" id="hero_image_url" name="hero_image_url" type="text" inputmode="url" autocomplete="url" value="{{hero_image_url}}" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold mb-2" for="hero_image_alt">Featured image alt text</label>

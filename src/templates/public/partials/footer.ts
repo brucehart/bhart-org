@@ -7,10 +7,10 @@ export const publicFooterTemplate = `
       <div class="absolute -left-24 -bottom-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
       <div class="relative z-10 flex flex-col items-center text-center">
         <h2 class="text-3xl font-bold tracking-tight text-text-main sm:text-4xl">
-          Subscribe for weekly insights
+          A weekly note (mostly)
         </h2>
         <p class="mx-auto mt-4 max-w-xl text-lg text-text-sub">
-          Get the latest articles on AI, tech trends, and personal reflections delivered straight to your inbox.
+          New posts, links I’m chewing on, and a few honest takeaways. No hype. Unsubscribe anytime.
         </p>
         <form class="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row">
           <label class="sr-only" for="email-address">Email address</label>
@@ -43,13 +43,13 @@ export const publicFooterTemplate = `
     <div class="mt-16 flex flex-col items-center gap-6 text-center">
       <div class="flex items-center gap-2">
         <div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
-          <span class="material-symbols-outlined text-[14px]">terminal</span>
+          <span aria-hidden="true" class="material-symbols-outlined text-[14px]">terminal</span>
         </div>
         <p class="text-sm font-semibold text-text-main">bhart.org</p>
       </div>
       <div class="flex items-center gap-4 text-xs font-semibold text-text-sub">
         <a class="inline-flex items-center gap-1 hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
-          <span class="material-symbols-outlined text-[16px]">rss_feed</span>
+          <span aria-hidden="true" class="material-symbols-outlined text-[16px]">rss_feed</span>
           RSS
         </a>
         <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>

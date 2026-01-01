@@ -53,49 +53,50 @@ export const workWithMeTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-main font-display antialiased">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-4">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Work With Me</p>
-            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Strategy, build, and delivery.</h1>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">A second brain for AI work.</h1>
             <p class="text-lg text-text-sub max-w-2xl">
-              I partner with teams to design AI-driven products, streamline automation, and ship reliable software.
+              If you're trying to figure out where AI actually helps (and where it’s just a demo), I can help you design, prototype, and ship something real.
             </p>
           </div>
+          <h2 class="sr-only">Ways I can help</h2>
           <div class="mt-10 grid gap-6 md:grid-cols-2">
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 class="text-xl font-bold">Advisory</h3>
               <p class="mt-2 text-sm text-text-sub">
-                Technical strategy, roadmap reviews, and architecture guidance for AI and data teams.
+                Roadmap and architecture sanity checks for AI and data work. I’ll ask annoying questions (politely) so you ship fewer surprises.
               </p>
             </div>
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 class="text-xl font-bold">Build</h3>
               <p class="mt-2 text-sm text-text-sub">
-                Rapid prototyping and implementation of product features, automation systems, and back ends.
+                Prototype fast, then harden it: product features, automation systems, and back ends that don’t crumble at the first edge case.
               </p>
             </div>
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 class="text-xl font-bold">Workshops</h3>
               <p class="mt-2 text-sm text-text-sub">
-                Hands-on sessions that align product, engineering, and leadership around AI capabilities.
+                Hands-on sessions to align product, engineering, and leadership on what AI can do today. No buzzword bingo.
               </p>
             </div>
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 class="text-xl font-bold">Delivery Support</h3>
               <p class="mt-2 text-sm text-text-sub">
-                Execution help to get systems into production with clear metrics and operational guardrails.
+                Help getting systems into production with clear metrics and guardrails, so they behave when they meet real users.
               </p>
             </div>
           </div>
           <div class="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-6">
             <h2 class="text-2xl font-bold">Start a conversation</h2>
             <p class="mt-2 text-sm text-text-sub">
-              Send a note with a brief overview and timeline. I will reply with next steps.
+              Send a note with what you’re trying to do and a rough timeline. If I’m a fit, I’ll suggest a simple next step. If not, I’ll still try to point you somewhere useful.
             </p>
             <a class="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors" href="/contact">
               Contact me
-              <span class="material-symbols-outlined text-sm">arrow_forward</span>
+              <span aria-hidden="true" class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
           </div>
         </section>

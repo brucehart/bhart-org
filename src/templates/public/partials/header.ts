@@ -1,13 +1,14 @@
 export const publicHeaderTemplate = `
 <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light bg-background-light/90 backdrop-blur-sm px-6 py-4 lg:px-40">
+  <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 rounded bg-white px-3 py-2 text-sm font-semibold text-primary shadow" href="#main-content">Skip to content</a>
   <div class="flex items-center gap-4 text-text-light">
     <div class="size-8 flex items-center justify-center text-primary">
-      <span class="material-symbols-outlined !text-[32px]">terminal</span>
+      <span aria-hidden="true" class="material-symbols-outlined !text-[32px]">terminal</span>
     </div>
     <h2 class="text-xl font-bold leading-tight tracking-[-0.015em] font-display">Bruce Hart</h2>
   </div>
   <div class="hidden md:flex flex-1 items-center justify-end gap-6">
-    <nav class="flex items-center gap-6">
+    <nav aria-label="Primary" class="flex items-center gap-6">
       <a class="{{#nav_is_home}}text-primary text-sm font-bold leading-normal{{/nav_is_home}}{{^nav_is_home}}text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors{{/nav_is_home}}" href="/">Home</a>
       <a class="{{#nav_is_about}}text-primary text-sm font-bold leading-normal{{/nav_is_about}}{{^nav_is_about}}text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors{{/nav_is_about}}" href="/about">About</a>
       <a class="{{#nav_is_projects}}text-primary text-sm font-bold leading-normal{{/nav_is_projects}}{{^nav_is_projects}}text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors{{/nav_is_projects}}" href="/projects">Projects</a>
@@ -17,7 +18,7 @@ export const publicHeaderTemplate = `
     </nav>
     <div class="flex items-center gap-4 text-sm font-medium text-muted-light">
       <a class="flex items-center text-text-light hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
-        <span class="material-symbols-outlined text-[20px]">rss_feed</span>
+        <span aria-hidden="true" class="material-symbols-outlined text-[20px]">rss_feed</span>
       </a>
       <a class="hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>
       <a class="hover:text-primary transition-colors" href="{{github_url}}" rel="noreferrer" target="_blank">GitHub</a>
@@ -25,9 +26,9 @@ export const publicHeaderTemplate = `
   </div>
   <div class="md:hidden flex items-center gap-3 text-text-light">
     <a class="flex items-center text-text-light hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
-      <span class="material-symbols-outlined text-[22px]">rss_feed</span>
+      <span aria-hidden="true" class="material-symbols-outlined text-[22px]">rss_feed</span>
     </a>
-    <span class="material-symbols-outlined cursor-pointer">menu</span>
+    <span aria-hidden="true" class="material-symbols-outlined">menu</span>
   </div>
 </header>
 `;

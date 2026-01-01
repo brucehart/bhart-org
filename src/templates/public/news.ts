@@ -53,15 +53,16 @@ export const newsTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-main font-display antialiased">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-4">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">News</p>
             <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Updates, launches, and short notes.</h1>
             <p class="text-lg text-text-sub max-w-2xl">
-              A lightweight feed for what I am shipping, learning, and exploring.
+              Short updates when I ship something, learn something, or accidentally do both at once.
             </p>
           </div>
+          <h2 class="sr-only">News items</h2>
           <div class="mt-10 flex flex-col gap-6">
             {{#has_news_items}}
             {{#news_items}}

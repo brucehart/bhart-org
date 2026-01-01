@@ -382,7 +382,7 @@ export const handlePublicRoutes = async (
   if (path === '/contact' && method === 'GET') {
     const contactSent = url.searchParams.get('sent') === '1';
     const contactNoticeSuccess = contactSent;
-    const contactNoticeMessage = contactSent ? 'Thanks for reaching out. I will get back to you soon.' : '';
+    const contactNoticeMessage = contactSent ? 'Thanks for the note — I’ll get back to you soon.' : '';
     return htmlResponse(templates.contact, {
       nav_is_contact: true,
       show_email_subscribe: showEmailSubscribe,

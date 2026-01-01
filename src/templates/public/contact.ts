@@ -53,36 +53,37 @@ export const contactTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-main font-display antialiased">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-4">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Contact</p>
             <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Start a conversation.</h1>
             <p class="text-lg text-text-sub max-w-2xl">
-              I am always open to thoughtful collaborations, research ideas, and product challenges.
+              If you’ve got a problem worth chewing on—product, research, or a weird automation itch—send a note.
             </p>
           </div>
+          <h2 class="sr-only">Contact options</h2>
           <div class="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 class="text-xl font-bold">Send a note</h3>
               <p class="mt-2 text-sm text-text-sub">
-                If there is something worth building or exploring together, I would love to hear about it.
+                If there’s something worth building or exploring, I’d love to hear the shape of it. A little context goes a long way.
               </p>
               {{#contact_notice_success}}
-              <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              <div aria-live="polite" class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900" role="status">
                 {{contact_notice_message}}
               </div>
               {{/contact_notice_success}}
               {{#contact_notice_error}}
-              <div class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+              <div aria-live="assertive" class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900" role="alert">
                 {{contact_notice_message}}
               </div>
               {{/contact_notice_error}}
               <form class="mt-6 grid gap-4" action="/contact" method="post">
                 <input type="hidden" name="form_started_at" value="{{contact_started_at}}" />
-                <label class="hidden">
+                <label aria-hidden="true" class="hidden">
                   Leave this field empty
-                  <input type="text" name="company" tabindex="-1" autocomplete="off" />
+                  <input aria-hidden="true" type="text" name="company" tabindex="-1" autocomplete="off" />
                 </label>
                 <label class="grid gap-2 text-sm font-semibold text-text-main">
                   From
@@ -105,17 +106,17 @@ export const contactTemplate = `<!DOCTYPE html>
               <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <h3 class="text-xl font-bold">Email</h3>
                 <p class="mt-2 text-sm text-text-sub">
-                  The fastest way to reach me is email. I usually reply within a few days.
+                  Email is still undefeated. I usually reply within a few days.
                 </p>
                 <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="mailto:bruce@bhart.org">
                   bruce@bhart.org
-                  <span class="material-symbols-outlined text-sm">north_east</span>
+                  <span aria-hidden="true" class="material-symbols-outlined text-sm">north_east</span>
                 </a>
               </div>
               <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <h3 class="text-xl font-bold">Social</h3>
                 <p class="mt-2 text-sm text-text-sub">
-                  Follow along for short updates and project notes.
+                  If you want the short version, I post small updates here.
                 </p>
                 <div class="mt-4 flex items-center gap-4 text-sm font-semibold">
                   <a class="text-text-main hover:text-primary transition-colors" href="{{linkedin_url}}" rel="noreferrer" target="_blank">LinkedIn</a>

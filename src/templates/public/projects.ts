@@ -53,15 +53,16 @@ export const projectsTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-main font-display antialiased">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-4">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Projects</p>
-            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Things I am building in the open.</h1>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Things I’m building in public.</h1>
             <p class="text-lg text-text-sub max-w-2xl">
-              A running list of public repos, experiments, and tools. If something sparks a collaboration idea, reach out.
+              A running list of repos, experiments, and tools. Some are polished; some are glorified notebooks. If something sparks an idea, reach out.
             </p>
           </div>
+          <h2 class="sr-only">Project list</h2>
           <div class="mt-10 grid gap-6 md:grid-cols-2">
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <div class="flex items-center justify-between gap-3">
@@ -70,13 +71,13 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <div class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-100 bg-primary/10 text-primary">
-                  <span class="material-symbols-outlined text-[18px]">terminal</span>
+                  <span aria-hidden="true" class="material-symbols-outlined text-[18px]">terminal</span>
                 </div>
                 <h3 class="text-xl font-bold">bhart.org blog</h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bhart-org</span></p>
               <p class="mt-2 text-sm text-text-sub">
-                Personal blog built on top of Cloudflare Workers.
+                This site, built on top of Cloudflare Workers. Deliberately small. Slightly nerdy.
               </p>
               <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/bhart-org" rel="noreferrer">
@@ -98,7 +99,7 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">web-tools</span></p>
               <p class="mt-2 text-sm text-text-sub">
-                Simple web based tools that run in Cloudflare Workers.
+                Small browser tools that run in Cloudflare Workers. My love letter to “just ship the tiny thing.”
               </p>
               <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/web-tools" rel="noreferrer">
@@ -182,7 +183,7 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bedtimestories</span></p>
               <p class="mt-2 text-sm text-text-sub">
-                Cloudflare Worker that serves LLM-generated bedtime stories for my kids.
+                Cloudflare Worker that serves LLM-generated bedtime stories for my kids. Occasionally it surprises us (in a good way).
               </p>
               <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/bedtimestories" rel="noreferrer">
@@ -202,7 +203,7 @@ export const projectsTemplate = `<!DOCTYPE html>
               <h3 class="mt-3 text-xl font-bold">Userscripts</h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">userscripts</span></p>
               <p class="mt-2 text-sm text-text-sub">
-                Personal userscripts for use with Tampermonkey.
+                Personal userscripts for Tampermonkey. Small sandpaper for rough edges on the web.
               </p>
               <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/userscripts" rel="noreferrer">

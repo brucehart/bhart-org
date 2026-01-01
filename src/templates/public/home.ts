@@ -54,16 +54,16 @@ export const homeTemplate = `<!DOCTYPE html>
   <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
     <div class="relative flex min-h-screen flex-col overflow-x-hidden">
       {{> publicHeader}}
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section class="relative overflow-hidden border-b border-gray-100">
           <div class="absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-sky-50"></div>
           <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
           <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
-              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Welcome to my blog</h1>
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
               <p class="text-base text-text-sub max-w-3xl mx-auto">
-                I write about practical AI, automation, and the human side of building software.
-                Expect thoughtful takes, experiments, and honest tradeoffs from the field.
+                Practical AI, automation, and the messy reality of shipping software.
+                Expect experiments, tradeoffs, and the occasional “well, that didn’t work” postmortem.
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
               <!-- Left Sidebar: Tags -->
-              <aside class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
+              <div class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
@@ -89,7 +89,7 @@ export const homeTemplate = `<!DOCTYPE html>
                     </div>
                   </div>
                 </div>
-              </aside>
+              </div>
 
               <!-- Main Content: Articles -->
               <div class="order-1 flex-1 min-w-0 lg:order-none">
@@ -115,7 +115,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       </div>
                       <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">
                         Read the full piece
-                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        <span aria-hidden="true" class="material-symbols-outlined text-sm">arrow_forward</span>
                       </a>
                     </div>
                   </article>
@@ -131,7 +131,7 @@ export const homeTemplate = `<!DOCTYPE html>
                   {{#posts}}
                   <article class="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all hover:shadow-lg hover:shadow-primary/5">
                     <div class="relative overflow-hidden h-48">
-                      <div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image: url('{{image_url}}');"></div>
+                      <div aria-label="{{title}} cover image" class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" role="img" style="background-image: url('{{image_url}}');"></div>
                     </div>
                     <div class="flex flex-1 flex-col p-6">
                       <div class="flex items-center gap-3 mb-3">
@@ -162,23 +162,23 @@ export const homeTemplate = `<!DOCTYPE html>
               </div>
 
               <!-- Right Sidebar: About & Recent Posts -->
-              <aside class="order-2 w-full lg:order-none lg:w-80 flex-shrink-0">
+              <div class="order-2 w-full lg:order-none lg:w-80 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
                   <!-- About Me Mini Card -->
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <div class="flex items-center gap-4 mb-4">
-                      <div class="w-16 h-16 rounded-full bg-cover bg-center border-2 border-gray-100" style="background-image: url('{{author_avatar_url}}');"></div>
+                      <img alt="Portrait of Bruce Hart" class="w-16 h-16 rounded-full border-2 border-gray-100 object-cover" src="{{author_avatar_url}}" />
                       <div>
                         <h3 class="font-bold text-text-main">Bruce Hart</h3>
-                        <p class="text-xs text-text-sub">AI & Tech Writer</p>
+                        <p class="text-xs text-text-sub">Engineer who writes</p>
                       </div>
                     </div>
                     <p class="text-sm text-text-sub mb-4">
-                      Engineering leader exploring AI, automation, and the human side of software.
+                      Engineer tinkering with AI and automation. I like clear tradeoffs, readable code, and weird little experiments that sometimes work.
                     </p>
                     <a href="/about" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
                       More about me
-                      <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                      <span aria-hidden="true" class="material-symbols-outlined text-sm">arrow_forward</span>
                     </a>
                   </div>
 
@@ -189,7 +189,7 @@ export const homeTemplate = `<!DOCTYPE html>
                     <div class="flex flex-col gap-4">
                       {{#recent_posts}}
                       <a href="{{url}}" class="group">
-                        <h4 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mb-1">{{title}}</h4>
+                        <h3 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mb-1">{{title}}</h3>
                         <div class="flex items-center gap-2 text-xs text-text-sub">
                           <span>{{published_date}}</span>
                           <span>•</span>
@@ -211,7 +211,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       {{#recent_news}}
                       <a href="/news" class="group">
                         <div class="text-[11px] uppercase tracking-widest text-primary">{{category}}</div>
-                        <h4 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mt-1">{{title}}</h4>
+                        <h3 class="text-sm font-semibold text-text-main group-hover:text-primary transition-colors leading-tight mt-1">{{title}}</h3>
                         <div class="text-xs text-text-sub mt-1">{{published_date}}</div>
                       </a>
                       {{/recent_news}}
@@ -222,7 +222,7 @@ export const homeTemplate = `<!DOCTYPE html>
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-3">Subscribe</h2>
                     <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{rss_url}}">
-                      <span class="material-symbols-outlined text-[18px]">rss_feed</span>
+                      <span aria-hidden="true" class="material-symbols-outlined text-[18px]">rss_feed</span>
                       RSS feed
                     </a>
                     {{#show_email_subscribe}}
@@ -266,7 +266,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       <details class="group rounded-lg border border-gray-100 bg-background-light/60 px-3 py-2" {{#is_open}}open{{/is_open}}>
                         <summary class="cursor-pointer list-none flex items-center justify-between text-sm font-semibold text-text-main">
                           <a class="hover:text-primary transition-colors" href="{{year_url}}">{{year}}</a>
-                          <span class="material-symbols-outlined text-sm text-text-sub transition-transform group-open:rotate-180">expand_more</span>
+                          <span aria-hidden="true" class="material-symbols-outlined text-sm text-text-sub transition-transform group-open:rotate-180">expand_more</span>
                         </summary>
                         <div class="mt-2 flex flex-col gap-2">
                           {{#months}}
@@ -282,7 +282,7 @@ export const homeTemplate = `<!DOCTYPE html>
                   </div>
                   {{/has_posts_by_month}}
                 </div>
-              </aside>
+              </div>
             </div>
           </div>
         </section>

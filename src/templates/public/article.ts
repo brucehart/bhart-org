@@ -60,12 +60,12 @@ export const articleTemplate = `<!DOCTYPE html>
     {{#preview}}
     <div class="bg-amber-100 border-b border-amber-200">
       <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 text-sm text-amber-900 flex items-center justify-between">
-        <div>Previewing a draft post.</div>
+        <div>Previewing a draft. You’re in the messy kitchen.</div>
         <a class="font-semibold text-amber-900 underline" href="{{preview_edit_url}}">Back to editor</a>
       </div>
     </div>
     {{/preview}}
-    <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10" id="main-content">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <article class="lg:col-span-8 flex flex-col gap-8">
           <header class="flex flex-col gap-6">
@@ -81,7 +81,7 @@ export const articleTemplate = `<!DOCTYPE html>
             </h1>
             <div class="flex items-center gap-4 text-sm text-text-muted border-b border-gray-200 pb-6">
               <div class="flex items-center gap-2">
-                <div class="h-8 w-8 rounded-full bg-gray-300 overflow-hidden" style="background-image: url('{{author_avatar}}'); background-size: cover;"></div>
+                <img alt="Portrait of {{author_name}}" class="h-8 w-8 rounded-full object-cover" src="{{author_avatar}}" />
                 <span class="font-medium text-text-main">{{author_name}}</span>
               </div>
               <span>&bull;</span>
@@ -102,14 +102,14 @@ export const articleTemplate = `<!DOCTYPE html>
         <aside class="lg:col-span-4 flex flex-col gap-6">
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
-              <div class="h-12 w-12 rounded-full bg-gray-300 overflow-hidden" style="background-image: url('{{author_avatar}}'); background-size: cover;"></div>
+              <img alt="Portrait of {{author_name}}" class="h-12 w-12 rounded-full object-cover" src="{{author_avatar}}" />
               <div>
                 <p class="text-sm font-semibold text-text-main">{{author_name}}</p>
-                <p class="text-xs text-text-muted">AI & Tech Writer</p>
+                <p class="text-xs text-text-muted">Engineer who writes</p>
               </div>
             </div>
             <h3 class="text-lg font-bold mb-2">About the author</h3>
-            <p class="text-sm text-text-muted">{{author_name}} writes about AI, technology, and the human side of innovation.</p>
+            <p class="text-sm text-text-muted">{{author_name}} writes about practical AI, automation, and the human side of shipping software. Sometimes the conclusions change in public.</p>
           </div>
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 class="text-lg font-bold mb-2">More reading</h3>
@@ -118,7 +118,7 @@ export const articleTemplate = `<!DOCTYPE html>
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 class="text-lg font-bold mb-2">Subscribe</h3>
             <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{rss_url}}">
-              <span class="material-symbols-outlined text-[18px]">rss_feed</span>
+              <span aria-hidden="true" class="material-symbols-outlined text-[18px]">rss_feed</span>
               RSS feed
             </a>
             {{#show_email_subscribe}}
