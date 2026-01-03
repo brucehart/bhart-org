@@ -766,6 +766,19 @@ export const listMediaAssets = async (db: D1Database, limit = 24): Promise<Media
   return results.map(mapMediaRow);
 };
 
+export const listMediaAssetsPage = async (
+  db: D1Database,
+  options: { limit: number; offset: number },
+): Promise<MediaAsset[]> => {
+  const limit = Math.max(0, Math.floor(options.limit));
+  const offset = Math.max(0, Math.floor(options.offset));
+  const { results } = await db
+    .prepare('SELECT * FROM media_assets ORDER BY uploaded_at DESC LIMIT ? OFFSET ?')
+    .bind(limit, offset)
+    .all<MediaAssetRecord>();
+  return results.map(mapMediaRow);
+};
+
 export const getMediaAssetById = async (db: D1Database, id: string): Promise<MediaAsset | null> => {
   const row = await db.prepare('SELECT * FROM media_assets WHERE id = ?').bind(id).first<MediaAssetRecord>();
   return row ? mapMediaRow(row) : null;

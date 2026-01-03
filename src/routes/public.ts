@@ -10,7 +10,6 @@ import {
 } from '../db';
 import { createEasternDate, formatDate, formatRssDate, getEasternYear } from '../utils';
 import {
-  DEFAULT_CARD_IMAGE,
   DEFAULT_HERO_IMAGE,
   HEADSHOT_IMAGE,
   htmlResponse,
@@ -103,6 +102,9 @@ export const handlePublicRoutes = async (
     const listPosts = remainingPosts;
     const heroImage =
       resolveHeroImageUrl(latestPost?.hero_image_url ?? null) ?? DEFAULT_HERO_IMAGE;
+    const latestPostImage = latestPost?.hero_image_url
+      ? resolveHeroImageUrl(latestPost.hero_image_url)
+      : null;
     const latestExcerptMarkdown = latestPost
       ? latestPost.body_markdown
           .split(/\n{2,}/)
@@ -188,9 +190,8 @@ export const handlePublicRoutes = async (
             reading_time: latestPost.reading_time_minutes,
             primary_tag: latestPost.tag_names[0] ?? 'General',
             url: `/articles/${latestPost.slug}`,
-            image_url:
-              resolveHeroImageUrl(latestPost.hero_image_url ?? null) ?? DEFAULT_CARD_IMAGE,
-            image_alt: latestPost.hero_image_alt || latestPost.title,
+            image_url: latestPostImage,
+            image_alt: latestPostImage ? latestPost.hero_image_alt || latestPost.title : null,
             excerpt_html: latestExcerptHtml,
           }
         : null,
@@ -204,7 +205,7 @@ export const handlePublicRoutes = async (
         reading_time: post.reading_time_minutes,
         primary_tag: post.tag_names[0] ?? 'General',
         url: `/articles/${post.slug}`,
-        image_url: resolveHeroImageUrl(post.hero_image_url ?? null) ?? DEFAULT_CARD_IMAGE,
+        image_url: post.hero_image_url ? resolveHeroImageUrl(post.hero_image_url) : null,
       })),
       sidebar_tags: tags.map((tag) => ({
         name: tag.name,

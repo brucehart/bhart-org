@@ -159,17 +159,23 @@ export const adminEditTemplate = `<!DOCTYPE html>
                   <button class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white" type="submit" form="media-upload-form">Upload to R2</button>
                 </div>
                 <div id="media" class="space-y-3">
-                  {{#media_items}}
-                  <div class="flex items-center gap-3 rounded-xl border border-gray-100 p-3">
-                    <img class="h-16 w-20 rounded-lg object-cover border border-gray-100" src="{{url}}" alt="{{alt}}" />
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs font-semibold text-text-main break-words">{{alt}}</div>
-                      <div class="text-[11px] text-text-sub break-words">{{caption}}</div>
-                      <div class="text-[11px] text-text-sub break-words">Tags: {{tags}}</div>
-                      <div class="text-[11px] text-text-sub break-words">{{uploaded}} &bull; {{size}} &bull; {{dimensions}} &bull; {{filename}}</div>
+                  <div class="flex items-center justify-between text-[11px] font-semibold text-text-sub">
+                    <div>Showing 5 most recent • Page {{media_page}}</div>
+                    <div class="flex items-center gap-2">
+                      {{#show_media_prev}}
+                      <a class="text-primary" href="{{media_prev_url}}">Newer</a>
+                      {{/show_media_prev}}
+                      {{#show_media_next}}
+                      <a class="text-primary" href="{{media_next_url}}">Older</a>
+                      {{/show_media_next}}
                     </div>
+                  </div>
+                  {{#media_items}}
+                  <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 p-3">
+                    <img class="h-16 w-20 rounded-lg object-cover border border-gray-100" src="{{url}}" alt="{{alt}}" />
                     <div class="flex flex-col gap-2">
                       <button class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-text-main" type="button" data-insert-url="{{url}}" data-insert-alt="{{alt}}">Insert</button>
+                      <button class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-semibold text-text-main" type="button" data-insert-figure-url="{{url}}" data-insert-figure-alt="{{alt}}" data-insert-figure-caption="{{caption}}">Insert w/ caption</button>
                       <button class="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-white" type="button" data-feature-url="{{url}}" data-feature-alt="{{alt}}">Use as featured</button>
                     </div>
                   </div>
@@ -226,6 +232,34 @@ export const adminEditTemplate = `<!DOCTYPE html>
             return;
           }
           insertAtCursor(bodyField, '![' + alt + '](' + url + ')\\n');
+        });
+      });
+
+      const escapeHtml = (value) => {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      };
+
+      const escapeAttribute = (value) => {
+        return escapeHtml(value).replace(/\"/g, '&quot;');
+      };
+
+      document.querySelectorAll('[data-insert-figure-url]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const url = button.getAttribute('data-insert-figure-url');
+          const alt = button.getAttribute('data-insert-figure-alt') || 'Image';
+          const caption = button.getAttribute('data-insert-figure-caption') || '';
+          if (!url) {
+            return;
+          }
+          const figure =
+            '<figure>\\n' +
+            '  <img src=\"' + escapeAttribute(url) + '\" alt=\"' + escapeAttribute(alt) + '\" />\\n' +
+            '  <figcaption>' + escapeHtml(caption) + '</figcaption>\\n' +
+            '</figure>\\n';
+          insertAtCursor(bodyField, figure);
         });
       });
 

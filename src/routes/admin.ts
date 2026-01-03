@@ -12,6 +12,7 @@ import {
   listAdminNewsItems,
   listAdminPosts,
   listMediaAssets,
+  listMediaAssetsPage,
   updatePost,
   updateNewsItem,
 } from '../db';
@@ -27,6 +28,7 @@ import {
 import {
   deriveTagsFromFilename,
   estimateReadingTime,
+  extensionForContentType,
   formatBytes,
   formatDate,
   formatDateTime,
@@ -44,6 +46,8 @@ import type { PostStatus } from '../types';
 import { templates } from '../templates/index';
 import type { NewsItemInput, PostInput } from '../db';
 import type { NewsStatus } from '../types';
+
+const MEDIA_PAGE_SIZE = 5;
 
 const listMediaItems = async (env: Env, limit = 24) => {
   try {
@@ -63,6 +67,44 @@ const listMediaItems = async (env: Env, limit = 24) => {
   } catch {
     return [];
   }
+};
+
+const listMediaItemsPage = async (env: Env, options: { page: number; pageSize?: number }) => {
+  const pageSize = Math.max(1, Math.floor(options.pageSize ?? MEDIA_PAGE_SIZE));
+  const page = Math.max(1, Math.floor(options.page));
+  const offset = (page - 1) * pageSize;
+
+  try {
+    const assets = await listMediaAssetsPage(env.DB, { limit: pageSize + 1, offset });
+    const hasNext = assets.length > pageSize;
+    const pageAssets = hasNext ? assets.slice(0, pageSize) : assets;
+
+    return {
+      items: pageAssets.map((asset) => ({
+        id: asset.id,
+        key: asset.key,
+        url: buildMediaUrl(asset.key),
+        alt: asset.alt_text,
+        caption: asset.caption ?? '',
+      })),
+      page,
+      has_next: hasNext,
+      has_prev: page > 1,
+    };
+  } catch {
+    return { items: [], page: 1, has_next: false, has_prev: false };
+  }
+};
+
+const mediaPageUrl = (request: Request, page: number) => {
+  const url = new URL(request.url);
+  if (page <= 1) {
+    url.searchParams.delete('media_page');
+  } else {
+    url.searchParams.set('media_page', String(page));
+  }
+  url.hash = 'media';
+  return `${url.pathname}${url.search}${url.hash}`;
 };
 
 const parsePostForm = async (request: Request) => {
@@ -226,15 +268,26 @@ const renderAdminEdit = async (
   env: Env,
   view: Record<string, unknown>,
 ) => {
-  const mediaItems = await listMediaItems(env);
+  const url = new URL(request.url);
+  const mediaPageRaw = url.searchParams.get('media_page') ?? '1';
+  const mediaPageParsed = Number(mediaPageRaw);
+  const mediaPage = Number.isFinite(mediaPageParsed) && mediaPageParsed > 0 ? mediaPageParsed : 1;
+  const mediaListing = await listMediaItemsPage(env, { page: mediaPage, pageSize: MEDIA_PAGE_SIZE });
   const returnTo =
     typeof view.return_to === 'string'
       ? view.return_to
       : `${new URL(request.url).pathname}${new URL(request.url).search}`;
+  const prevUrl = mediaListing.has_prev ? mediaPageUrl(request, mediaListing.page - 1) : null;
+  const nextUrl = mediaListing.has_next ? mediaPageUrl(request, mediaListing.page + 1) : null;
   return htmlResponse(templates.adminEdit, {
     ...view,
     return_to: returnTo,
-    media_items: mediaItems,
+    media_items: mediaListing.items,
+    media_page: mediaListing.page,
+    show_media_prev: mediaListing.has_prev,
+    show_media_next: mediaListing.has_next,
+    media_prev_url: prevUrl,
+    media_next_url: nextUrl,
   });
 };
 
@@ -284,8 +337,10 @@ export const handleAdminRoutes = async (
       );
     }
     const { base, ext } = sanitizeFilename(file.name || 'image');
+    const mimeExtension = extensionForContentType(file.type);
+    const normalizedExt = mimeExtension || ext;
     const unique = crypto.randomUUID().slice(0, 8);
-    const key = `uploads/${Date.now()}-${unique}-${base}${ext}`;
+    const key = `uploads/${Date.now()}-${unique}-${base}${normalizedExt}`;
     const body = await file.arrayBuffer();
     const contentType = file.type || 'application/octet-stream';
     await env.MEDIA_BUCKET.put(key, body, {
@@ -299,7 +354,7 @@ export const handleAdminRoutes = async (
     const dimensions = getImageDimensions(body, contentType);
     await createMediaAsset(env.DB, {
       key,
-      filename: `${base}${ext}`,
+      filename: `${base}${normalizedExt}`,
       content_type: contentType,
       size_bytes: file.size,
       width: dimensions.width,

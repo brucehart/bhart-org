@@ -184,6 +184,38 @@ export const sanitizeFilename = (filename: string) => {
   return { base, ext };
 };
 
+export const extensionForContentType = (contentType: string) => {
+  const type = contentType.split(';')[0]?.trim().toLowerCase();
+  switch (type) {
+    case 'image/jpeg':
+      return '.jpg';
+    case 'image/jpg':
+      return '.jpg';
+    case 'image/pjpeg':
+      return '.jpg';
+    case 'image/png':
+      return '.png';
+    case 'image/webp':
+      return '.webp';
+    case 'image/gif':
+      return '.gif';
+    case 'image/avif':
+      return '.avif';
+    case 'image/svg+xml':
+      return '.svg';
+    case 'image/bmp':
+      return '.bmp';
+    case 'image/tiff':
+      return '.tif';
+    case 'image/heic':
+      return '.heic';
+    case 'image/heif':
+      return '.heif';
+    default:
+      return '';
+  }
+};
+
 export const humanizeFilename = (key: string) => {
   const lastSegment = key.split('/').pop() ?? key;
   const name = lastSegment.replace(/\\.[^/.]+$/, '');
