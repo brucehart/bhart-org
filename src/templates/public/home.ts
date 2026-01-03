@@ -52,13 +52,13 @@ export const homeTemplate = `<!DOCTYPE html>
     </script>
   </head>
   <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
-    <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+    <div class="relative flex min-h-screen flex-col overflow-x-visible md:overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow" id="main-content">
         <section class="relative overflow-hidden border-b border-gray-100">
           <div class="absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-sky-50"></div>
           <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
-          <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
               <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
               <p class="text-base text-text-sub max-w-3xl mx-auto">
@@ -69,7 +69,7 @@ export const homeTemplate = `<!DOCTYPE html>
           </div>
         </section>
         <section class="py-12 bg-background-light">
-          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
               <!-- Left Sidebar: Tags -->
               <div class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
@@ -101,9 +101,11 @@ export const homeTemplate = `<!DOCTYPE html>
                   {{#latest_post}}
                   <article class="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                     <div class="flex flex-col gap-4">
+                      {{#image_url}}
                       <div class="overflow-hidden rounded-2xl border border-gray-100">
                         <img alt="{{image_alt}}" class="h-64 w-full object-cover" src="{{image_url}}" />
                       </div>
+                      {{/image_url}}
                       <div class="flex items-center gap-3 text-xs text-text-sub font-medium">
                         <span>{{published_date}}</span>
                         <span>•</span>
@@ -112,8 +114,8 @@ export const homeTemplate = `<!DOCTYPE html>
                       <h3 class="text-2xl font-bold text-text-main leading-tight">
                         <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
                       </h3>
-                      <p class="text-sm text-text-sub">{{summary}}</p>
-                      <div class="prose prose-sm prose-slate max-w-none text-text-main">
+                      <p class="text-base sm:text-sm text-text-sub break-words [overflow-wrap:anywhere]">{{summary}}</p>
+                      <div class="prose prose-base sm:prose-sm prose-slate max-w-none text-text-main break-words [overflow-wrap:anywhere]">
                         {{{excerpt_html}}}
                       </div>
                       <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">
@@ -133,9 +135,11 @@ export const homeTemplate = `<!DOCTYPE html>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {{#posts}}
                   <article class="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all hover:shadow-lg hover:shadow-primary/5">
+                    {{#image_url}}
                     <div class="relative overflow-hidden h-48">
                       <div aria-label="{{title}} cover image" class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" role="img" style="background-image: url('{{image_url}}');"></div>
                     </div>
+                    {{/image_url}}
                     <div class="flex flex-1 flex-col p-6">
                       <div class="flex items-center gap-3 mb-3">
                         <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">{{primary_tag}}</span>
@@ -144,7 +148,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       <h3 class="text-xl font-bold text-text-main leading-tight group-hover:text-primary transition-colors">
                         <a href="{{url}}">{{title}}</a>
                       </h3>
-                      <p class="mt-3 text-sm text-text-sub line-clamp-3 flex-grow">
+                      <p class="mt-3 text-base sm:text-sm text-text-sub line-clamp-3 flex-grow break-words [overflow-wrap:anywhere]">
                         {{summary}}
                       </p>
                       <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">

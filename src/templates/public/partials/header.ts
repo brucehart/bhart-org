@@ -1,12 +1,12 @@
 export const publicHeaderTemplate = `
 <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light bg-background-light/90 backdrop-blur-sm px-6 py-4 lg:px-40">
   <a class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 rounded bg-white px-3 py-2 text-sm font-semibold text-primary shadow" href="#main-content">Skip to content</a>
-  <div class="flex items-center gap-4 text-text-light">
+  <a class="flex items-center gap-4 text-text-light" href="/" aria-label="Home">
     <div class="size-8 flex items-center justify-center text-primary">
       <span aria-hidden="true" class="material-symbols-outlined !text-[32px]">terminal</span>
     </div>
     <h2 class="text-xl font-bold leading-tight tracking-[-0.015em] font-display">Bruce Hart</h2>
-  </div>
+  </a>
   <div class="hidden md:flex flex-1 items-center justify-end gap-6">
     <nav aria-label="Primary" class="flex items-center gap-6">
       <a class="{{#nav_is_home}}text-primary text-sm font-bold leading-normal{{/nav_is_home}}{{^nav_is_home}}text-text-light text-sm font-medium leading-normal hover:text-primary transition-colors{{/nav_is_home}}" href="/">Home</a>

@@ -1,7 +1,7 @@
 export const publicFooterCompactTemplate = `
 <footer class="border-t border-gray-200 bg-white">
   <div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 text-sm text-text-sub sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-    <p class="font-semibold text-text-main">bhart.org</p>
+    <a class="font-semibold text-text-main" href="/" aria-label="Home">bhart.org</a>
     <div class="flex items-center gap-4 font-medium">
       <a class="inline-flex items-center gap-1 hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
         <span aria-hidden="true" class="material-symbols-outlined text-[16px]">rss_feed</span>

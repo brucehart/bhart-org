@@ -41,12 +41,12 @@ export const publicFooterTemplate = `
       <a class="hover:text-primary transition-colors" href="/contact">Contact</a>
     </div>
     <div class="mt-16 flex flex-col items-center gap-6 text-center">
-      <div class="flex items-center gap-2">
+      <a class="flex items-center gap-2" href="/" aria-label="Home">
         <div class="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs">
           <span aria-hidden="true" class="material-symbols-outlined text-[14px]">terminal</span>
         </div>
         <p class="text-sm font-semibold text-text-main">bhart.org</p>
-      </div>
+      </a>
       <div class="flex items-center gap-4 text-xs font-semibold text-text-sub">
         <a class="inline-flex items-center gap-1 hover:text-primary transition-colors" href="{{rss_url}}" aria-label="RSS feed">
           <span aria-hidden="true" class="material-symbols-outlined text-[16px]">rss_feed</span>
