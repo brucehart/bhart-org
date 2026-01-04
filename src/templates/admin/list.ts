@@ -49,19 +49,51 @@ export const adminListTemplate = `<!DOCTYPE html>
         </div>
       </header>
       <main class="mx-auto w-full max-w-6xl px-6 py-10 flex-grow">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold">Posts</h2>
-          <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/posts/new">New Post</a>
+        <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 class="text-xl font-bold">Posts</h2>
+            <p class="text-xs text-text-sub mt-1">{{results_label}}</p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <form action="/admin" method="get" class="flex w-full max-w-md items-center gap-2">
+              <input
+                class="w-full rounded-lg border-gray-200 text-sm focus:border-primary focus:ring-primary"
+                type="search"
+                name="q"
+                placeholder="Search title, content, stub, or tags"
+                value="{{search_query}}"
+              />
+              <input type="hidden" name="sort" value="{{sort_field}}" />
+              <input type="hidden" name="dir" value="{{sort_dir}}" />
+              <button class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" type="submit">
+                Search
+              </button>
+              {{#has_search}}
+              <a class="text-xs font-semibold text-text-sub hover:text-primary" href="{{clear_search_url}}">Clear</a>
+              {{/has_search}}
+            </form>
+            <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/posts/new">New Post</a>
+          </div>
         </div>
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
           <table class="w-full text-left text-sm">
             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>
-                <th class="px-6 py-4">Title</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4">Tags</th>
-                <th class="px-6 py-4">Published</th>
-                <th class="px-6 py-4">Updated</th>
+                <th class="px-6 py-4">
+                  <a class="inline-flex items-center gap-1" href="{{title_sort_url}}">Title<span class="text-[10px] text-gray-400">{{title_sort_indicator}}</span></a>
+                </th>
+                <th class="px-6 py-4">
+                  <a class="inline-flex items-center gap-1" href="{{status_sort_url}}">Status<span class="text-[10px] text-gray-400">{{status_sort_indicator}}</span></a>
+                </th>
+                <th class="px-6 py-4">
+                  <a class="inline-flex items-center gap-1" href="{{tags_sort_url}}">Tags<span class="text-[10px] text-gray-400">{{tags_sort_indicator}}</span></a>
+                </th>
+                <th class="px-6 py-4">
+                  <a class="inline-flex items-center gap-1" href="{{published_sort_url}}">Published<span class="text-[10px] text-gray-400">{{published_sort_indicator}}</span></a>
+                </th>
+                <th class="px-6 py-4">
+                  <a class="inline-flex items-center gap-1" href="{{updated_sort_url}}">Updated<span class="text-[10px] text-gray-400">{{updated_sort_indicator}}</span></a>
+                </th>
                 <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -90,6 +122,17 @@ export const adminListTemplate = `<!DOCTYPE html>
               {{/posts}}
             </tbody>
           </table>
+          <div class="flex flex-col gap-3 border-t border-gray-100 px-6 py-4 text-sm text-text-sub sm:flex-row sm:items-center sm:justify-between">
+            <div>Page {{current_page}} of {{total_pages}} · Total posts: {{total_posts}}</div>
+            <div class="flex items-center gap-3">
+              {{#show_prev}}
+              <a class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-text-main" href="{{prev_page_url}}">Previous</a>
+              {{/show_prev}}
+              {{#show_next}}
+              <a class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-text-main" href="{{next_page_url}}">Next</a>
+              {{/show_next}}
+            </div>
+          </div>
         </div>
       </main>
       {{> publicFooterCompact}}

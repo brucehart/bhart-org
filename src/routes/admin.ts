@@ -10,6 +10,7 @@ import {
   getNewsItemById,
   getPostById,
   listAdminNewsItems,
+  countAdminPosts,
   listAdminPosts,
   listMediaAssets,
   listMediaAssetsPage,
@@ -394,9 +395,90 @@ export const handleAdminRoutes = async (
 
   // GET /admin
   if (path === '/admin' && method === 'GET') {
-    const posts = await listAdminPosts(env.DB);
+    const searchQuery = url.searchParams.get('q')?.trim() ?? '';
+    const sortParam = url.searchParams.get('sort')?.trim() ?? 'updated';
+    const dirParam = url.searchParams.get('dir')?.trim() ?? 'desc';
+    const pageParam = Number.parseInt(url.searchParams.get('page') ?? '1', 10);
+    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+    const sortField =
+      sortParam === 'title' ||
+      sortParam === 'status' ||
+      sortParam === 'tags' ||
+      sortParam === 'published' ||
+      sortParam === 'updated'
+        ? sortParam
+        : 'updated';
+    const sortDirection = dirParam === 'asc' ? 'asc' : 'desc';
+    const limit = 10;
+    const totalPosts = await countAdminPosts(env.DB, { query: searchQuery || undefined });
+    const totalPages = Math.max(1, Math.ceil(totalPosts / limit));
+    const safePage = page > totalPages ? totalPages : page;
+    const offset = (safePage - 1) * limit;
+    const posts = await listAdminPosts(env.DB, {
+      query: searchQuery || undefined,
+      limit,
+      offset,
+      sortField,
+      sortDirection,
+    });
+    const hasSearch = Boolean(searchQuery);
+    const startIndex = totalPosts === 0 ? 0 : offset + 1;
+    const endIndex = totalPosts === 0 ? 0 : offset + posts.length;
+    const resultsLabel =
+      totalPosts === 0 ? 'No posts found.' : `Showing ${startIndex}-${endIndex} of ${totalPosts} posts.`;
+
+    const baseParams = new URLSearchParams();
+    if (searchQuery) {
+      baseParams.set('q', searchQuery);
+    }
+    baseParams.set('sort', sortField);
+    baseParams.set('dir', sortDirection);
+    const buildUrl = (overrides: Record<string, string | number | undefined>) => {
+      const params = new URLSearchParams(baseParams);
+      for (const [key, value] of Object.entries(overrides)) {
+        if (value === undefined || value === '' || value === null) {
+          params.delete(key);
+        } else {
+          params.set(key, String(value));
+        }
+      }
+      if (params.get('page') === '1') {
+        params.delete('page');
+      }
+      const queryString = params.toString();
+      return queryString ? `/admin?${queryString}` : '/admin';
+    };
+
+    const nextSortDirection = (field: string) =>
+      sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
+    const sortIndicator = (field: string) =>
+      sortField === field ? (sortDirection === 'asc' ? '^' : 'v') : '';
+
     const view = {
       user_email: sessionUser.email,
+      search_query: searchQuery,
+      has_search: hasSearch,
+      sort_field: sortField,
+      sort_dir: sortDirection,
+      results_label: resultsLabel,
+      total_posts: totalPosts,
+      current_page: safePage,
+      total_pages: totalPages,
+      show_prev: safePage > 1,
+      show_next: safePage < totalPages,
+      prev_page_url: buildUrl({ page: safePage - 1 }),
+      next_page_url: buildUrl({ page: safePage + 1 }),
+      clear_search_url: buildUrl({ q: undefined, page: 1 }),
+      title_sort_url: buildUrl({ sort: 'title', dir: nextSortDirection('title'), page: 1 }),
+      status_sort_url: buildUrl({ sort: 'status', dir: nextSortDirection('status'), page: 1 }),
+      tags_sort_url: buildUrl({ sort: 'tags', dir: nextSortDirection('tags'), page: 1 }),
+      published_sort_url: buildUrl({ sort: 'published', dir: nextSortDirection('published'), page: 1 }),
+      updated_sort_url: buildUrl({ sort: 'updated', dir: nextSortDirection('updated'), page: 1 }),
+      title_sort_indicator: sortIndicator('title'),
+      status_sort_indicator: sortIndicator('status'),
+      tags_sort_indicator: sortIndicator('tags'),
+      published_sort_indicator: sortIndicator('published'),
+      updated_sort_indicator: sortIndicator('updated'),
       posts: posts.map((post) => ({
         id: post.id,
         title: post.title,

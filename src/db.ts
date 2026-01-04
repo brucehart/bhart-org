@@ -198,7 +198,66 @@ export const getPostById = async (db: D1Database, id: string): Promise<PostWithT
   return row ? mapPostRow(row) : null;
 };
 
-export const listAdminPosts = async (db: D1Database): Promise<PostWithTags[]> => {
+export type AdminPostSortField = 'title' | 'status' | 'tags' | 'published' | 'updated';
+export type AdminPostSortDirection = 'asc' | 'desc';
+
+export type ListAdminPostsOptions = {
+  query?: string;
+  limit?: number;
+  offset?: number;
+  sortField?: AdminPostSortField;
+  sortDirection?: AdminPostSortDirection;
+};
+
+const buildAdminPostFilters = (options: Pick<ListAdminPostsOptions, 'query'>) => {
+  const params: unknown[] = [];
+  const conditions: string[] = [];
+
+  if (options.query) {
+    const escapedQuery = escapeLikePattern(options.query.toLowerCase());
+    const term = `%${escapedQuery}%`;
+    conditions.push(
+      `(LOWER(p.title) LIKE ? ESCAPE '\\' OR LOWER(p.summary) LIKE ? ESCAPE '\\' OR LOWER(p.body_markdown) LIKE ? ESCAPE '\\'
+        OR EXISTS (
+          SELECT 1
+          FROM post_tags pt2
+          JOIN tags t2 ON t2.id = pt2.tag_id
+          WHERE pt2.post_id = p.id
+            AND (LOWER(t2.name) LIKE ? ESCAPE '\\' OR LOWER(t2.slug) LIKE ? ESCAPE '\\')
+        ))`,
+    );
+    params.push(term, term, term, term, term);
+  }
+
+  return { params, where: conditions.length ? `WHERE ${conditions.join(' AND ')}` : '' };
+};
+
+export const listAdminPosts = async (
+  db: D1Database,
+  options: ListAdminPostsOptions = {},
+): Promise<PostWithTags[]> => {
+  const { params, where } = buildAdminPostFilters(options);
+  const limit = options.limit ?? 10;
+  const offset = options.offset ?? 0;
+
+  const sortField = options.sortField ?? 'updated';
+  const sortDirection = options.sortDirection ?? 'desc';
+  const sortColumnMap: Record<AdminPostSortField, string> = {
+    title: 'p.title',
+    status: 'p.status',
+    tags: 'tag_names',
+    published: 'p.published_at',
+    updated: 'p.updated_at',
+  };
+  const sortColumn = sortColumnMap[sortField];
+  const direction = sortDirection.toUpperCase();
+  const orderBy =
+    sortField === 'updated'
+      ? `ORDER BY ${sortColumn} ${direction}, p.id ${direction}`
+      : `ORDER BY ${sortColumn} ${direction}, p.updated_at DESC, p.id DESC`;
+
+  params.push(limit, offset);
+
   const query = `
     SELECT
       p.*, 
@@ -207,11 +266,28 @@ export const listAdminPosts = async (db: D1Database): Promise<PostWithTags[]> =>
     FROM posts p
     LEFT JOIN post_tags pt ON pt.post_id = p.id
     LEFT JOIN tags t ON t.id = pt.tag_id
+    ${where}
     GROUP BY p.id
-    ORDER BY p.updated_at DESC
+    ${orderBy}
+    LIMIT ?
+    OFFSET ?
   `;
-  const { results } = await db.prepare(query).all<PostRecord>();
+  const { results } = await db.prepare(query).bind(...params).all<PostRecord>();
   return results.map(mapPostRow);
+};
+
+export const countAdminPosts = async (
+  db: D1Database,
+  options: Pick<ListAdminPostsOptions, 'query'> = {},
+): Promise<number> => {
+  const { params, where } = buildAdminPostFilters(options);
+  const query = `
+    SELECT COUNT(*) AS count
+    FROM posts p
+    ${where}
+  `;
+  const row = await db.prepare(query).bind(...params).first<{ count: number }>();
+  return row?.count ?? 0;
 };
 
 export type CodexPostCursor = {
