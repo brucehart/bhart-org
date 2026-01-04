@@ -39,6 +39,17 @@ const escapeXml = (value: string) => {
   });
 };
 
+const formatSitemapDate = (value?: string | null) => {
+  if (!value) {
+    return null;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return date.toISOString();
+};
+
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const cleanHeaderValue = (value: string) => value.replace(/[\r\n]+/g, ' ').trim();
@@ -240,6 +251,66 @@ export const handlePublicRoutes = async (
       show_email_subscribe: showEmailSubscribe,
     };
     return htmlResponse(templates.home, view);
+  }
+
+  // GET /robots.txt
+  if (path === '/robots.txt' && (method === 'GET' || method === 'HEAD')) {
+    const origin = new URL(request.url).origin;
+    const robots = [
+      'User-agent: *',
+      'Disallow:',
+      `Sitemap: ${origin}/sitemap.xml`,
+      '',
+    ].join('\n');
+    return new Response(method === 'HEAD' ? null : robots, {
+      status: 200,
+      headers: {
+        'content-type': 'text/plain; charset=utf-8',
+      },
+    });
+  }
+
+  // GET /sitemap.xml
+  if (path === '/sitemap.xml' && (method === 'GET' || method === 'HEAD')) {
+    const nowIso = new Date().toISOString();
+    const origin = new URL(request.url).origin;
+    const posts = await listPublishedPosts(env.DB, nowIso, { limit: 1000 });
+
+    const staticUrls = [
+      `${origin}/`,
+      `${origin}/about`,
+      `${origin}/projects`,
+      `${origin}/news`,
+      `${origin}/work-with-me`,
+      `${origin}/contact`,
+      `${origin}/rss.xml`,
+    ];
+
+    const staticEntries = staticUrls.map((loc) => {
+      return `<url><loc>${escapeXml(loc)}</loc></url>`;
+    });
+
+    const postEntries = posts.map((post) => {
+      const loc = `${origin}/articles/${post.slug}`;
+      const lastmod = formatSitemapDate(post.updated_at ?? post.published_at);
+      const lastmodTag = lastmod ? `<lastmod>${lastmod}</lastmod>` : '';
+      return `<url><loc>${escapeXml(loc)}</loc>${lastmodTag}</url>`;
+    });
+
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      ...staticEntries,
+      ...postEntries,
+      '</urlset>',
+    ].join('');
+
+    return new Response(method === 'HEAD' ? null : xml, {
+      status: 200,
+      headers: {
+        'content-type': 'application/xml; charset=utf-8',
+      },
+    });
   }
 
   // GET /rss.xml
