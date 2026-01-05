@@ -60,8 +60,8 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
           <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
-              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
-              <p class="text-base text-text-sub max-w-3xl mx-auto">
+              <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
+              <p class="text-lg sm:text-xl text-text-sub max-w-3xl mx-auto">
                 Practical AI, automation, and the messy reality of shipping software.
                 Expect experiments, tradeoffs, and the occasional “well, that didn’t work” postmortem.
               </p>
@@ -114,8 +114,8 @@ export const homeTemplate = `<!DOCTYPE html>
                       <h3 class="text-2xl font-bold text-text-main leading-tight">
                         <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
                       </h3>
-                      <p class="text-base sm:text-sm text-text-sub break-words [overflow-wrap:anywhere]">{{summary}}</p>
-                      <div class="prose prose-base sm:prose-sm prose-slate max-w-none text-text-main break-words [overflow-wrap:anywhere]">
+                      <p class="text-base sm:text-lg text-text-sub break-words [overflow-wrap:anywhere]">{{summary}}</p>
+                      <div class="prose prose-lg sm:prose-xl prose-slate max-w-none text-text-main break-words [overflow-wrap:anywhere]">
                         {{{excerpt_html}}}
                       </div>
                       <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">
@@ -148,7 +148,7 @@ export const homeTemplate = `<!DOCTYPE html>
                       <h3 class="text-xl font-bold text-text-main leading-tight group-hover:text-primary transition-colors">
                         <a href="{{url}}">{{title}}</a>
                       </h3>
-                      <p class="mt-3 text-base sm:text-sm text-text-sub line-clamp-3 flex-grow break-words [overflow-wrap:anywhere]">
+                      <p class="mt-3 text-base sm:text-base text-text-sub line-clamp-3 flex-grow break-words [overflow-wrap:anywhere]">
                         {{summary}}
                       </p>
                       <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">

@@ -67,8 +67,8 @@ export const articleTemplate = `<!DOCTYPE html>
     {{/preview}}
     <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10" id="main-content">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <article class="lg:col-span-8 flex flex-col gap-8">
-          <header class="flex flex-col gap-6">
+        <article class="lg:col-span-7 flex flex-col gap-8">
+          <header class="flex flex-col gap-6 mx-auto w-full max-w-prose">
             <div class="flex flex-wrap gap-2">
               {{#tags}}
               <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
@@ -76,7 +76,7 @@ export const articleTemplate = `<!DOCTYPE html>
               </span>
               {{/tags}}
             </div>
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-text-main">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-text-main">
               {{title}}
             </h1>
             <div class="flex items-center gap-4 text-sm text-text-muted border-b border-gray-200 pb-6">
@@ -95,11 +95,11 @@ export const articleTemplate = `<!DOCTYPE html>
             <img alt="{{hero_image_alt}}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{{hero_image_url}}" />
           </div>
           {{/hero_image_url}}
-          <div class="prose prose-lg prose-slate max-w-none text-text-main leading-relaxed text-lg">
+          <div class="prose prose-lg md:prose-xl prose-slate mx-auto w-full max-w-prose text-text-main leading-relaxed">
             {{{body_html}}}
           </div>
         </article>
-        <aside class="lg:col-span-4 flex flex-col gap-6">
+        <aside class="lg:col-span-5 flex flex-col gap-6">
           <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
               <img alt="Portrait of {{author_name}}" class="h-12 w-12 rounded-full object-cover" src="{{author_avatar}}" />
