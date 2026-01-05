@@ -76,7 +76,7 @@ export const articleTemplate = `<!DOCTYPE html>
               </span>
               {{/tags}}
             </div>
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-text-main">
+            <h1 class="text-3xl md:text-4xl font-bold leading-tight tracking-tight text-text-main">
               {{title}}
             </h1>
             <div class="flex items-center gap-4 text-sm text-text-muted border-b border-gray-200 pb-6">
@@ -95,7 +95,7 @@ export const articleTemplate = `<!DOCTYPE html>
             <img alt="{{hero_image_alt}}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{{hero_image_url}}" />
           </div>
           {{/hero_image_url}}
-          <div class="prose prose-lg md:prose-xl prose-slate mx-auto w-full max-w-prose text-text-main leading-relaxed">
+          <div class="prose prose-lg md:prose-xl prose-slate prose-h1:text-3xl md:prose-h1:text-4xl prose-h2:text-xl md:prose-h2:text-2xl mx-auto w-full max-w-prose text-text-main leading-relaxed">
             {{{body_html}}}
           </div>
         </article>

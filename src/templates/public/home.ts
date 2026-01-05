@@ -111,11 +111,11 @@ export const homeTemplate = `<!DOCTYPE html>
                         <span>•</span>
                         <span>{{reading_time}} min read</span>
                       </div>
-                      <h3 class="text-2xl font-bold text-text-main leading-tight">
+                      <h3 class="text-3xl md:text-4xl font-bold text-text-main leading-tight">
                         <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
                       </h3>
                       <p class="text-base sm:text-lg text-text-sub break-words [overflow-wrap:anywhere]">{{summary}}</p>
-                      <div class="prose prose-lg sm:prose-xl prose-slate max-w-none text-text-main break-words [overflow-wrap:anywhere]">
+                      <div class="prose prose-lg sm:prose-xl prose-slate prose-h1:text-3xl sm:prose-h1:text-4xl prose-h2:text-xl sm:prose-h2:text-2xl max-w-none text-text-main break-words [overflow-wrap:anywhere]">
                         {{{excerpt_html}}}
                       </div>
                       <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">
