@@ -50,6 +50,13 @@ export const homeTemplate = `<!DOCTYPE html>
         }
       };
     </script>
+    <style>
+      @media (min-width: 1024px) {
+        html {
+          font-size: 80%;
+        }
+      }
+    </style>
   </head>
   <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
     <div class="relative flex min-h-screen flex-col overflow-x-visible md:overflow-x-hidden">
@@ -74,6 +81,25 @@ export const homeTemplate = `<!DOCTYPE html>
               <!-- Left Sidebar: Tags -->
               <div class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-4">Search</h2>
+                    <form action="/search" class="flex flex-col gap-3" method="get">
+                      <label class="sr-only" for="home-search-query">Search posts</label>
+                      <input
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main placeholder:text-text-sub focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        id="home-search-query"
+                        name="q"
+                        placeholder="Search posts, tags, or SEO titles"
+                        type="search"
+                      />
+                      <button
+                        class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                        type="submit"
+                      >
+                        Search
+                      </button>
+                    </form>
+                  </div>
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
                     <div class="flex flex-col gap-2">

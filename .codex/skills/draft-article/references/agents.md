@@ -53,6 +53,12 @@ Local dev: `npm run dev`, then call `https://bhart.org/api/codex/v1/...`
 - `GET /tags`
   - Returns `{ tags: [{ id, name, slug, post_count }] }`
 
+- `POST /media/import`
+  - Imports a public image URL into bhart.org media storage (R2) and returns a `/media/<key>` URL.
+  - Required: `source_url`, `alt_text`, `author_name`, `author_email`
+  - Optional: `filename`, `key_prefix`, `caption`, `internal_description`, `tags`
+  - Returns: `{ media: { id, key, url, content_type, size_bytes, width, height, alt_text } }`
+
 ## Recommended workflow
 
 1. `GET /posts?status=draft&q=...` to locate the target post.

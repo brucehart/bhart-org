@@ -53,6 +53,12 @@ export const articleTemplate = `<!DOCTYPE html>
       body {
         font-family: "Space Grotesk", sans-serif;
       }
+
+      @media (min-width: 1024px) {
+        html {
+          font-size: 80%;
+        }
+      }
     </style>
   </head>
   <body class="bg-background-light text-text-main antialiased min-h-screen flex flex-col">

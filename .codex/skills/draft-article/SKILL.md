@@ -15,8 +15,8 @@ Load `references/agents.md` before generating or submitting drafts.
 
 ### 1) Gather required inputs
 
-- Ask for anything missing: `title`, `summary`, `tags`, `author_name`, `author_email`.
-- Confirm any optional items the user cares about: `slug`, `hero_image_url`, `hero_image_alt`, `featured`, `seo_title`, `seo_description`.
+- Generate a `title`, `summary`, `tags` if one is not supplied. Use `author_name`, `author_email` from the most recent article if not supplied.
+- Generate suggestions for any optional items the user cares about: `slug`, `hero_image_url`, `hero_image_alt`, `featured`, `seo_title`, `seo_description`.
 - If tags are unclear, offer to fetch tag suggestions with `GET /tags`.
 
 ### 2) Draft the article
@@ -25,7 +25,7 @@ Load `references/agents.md` before generating or submitting drafts.
 - Open with a hook and a clear thesis early (bold or standalone sentence).
 - Include 2-4 ideas or mental models with reasoning and tradeoffs.
 - Structure with `##` headings as claims, short paragraphs, and whitespace.
-- End with an invitation to reach out or discuss.
+- End with a conclusion or an invitation to reach out or discuss.
 
 ### 3) Submit draft via API
 
