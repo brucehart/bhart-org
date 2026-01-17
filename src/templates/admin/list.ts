@@ -75,8 +75,8 @@ export const adminListTemplate = `<!DOCTYPE html>
             <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/posts/new">New Post</a>
           </div>
         </div>
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <table class="w-full text-left text-sm">
+        <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+          <table class="w-full min-w-[900px] text-left text-sm">
             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th class="px-6 py-4">
