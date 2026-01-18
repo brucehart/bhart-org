@@ -22,6 +22,7 @@ Load `references/agents.md` before generating or submitting drafts.
 ### 2) Draft the article
 
 - Use the writing style in `references/agents.md`.
+- Prefer prose over bulleted lists; use bullets sparingly and only when they add clarity.
 - Open with a hook and a clear thesis early (bold or standalone sentence).
 - Include 2-4 ideas or mental models with reasoning and tradeoffs.
 - Structure with `##` headings as claims, short paragraphs, and whitespace.

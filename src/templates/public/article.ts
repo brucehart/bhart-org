@@ -60,6 +60,31 @@ export const articleTemplate = `<!DOCTYPE html>
         }
       }
     </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <style>
+      /* Keep Tailwind Typography spacing; let highlight.js handle colors only. */
+      .prose pre {
+        background: #0d1117;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+      }
+
+      .prose pre code.hljs {
+        padding: 0;
+        background: transparent;
+      }
+    </style>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.hljs && typeof window.hljs.highlightAll === 'function') {
+          window.hljs.highlightAll();
+        }
+      });
+    </script>
   </head>
   <body class="bg-background-light text-text-main antialiased min-h-screen flex flex-col">
     {{> publicHeader}}
