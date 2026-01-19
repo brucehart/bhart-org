@@ -57,7 +57,7 @@ export const archiveTemplate = `<!DOCTYPE html>
         <section class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-3">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Archive</p>
-            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{archive_title}}</h1>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">{{archive_title}}</h1>
             <p class="text-sm text-text-sub">
               Browse posts from this time period. Jump back to the
               <a class="text-primary font-semibold" href="/">home page</a>.

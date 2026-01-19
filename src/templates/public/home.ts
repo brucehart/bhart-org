@@ -55,10 +55,13 @@ export const homeTemplate = `<!DOCTYPE html>
         html {
           font-size: 80%;
         }
+        body.home-header-scale header {
+          font-size: 1.25rem;
+        }
       }
     </style>
   </head>
-  <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
+  <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary home-header-scale">
     <div class="relative flex min-h-screen flex-col overflow-x-visible md:overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow" id="main-content">
@@ -67,7 +70,7 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
           <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
-              <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
+              <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-text-main">Building with AI, keeping it human</h1>
               <p class="text-lg sm:text-xl text-text-sub max-w-3xl mx-auto">
                 Practical AI, automation, and the messy reality of shipping software.
                 Expect experiments, tradeoffs, and the occasional “well, that didn’t work” postmortem.

@@ -75,7 +75,7 @@ export const aboutTemplate = `<!DOCTYPE html>
             <div class="flex flex-col-reverse gap-10 lg:gap-16 lg:flex-row items-center">
               <div class="flex flex-col gap-6 flex-1 text-center lg:text-left">
                 <div class="flex flex-col gap-4">
-                  <h1 class="text-text-light text-4xl lg:text-6xl font-black leading-tight tracking-[-0.033em] font-display">
+                  <h1 class="text-text-light text-4xl sm:text-5xl font-black leading-tight tracking-tight font-display">
                     Hi, I'm Bruce.
                   </h1>
                   <p class="text-muted-light text-lg lg:text-xl font-normal leading-relaxed max-w-[600px] mx-auto lg:mx-0">
