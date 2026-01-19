@@ -99,35 +99,41 @@ export const articleTemplate = `<!DOCTYPE html>
     <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10" id="main-content">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <article class="lg:col-span-7 flex flex-col gap-8">
-          <header class="flex flex-col gap-6 mx-auto w-full max-w-prose">
-            <div class="flex flex-wrap gap-2">
-              {{#tags}}
-              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
-                {{name}}
-              </span>
-              {{/tags}}
-            </div>
-            <h1 class="text-3xl md:text-4xl font-bold leading-tight tracking-tight text-text-main">
-              {{title}}
-            </h1>
-            <div class="flex items-center gap-4 text-sm text-text-muted border-b border-gray-200 pb-6">
-              <div class="flex items-center gap-2">
-                <img alt="Portrait of {{author_name}}" class="h-8 w-8 rounded-full object-cover" src="{{author_avatar}}" />
-                <span class="font-medium text-text-main">{{author_name}}</span>
+          <div class="mx-auto w-full max-w-prose text-base">
+            <header class="flex flex-col gap-6">
+              <div class="flex flex-wrap gap-2">
+                {{#tags}}
+                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
+                  {{name}}
+                </span>
+                {{/tags}}
               </div>
-              <span>&bull;</span>
-              <time datetime="{{published_at}}">{{published_date}}</time>
-              <span>&bull;</span>
-              <span>{{reading_time}} min read</span>
-            </div>
-          </header>
+              <h1 class="text-3xl md:text-4xl font-bold leading-tight tracking-tight text-text-main">
+                {{title}}
+              </h1>
+              <div class="flex items-center gap-4 text-sm text-text-muted border-b border-gray-200 pb-6">
+                <div class="flex items-center gap-2">
+                  <img alt="Portrait of {{author_name}}" class="h-8 w-8 rounded-full object-cover" src="{{author_avatar}}" />
+                  <span class="font-medium text-text-main">{{author_name}}</span>
+                </div>
+                <span>&bull;</span>
+                <time datetime="{{published_at}}">{{published_date}}</time>
+                <span>&bull;</span>
+                <span>{{reading_time}} min read</span>
+              </div>
+            </header>
+          </div>
           {{#hero_image_url}}
-          <div class="w-full rounded-2xl overflow-hidden shadow-sm aspect-video relative group">
-            <img alt="{{hero_image_alt}}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{{hero_image_url}}" />
+          <div class="mx-auto w-full max-w-prose text-base">
+            <div class="rounded-2xl overflow-hidden shadow-sm aspect-video relative group">
+              <img alt="{{hero_image_alt}}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{{hero_image_url}}" />
+            </div>
           </div>
           {{/hero_image_url}}
-          <div class="prose prose-lg md:prose-xl prose-slate prose-h1:text-3xl md:prose-h1:text-4xl prose-h2:text-xl md:prose-h2:text-2xl mx-auto w-full max-w-prose text-text-main leading-relaxed">
-            {{{body_html}}}
+          <div class="mx-auto w-full max-w-prose text-base">
+            <div class="prose prose-lg md:prose-xl prose-slate prose-h1:text-3xl md:prose-h1:text-4xl prose-h2:text-xl md:prose-h2:text-2xl max-w-none text-text-main leading-relaxed">
+              {{{body_html}}}
+            </div>
           </div>
         </article>
         <aside class="lg:col-span-5 flex flex-col gap-6">

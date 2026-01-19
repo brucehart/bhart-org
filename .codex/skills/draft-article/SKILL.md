@@ -15,8 +15,8 @@ Load `references/agents.md` before generating or submitting drafts.
 
 ### 1) Gather required inputs
 
-- Generate a `title`, `summary`, `tags` if one is not supplied. Use `author_name`, `author_email` from the most recent article if not supplied.
-- Generate suggestions for any optional items the user cares about: `slug`, `hero_image_url`, `hero_image_alt`, `featured`, `seo_title`, `seo_description`.
+- Generate a `title`, `summary`, `tags`, `seo_title`, and `seo_description` if one is not supplied. Use `author_name`, `author_email` from the most recent article if not supplied.
+- Generate suggestions for any optional items the user cares about: `slug`, `hero_image_url`, `hero_image_alt`, `featured`.
 - If tags are unclear, offer to fetch tag suggestions with `GET /tags`.
 
 ### 2) Draft the article
@@ -30,13 +30,13 @@ Load `references/agents.md` before generating or submitting drafts.
 
 ### 3) Submit draft via API
 
-- Call `POST /posts` with `status: "draft"` and required fields.
+- Call `POST /posts` with `status: "draft"` and required fields, including `seo_title` and `seo_description`.
 - If the user asked to publish, confirm and set `status: "published"` with `published_at`.
 - Show the user the payload before submitting if anything is inferred.
 
 ## Output format
 
-- Provide the drafted `body_markdown`, `title`, `summary`, and `tags` for review.
+- Provide the drafted `body_markdown`, `title`, `summary`, `tags`, `seo_title`, and `seo_description` for review.
 - If requested, immediately submit the draft and return the created post ID/slug.
 
 ## API usage
