@@ -22,6 +22,7 @@ Load `references/agents.md` before generating or submitting drafts.
 ### 2) Draft the article
 
 - Use the writing style in `references/agents.md`.
+- Avoid typical LLM tells: no "not X but Y" framing, no em dashes, no scare quotes around ordinary words, and use straight ASCII quotes/apostrophes only.
 - Prefer prose over bulleted lists; use bullets sparingly and only when they add clarity.
 - Open with a hook and a clear thesis early (bold or standalone sentence).
 - Include 2-4 ideas or mental models with reasoning and tradeoffs.
