@@ -73,7 +73,7 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <div class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-100 bg-primary/10 text-primary">
                   <span aria-hidden="true" class="material-symbols-outlined text-[18px]">terminal</span>
                 </div>
-                <h3 class="text-xl font-bold">bhart.org blog</h3>
+                <h3 class="text-xl font-bold"><span aria-hidden="true">🌐</span> bhart.org blog</h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bhart-org</span></p>
               <p class="mt-2 text-sm text-text-sub">
@@ -116,13 +116,32 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">Python</p>
                 <span class="text-xs text-text-sub">CLI workflow</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Codex Transcripts</h3>
+              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">📜</span> Codex Transcripts</h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">codex-transcripts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Converts Codex session JSONL files into clean, mobile-friendly HTML transcripts with optional gist publishing.
               </p>
               <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/codex-transcripts" rel="noreferrer">
+                  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0.5C5.7 0.5 0.5 5.8 0.5 12.1c0 5.1 3.3 9.4 7.8 11 0.6 0.1 0.8-0.3 0.8-0.6v-2.2c-3.2 0.7-3.8-1.4-3.8-1.4-0.5-1.3-1.2-1.6-1.2-1.6-1-0.7 0.1-0.7 0.1-0.7 1.1 0.1 1.7 1.1 1.7 1.1 1 1.7 2.7 1.2 3.3 0.9 0.1-0.7 0.4-1.2 0.7-1.4-2.5-0.3-5.2-1.2-5.2-5.6 0-1.2 0.4-2.2 1.1-3-0.1-0.3-0.5-1.4 0.1-2.9 0 0 0.9-0.3 3 1.1 0.9-0.2 1.8-0.4 2.7-0.4 0.9 0 1.8 0.1 2.7 0.4 2.1-1.4 3-1.1 3-1.1 0.6 1.5 0.2 2.6 0.1 2.9 0.7 0.8 1.1 1.8 1.1 3 0 4.4-2.7 5.3-5.3 5.6 0.4 0.4 0.7 1 0.7 2.1v3.1c0 0.3 0.2 0.7 0.8 0.6 4.6-1.6 7.8-5.9 7.8-11C23.5 5.8 18.3 0.5 12 0.5z"/>
+                  </svg>
+                  GitHub
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-xs font-semibold uppercase tracking-widest text-primary">Rust</p>
+                <span class="text-xs text-text-sub">CLI + data</span>
+              </div>
+              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">🗄️</span> harlite</h3>
+              <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">harlite</span></p>
+              <p class="mt-2 text-sm text-text-sub">
+                Import HAR (HTTP Archive) files into SQLite, then query web traffic with plain SQL.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
+                <a class="inline-flex items-center gap-2 hover:text-blue-700" href="https://github.com/brucehart/harlite" rel="noreferrer">
                   <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0.5C5.7 0.5 0.5 5.8 0.5 12.1c0 5.1 3.3 9.4 7.8 11 0.6 0.1 0.8-0.3 0.8-0.6v-2.2c-3.2 0.7-3.8-1.4-3.8-1.4-0.5-1.3-1.2-1.6-1.2-1.6-1-0.7 0.1-0.7 0.1-0.7 1.1 0.1 1.7 1.1 1.7 1.1 1 1.7 2.7 1.2 3.3 0.9 0.1-0.7 0.4-1.2 0.7-1.4-2.5-0.3-5.2-1.2-5.2-5.6 0-1.2 0.4-2.2 1.1-3-0.1-0.3-0.5-1.4 0.1-2.9 0 0 0.9-0.3 3 1.1 0.9-0.2 1.8-0.4 2.7-0.4 0.9 0 1.8 0.1 2.7 0.4 2.1-1.4 3-1.1 3-1.1 0.6 1.5 0.2 2.6 0.1 2.9 0.7 0.8 1.1 1.8 1.1 3 0 4.4-2.7 5.3-5.3 5.6 0.4 0.4 0.7 1 0.7 2.1v3.1c0 0.3 0.2 0.7 0.8 0.6 4.6-1.6 7.8-5.9 7.8-11C23.5 5.8 18.3 0.5 12 0.5z"/>
                   </svg>
@@ -158,7 +177,7 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">Docs</p>
                 <span class="text-xs text-text-sub">Codex CLI</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Codex CLI Prompts</h3>
+              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">⌨️</span> Codex CLI Prompts</h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">codex-prompts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Custom Codex CLI prompts that register as slash commands for API docs, commits, PRs, refactors, and tests.
@@ -200,7 +219,7 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">JavaScript</p>
                 <span class="text-xs text-text-sub">Browser tweaks</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">Userscripts</h3>
+              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">🐒</span> Userscripts</h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">userscripts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Personal userscripts for Tampermonkey. Small sandpaper for rough edges on the web.
