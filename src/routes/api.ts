@@ -1,7 +1,15 @@
-import { estimateReadingTime, slugify } from '../utils';
+import {
+  deriveTagsFromFilename,
+  estimateReadingTime,
+  extensionForContentType,
+  getImageDimensions,
+  sanitizeFilename,
+  slugify,
+} from '../utils';
 import {
   createPost,
   createNewsItem,
+  createMediaAsset,
   getNewsItemById,
   getPostById,
   getPostBySlug,
@@ -15,6 +23,7 @@ import type { CodexNewsCursor, CodexPostCursor, NewsItemInput, PostInput } from 
 import type { PostStatus } from '../types';
 import type { NewsStatus } from '../types';
 import {
+  buildMediaUrl,
   jsonError,
   jsonResponse,
   logCodexAudit,
@@ -34,6 +43,8 @@ const RATE_LIMIT_CONFIG = {
   windowMs: 60 * 1000, // 1 minute
   maxRequests: 100, // 100 requests per minute
 };
+
+const MAX_MEDIA_IMPORT_BYTES = 20 * 1024 * 1024; // 20 MB
 
 const serializeNewsItem = (item: {
   id: string;
@@ -87,6 +98,152 @@ export const handleApiRoutes = async (
   }
 
   const codexPath = path.slice(codexPrefix.length) || '/';
+
+  // POST /media/import
+  if (codexPath === '/media/import' && method === 'POST') {
+    logCodexAudit(method, path, '');
+
+    const payloadResult = await readJsonBody(request);
+    if (!payloadResult.ok) {
+      return payloadResult.response;
+    }
+    if (!isPlainObject(payloadResult.data)) {
+      return jsonError(400, 'invalid_request', 'Request body must be a JSON object.');
+    }
+
+    const payload = payloadResult.data as Record<string, unknown>;
+    const sourceUrl = normalizeRequiredString(payload.source_url);
+    const altText = normalizeRequiredString(payload.alt_text);
+    const authorName = normalizeRequiredString(payload.author_name);
+    const authorEmail = normalizeRequiredString(payload.author_email);
+    const filenameRaw = normalizeOptionalString(payload.filename);
+    const keyPrefixRaw = normalizeOptionalString(payload.key_prefix);
+    const captionRaw = normalizeOptionalString(payload.caption);
+    const internalDescriptionRaw = normalizeOptionalString(payload.internal_description);
+    const tagsRaw = payload.tags;
+
+    const errors: string[] = [];
+    if (!sourceUrl) errors.push('source_url is required.');
+    if (!altText) errors.push('alt_text is required.');
+    if (!authorName) errors.push('author_name is required.');
+    if (!authorEmail) errors.push('author_email is required.');
+
+    let parsedUrl: URL | null = null;
+    if (sourceUrl) {
+      try {
+        parsedUrl = new URL(sourceUrl);
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+          errors.push('source_url must be http(s).');
+        }
+      } catch {
+        errors.push('source_url must be a valid URL.');
+      }
+    }
+
+    let tags: string[] | null = null;
+    if (tagsRaw !== undefined) {
+      if (!Array.isArray(tagsRaw) || tagsRaw.some((item) => typeof item !== 'string')) {
+        errors.push('tags must be an array of strings.');
+      } else {
+        tags = tagsRaw.map((item) => item.trim()).filter(Boolean);
+      }
+    }
+
+    let keyPrefix = 'uploads';
+    if (keyPrefixRaw !== undefined && keyPrefixRaw !== null) {
+      const trimmed = keyPrefixRaw.trim().replace(/^\/+/, '').replace(/\/+$/, '');
+      if (!trimmed) {
+        errors.push('key_prefix must be a non-empty string when provided.');
+      } else if (trimmed.includes('..')) {
+        errors.push('key_prefix must not contain "..".');
+      } else {
+        keyPrefix = trimmed;
+      }
+    }
+
+    if (errors.length > 0) {
+      return jsonError(400, 'invalid_request', errors.join(' '));
+    }
+
+    const sourceUrlFinal = sourceUrl as string;
+    const altTextFinal = altText as string;
+    const authorNameFinal = authorName as string;
+    const authorEmailFinal = authorEmail as string;
+
+    const upstream = await fetch(sourceUrlFinal, {
+      headers: {
+        accept: 'image/*',
+      },
+    });
+
+    if (!upstream.ok) {
+      return jsonError(502, 'bad_gateway', `Failed to download source_url (status ${upstream.status}).`);
+    }
+
+    const contentTypeHeader = upstream.headers.get('content-type') ?? '';
+    const contentType = contentTypeHeader.split(';')[0]?.trim() || 'application/octet-stream';
+    if (!contentType.startsWith('image/')) {
+      return jsonError(400, 'invalid_request', 'source_url must resolve to an image content-type.');
+    }
+
+    const body = await upstream.arrayBuffer();
+    const sizeBytes = body.byteLength;
+    if (sizeBytes <= 0) {
+      return jsonError(400, 'invalid_request', 'Downloaded image was empty.');
+    }
+    if (sizeBytes > MAX_MEDIA_IMPORT_BYTES) {
+      return jsonError(413, 'payload_too_large', `Image exceeds ${MAX_MEDIA_IMPORT_BYTES} bytes.`);
+    }
+
+    const filenameFromUrl = parsedUrl ? parsedUrl.pathname.split('/').pop() || 'image' : 'image';
+    const filename = filenameRaw ?? filenameFromUrl;
+    const { base, ext } = sanitizeFilename(filename);
+    const mimeExtension = extensionForContentType(contentType);
+    const normalizedExt = mimeExtension || ext || '.png';
+    const unique = crypto.randomUUID().slice(0, 8);
+    const key = `${keyPrefix}/${Date.now()}-${unique}-${base}${normalizedExt}`;
+
+    await env.MEDIA_BUCKET.put(key, body, {
+      httpMetadata: {
+        contentType,
+      },
+    });
+
+    const nowIso = new Date().toISOString();
+    const derivedTags = tags ?? Array.from(new Set([...deriveTagsFromFilename(base), 'header', 'generated']));
+    const dimensions = getImageDimensions(body, contentType);
+    const mediaId = await createMediaAsset(env.DB, {
+      key,
+      filename: `${base}${normalizedExt}`,
+      content_type: contentType,
+      size_bytes: sizeBytes,
+      width: dimensions.width,
+      height: dimensions.height,
+      alt_text: altTextFinal,
+      caption: captionRaw ?? altTextFinal,
+      internal_description:
+        internalDescriptionRaw ??
+        `Imported via Codex API from ${parsedUrl ? parsedUrl.hostname : 'source_url'}.`,
+      tags: derivedTags,
+      author_name: authorNameFinal,
+      author_email: authorEmailFinal,
+      uploaded_at: nowIso,
+      published_at: nowIso,
+    });
+
+    return jsonResponse({
+      media: {
+        id: mediaId,
+        key,
+        url: buildMediaUrl(key),
+        content_type: contentType,
+        size_bytes: sizeBytes,
+        width: dimensions.width,
+        height: dimensions.height,
+        alt_text: altTextFinal,
+      },
+    });
+  }
 
   // GET /posts/by-slug/:slug
   const slugMatch = codexPath.match(/^\/posts\/by-slug\/([^/]+)$/);

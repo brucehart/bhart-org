@@ -104,6 +104,62 @@ export const listPublishedPosts = async (
   return results.map(mapPostRow);
 };
 
+export const searchPublishedPosts = async (
+  db: D1Database,
+  nowIso: string,
+  query: string,
+  limit = 100,
+): Promise<PostWithTags[]> => {
+  const escapedQuery = escapeLikePattern(query.toLowerCase());
+  const term = `%${escapedQuery}%`;
+  const params: unknown[] = [
+    nowIso,
+    term,
+    term,
+    term,
+    term,
+    term,
+    term,
+    term,
+    term,
+    limit,
+  ];
+
+  const sql = `
+    SELECT
+      p.*, 
+      GROUP_CONCAT(t.name, ',') AS tag_names,
+      GROUP_CONCAT(t.slug, ',') AS tag_slugs
+    FROM posts p
+    LEFT JOIN post_tags pt ON pt.post_id = p.id
+    LEFT JOIN tags t ON t.id = pt.tag_id
+    WHERE p.status = 'published'
+      AND p.published_at IS NOT NULL
+      AND p.published_at <= ?
+      AND (
+        LOWER(p.title) LIKE ? ESCAPE '\\'
+        OR LOWER(p.summary) LIKE ? ESCAPE '\\'
+        OR LOWER(p.body_markdown) LIKE ? ESCAPE '\\'
+        OR LOWER(p.slug) LIKE ? ESCAPE '\\'
+        OR LOWER(p.seo_title) LIKE ? ESCAPE '\\'
+        OR LOWER(p.seo_description) LIKE ? ESCAPE '\\'
+        OR EXISTS (
+          SELECT 1
+          FROM post_tags pt2
+          JOIN tags t2 ON t2.id = pt2.tag_id
+          WHERE pt2.post_id = p.id
+            AND (LOWER(t2.name) LIKE ? ESCAPE '\\' OR LOWER(t2.slug) LIKE ? ESCAPE '\\')
+        )
+      )
+    GROUP BY p.id
+    ORDER BY p.published_at DESC
+    LIMIT ?
+  `;
+
+  const { results } = await db.prepare(sql).bind(...params).all<PostRecord>();
+  return results.map(mapPostRow);
+};
+
 export const listPublishedPostsByDateRange = async (
   db: D1Database,
   startIso: string,

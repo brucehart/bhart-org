@@ -50,8 +50,18 @@ export const homeTemplate = `<!DOCTYPE html>
         }
       };
     </script>
+    <style>
+      @media (min-width: 1024px) {
+        html {
+          font-size: 80%;
+        }
+        body.home-header-scale header {
+          font-size: 1.25rem;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary">
+  <body class="bg-background-light text-text-main font-display antialiased selection:bg-primary/20 selection:text-primary home-header-scale">
     <div class="relative flex min-h-screen flex-col overflow-x-visible md:overflow-x-hidden">
       {{> publicHeader}}
       <main class="flex-grow" id="main-content">
@@ -60,7 +70,7 @@ export const homeTemplate = `<!DOCTYPE html>
           <div class="absolute inset-0 opacity-[0.12]" style="background-image: linear-gradient(90deg, #135bec 1px, transparent 1px), linear-gradient(#135bec 1px, transparent 1px); background-size: 18px 18px;"></div>
           <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col gap-3 text-center">
-              <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-text-main">Building with AI, keeping it human</h1>
+              <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-text-main">Building with AI, keeping it human</h1>
               <p class="text-lg sm:text-xl text-text-sub max-w-3xl mx-auto">
                 Practical AI, automation, and the messy reality of shipping software.
                 Expect experiments, tradeoffs, and the occasional “well, that didn’t work” postmortem.
@@ -74,6 +84,25 @@ export const homeTemplate = `<!DOCTYPE html>
               <!-- Left Sidebar: Tags -->
               <div class="order-3 w-full lg:order-none lg:w-64 flex-shrink-0">
                 <div class="sticky top-24 space-y-6">
+                  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                    <h2 class="text-lg font-bold text-text-main mb-4">Search</h2>
+                    <form action="/search" class="flex flex-col gap-3" method="get">
+                      <label class="sr-only" for="home-search-query">Search posts</label>
+                      <input
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text-main placeholder:text-text-sub focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        id="home-search-query"
+                        name="q"
+                        placeholder="Search posts, tags, or SEO titles"
+                        type="search"
+                      />
+                      <button
+                        class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                        type="submit"
+                      >
+                        Search
+                      </button>
+                    </form>
+                  </div>
                   <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-text-main mb-4">Topics</h2>
                     <div class="flex flex-col gap-2">
@@ -111,11 +140,11 @@ export const homeTemplate = `<!DOCTYPE html>
                         <span>•</span>
                         <span>{{reading_time}} min read</span>
                       </div>
-                      <h3 class="text-2xl font-bold text-text-main leading-tight">
+                      <h3 class="text-3xl md:text-4xl font-bold text-text-main leading-tight">
                         <a class="hover:text-primary transition-colors" href="{{url}}">{{title}}</a>
                       </h3>
                       <p class="text-base sm:text-lg text-text-sub break-words [overflow-wrap:anywhere]">{{summary}}</p>
-                      <div class="prose prose-lg sm:prose-xl prose-slate max-w-none text-text-main break-words [overflow-wrap:anywhere]">
+                      <div class="prose prose-lg sm:prose-xl prose-slate prose-h1:text-3xl sm:prose-h1:text-4xl prose-h2:text-xl sm:prose-h2:text-2xl max-w-none text-text-main break-words [overflow-wrap:anywhere]">
                         {{{excerpt_html}}}
                       </div>
                       <a class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors" href="{{url}}">

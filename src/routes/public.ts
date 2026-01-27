@@ -7,6 +7,7 @@ import {
   listPublishedPostsByDateRange,
   listPublishedNewsItems,
   listTags,
+  searchPublishedPosts,
 } from '../db';
 import { createEasternDate, formatDate, formatRssDate, getEasternYear } from '../utils';
 import {
@@ -420,6 +421,30 @@ export const handlePublicRoutes = async (
       archive_title: archiveTitle,
       has_posts: posts.length > 0,
       posts: posts.map((post) => ({
+        title: post.title,
+        published_date: formatDate(post.published_at),
+        reading_time: post.reading_time_minutes,
+        url: `/articles/${post.slug}`,
+      })),
+      show_email_subscribe: showEmailSubscribe,
+    });
+  }
+
+  // GET /search
+  if (path === '/search' && method === 'GET') {
+    const query = url.searchParams.get('q')?.trim() ?? '';
+    const nowIso = new Date().toISOString();
+    const results = query ? await searchPublishedPosts(env.DB, nowIso, query) : [];
+    const resultLabel = results.length === 1 ? 'result' : 'results';
+    return htmlResponse(templates.search, {
+      nav_is_home: true,
+      page_title: query ? `Search: ${query} - bhart.org` : 'Search - bhart.org',
+      search_query: query,
+      has_query: Boolean(query),
+      result_count: results.length,
+      result_label: resultLabel,
+      has_results: results.length > 0,
+      results: results.map((post) => ({
         title: post.title,
         published_date: formatDate(post.published_at),
         reading_time: post.reading_time_minutes,

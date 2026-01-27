@@ -1,4 +1,4 @@
-export const archiveTemplate = `<!DOCTYPE html>
+export const searchTemplate = `<!DOCTYPE html>
 <html class="light" lang="en">
   <head>
     <meta charset="utf-8" />
@@ -56,17 +56,41 @@ export const archiveTemplate = `<!DOCTYPE html>
       <main class="flex-grow">
         <section class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div class="flex flex-col gap-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Archive</p>
-            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">{{archive_title}}</h1>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Search</p>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight">Search the archive</h1>
             <p class="text-sm text-text-sub">
-              Browse posts from this time period. Jump back to the
+              Look across posts, tags, SEO titles, and more. Back to the
               <a class="text-primary font-semibold" href="/">home page</a>.
             </p>
           </div>
 
-          {{#has_posts}}
-          <div class="mt-8 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
-            {{#posts}}
+          <form action="/search" class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center" method="get">
+            <label class="sr-only" for="search-page-query">Search</label>
+            <input
+              class="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-text-main placeholder:text-text-sub focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:flex-1"
+              id="search-page-query"
+              name="q"
+              placeholder="Search posts, tags, SEO titles, or keywords"
+              type="search"
+              value="{{search_query}}"
+            />
+            <button
+              class="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+              type="submit"
+            >
+              Search
+            </button>
+          </form>
+
+          {{#has_query}}
+          <p class="mt-4 text-xs text-text-sub">
+            {{result_count}} {{result_label}} for “{{search_query}}”.
+          </p>
+          {{/has_query}}
+
+          {{#has_results}}
+          <div class="mt-6 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+            {{#results}}
             <div class="flex flex-col gap-2 p-6">
               <a class="text-lg font-semibold text-text-main hover:text-primary transition-colors" href="{{url}}">
                 {{title}}
@@ -77,14 +101,19 @@ export const archiveTemplate = `<!DOCTYPE html>
                 <span>{{reading_time}} min read</span>
               </div>
             </div>
-            {{/posts}}
+            {{/results}}
           </div>
-          {{/has_posts}}
-          {{^has_posts}}
+          {{/has_results}}
+          {{^has_results}}
           <div class="mt-8 rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-text-sub">
-            No posts published in this time period.
+            {{#has_query}}
+            No posts match that search yet.
+            {{/has_query}}
+            {{^has_query}}
+            Enter a search term to see results.
+            {{/has_query}}
           </div>
-          {{/has_posts}}
+          {{/has_results}}
         </section>
       </main>
       {{> publicFooter}}

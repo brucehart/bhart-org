@@ -4,6 +4,7 @@ import { aboutTemplate } from './public/about';
 import { articleTemplate } from './public/article';
 import { projectsTemplate } from './public/projects';
 import { archiveTemplate } from './public/archive';
+import { searchTemplate } from './public/search';
 import { newsTemplate } from './public/news';
 import { workWithMeTemplate } from './public/workWithMe';
 import { contactTemplate } from './public/contact';
@@ -33,6 +34,7 @@ export const templates = {
   article: articleTemplate,
   projects: projectsTemplate,
   archive: archiveTemplate,
+  search: searchTemplate,
   news: newsTemplate,
   workWithMe: workWithMeTemplate,
   contact: contactTemplate,
