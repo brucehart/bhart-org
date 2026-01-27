@@ -73,7 +73,9 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <div class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-100 bg-primary/10 text-primary">
                   <span aria-hidden="true" class="material-symbols-outlined text-[18px]">terminal</span>
                 </div>
-                <h3 class="text-xl font-bold"><span aria-hidden="true">🌐</span> bhart.org blog</h3>
+                <h3 class="text-xl font-bold">
+                  <a class="hover:text-blue-700" href="https://bhart.org" rel="noreferrer">bhart.org blog</a>
+                </h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bhart-org</span></p>
               <p class="mt-2 text-sm text-text-sub">
@@ -86,6 +88,7 @@ export const projectsTemplate = `<!DOCTYPE html>
                   </svg>
                   GitHub
                 </a>
+                <a class="hover:text-blue-700" href="https://bhart.org" rel="noreferrer">Live</a>
               </div>
             </div>
             <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -95,7 +98,9 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/webtools.png" alt="Web Tools logo" />
-                <h3 class="text-xl font-bold">Web Tools</h3>
+                <h3 class="text-xl font-bold">
+                  <a class="hover:text-blue-700" href="https://web-tools.bruce-hart.workers.dev/" rel="noreferrer">Web Tools</a>
+                </h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">web-tools</span></p>
               <p class="mt-2 text-sm text-text-sub">
@@ -116,7 +121,9 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">Python</p>
                 <span class="text-xs text-text-sub">CLI workflow</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">📜</span> Codex Transcripts</h3>
+              <h3 class="mt-3 text-xl font-bold">
+                <a class="hover:text-blue-700" href="https://github.com/brucehart/codex-transcripts" rel="noreferrer"><span aria-hidden="true">📜</span> Codex Transcripts</a>
+              </h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">codex-transcripts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Converts Codex session JSONL files into clean, mobile-friendly HTML transcripts with optional gist publishing.
@@ -135,7 +142,9 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">Rust</p>
                 <span class="text-xs text-text-sub">CLI + data</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">🗄️</span> harlite</h3>
+              <h3 class="mt-3 text-xl font-bold">
+                <a class="hover:text-blue-700" href="https://github.com/brucehart/harlite" rel="noreferrer"><span aria-hidden="true">🗄️</span> harlite</a>
+              </h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">harlite</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Import HAR (HTTP Archive) files into SQLite, then query web traffic with plain SQL.
@@ -156,7 +165,9 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/Celebrity-Death-Bot.png" alt="Celebrity Death Bot logo" />
-                <h3 class="text-xl font-bold">Celebrity Death Bot</h3>
+                <h3 class="text-xl font-bold">
+                  <a class="hover:text-blue-700" href="https://celebritydeathbot.com" rel="noreferrer">Celebrity Death Bot</a>
+                </h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">celebrity-death-bot</span></p>
               <p class="mt-2 text-sm text-text-sub">
@@ -177,7 +188,9 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">Docs</p>
                 <span class="text-xs text-text-sub">Codex CLI</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">⌨️</span> Codex CLI Prompts</h3>
+              <h3 class="mt-3 text-xl font-bold">
+                <a class="hover:text-blue-700" href="https://github.com/brucehart/codex-prompts" rel="noreferrer"><span aria-hidden="true">⌨️</span> Codex CLI Prompts</a>
+              </h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">codex-prompts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Custom Codex CLI prompts that register as slash commands for API docs, commits, PRs, refactors, and tests.
@@ -198,7 +211,9 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/bedtime-stories-icon.png" alt="Bedtime Stories logo" />
-                <h3 class="text-xl font-bold">Bedtime Stories</h3>
+                <h3 class="text-xl font-bold">
+                  <a class="hover:text-blue-700" href="https://bedtimestories.bruce-hart.workers.dev/" rel="noreferrer">Bedtime Stories</a>
+                </h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">bedtimestories</span></p>
               <p class="mt-2 text-sm text-text-sub">
@@ -219,7 +234,9 @@ export const projectsTemplate = `<!DOCTYPE html>
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary">JavaScript</p>
                 <span class="text-xs text-text-sub">Browser tweaks</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold"><span aria-hidden="true">🐒</span> Userscripts</h3>
+              <h3 class="mt-3 text-xl font-bold">
+                <a class="hover:text-blue-700" href="https://github.com/brucehart/userscripts" rel="noreferrer"><span aria-hidden="true">🐒</span> Userscripts</a>
+              </h3>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">userscripts</span></p>
               <p class="mt-2 text-sm text-text-sub">
                 Personal userscripts for Tampermonkey. Small sandpaper for rough edges on the web.
@@ -240,7 +257,9 @@ export const projectsTemplate = `<!DOCTYPE html>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <img class="h-8 w-8 rounded-md border border-gray-100 object-contain" src="/media/pokerboom-logo.png" alt="Poker Boom logo" />
-                <h3 class="text-xl font-bold">Poker Boom</h3>
+                <h3 class="text-xl font-bold">
+                  <a class="hover:text-blue-700" href="https://github.com/brucehart/pokerboom" rel="noreferrer">Poker Boom</a>
+                </h3>
               </div>
               <p class="mt-1 text-xs text-text-sub font-medium">Repo: <span class="font-mono">pokerboom</span></p>
               <p class="mt-2 text-sm text-text-sub">
