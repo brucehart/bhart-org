@@ -17,9 +17,11 @@ Options:
   --resolution <val>              Model resolution (default: 1K)
   --gen-timeout <seconds>         Timeout for image generation (default: 180)
   --gen-retries <count>           Retry count for image generation (default: 2)
-  --upload-endpoint <url>         Temp upload endpoint for media import (default: https://0x0.st)
+  --upload-mode <mode>            Upload mode: direct|import|skip (default: direct)
+  --upload-endpoint <url>         Temp upload endpoint for media import (required for --upload-mode import)
   --key-prefix <prefix>           R2 key prefix for media import (default: headers)
   --api-base <url>                Bhart Codex API base (default: https://bhart-org.bruce-hart.workers.dev/api/codex/v1)
+  --python-bin <path>             Python binary override (default: ~/scripts/.venv/bin/python or python3)
 
 Env:
   CODEX_BHART_API_TOKEN
@@ -55,9 +57,11 @@ key_prefix="headers"
 api_base="https://bhart-org.bruce-hart.workers.dev/api/codex/v1"
 aspect_ratio="16:9"
 resolution="1K"
-upload_endpoint="https://0x0.st"
+upload_mode="direct"
+upload_endpoint=""
 gen_timeout="180"
 gen_retries="2"
+python_bin=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -72,9 +76,11 @@ while [ $# -gt 0 ]; do
     --resolution) resolution="${2:-}"; shift 2 ;;
     --gen-timeout) gen_timeout="${2:-}"; shift 2 ;;
     --gen-retries) gen_retries="${2:-}"; shift 2 ;;
+    --upload-mode) upload_mode="${2:-}"; shift 2 ;;
     --upload-endpoint) upload_endpoint="${2:-}"; shift 2 ;;
     --key-prefix) key_prefix="${2:-}"; shift 2 ;;
     --api-base) api_base="${2:-}"; shift 2 ;;
+    --python-bin) python_bin="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown arg: $1" >&2; usage; exit 1 ;;
   esac
@@ -82,7 +88,6 @@ done
 
 need_bin curl
 need_bin jq
-need_bin python
 need_env CODEX_BHART_API_TOKEN
 need_env GEMINI_API_KEY
 
@@ -106,8 +111,13 @@ if [ -z "$post_id" ] && [ -z "$post_slug" ]; then
   exit 1
 fi
 
-if [ -z "$upload_endpoint" ]; then
-  echo "Missing --upload-endpoint" >&2
+if [ "$upload_mode" != "direct" ] && [ "$upload_mode" != "import" ] && [ "$upload_mode" != "skip" ]; then
+  echo "Invalid --upload-mode: $upload_mode (expected direct|import|skip)" >&2
+  exit 1
+fi
+
+if [ "$upload_mode" = "import" ] && [ -z "$upload_endpoint" ]; then
+  echo "Missing --upload-endpoint for --upload-mode import" >&2
   exit 1
 fi
 
@@ -134,6 +144,19 @@ if [ -z "$alt_text" ]; then
   fi
 fi
 
+if [ -z "$python_bin" ]; then
+  if [ -x "$HOME/scripts/.venv/bin/python" ]; then
+    python_bin="$HOME/scripts/.venv/bin/python"
+  elif command -v python3 >/dev/null 2>&1; then
+    python_bin="$(command -v python3)"
+  elif command -v python >/dev/null 2>&1; then
+    python_bin="$(command -v python)"
+  else
+    echo "Missing python binary. Set --python-bin or install python3." >&2
+    exit 1
+  fi
+fi
+
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python_args=(
   --prompt "$prompt"
@@ -152,9 +175,9 @@ while [ "$attempt" -lt "$max_attempts" ]; do
   attempt="$((attempt + 1))"
   echo "Generating image (attempt $attempt/$max_attempts)..." >&2
   if command -v timeout >/dev/null 2>&1; then
-    image_path="$(timeout "${gen_timeout}s" python "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
+    image_path="$(timeout "${gen_timeout}s" "$python_bin" "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
   else
-    image_path="$(python "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
+    image_path="$("$python_bin" "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
   fi
 
   if [ -n "$image_path" ] && [ -f "$image_path" ]; then
@@ -168,65 +191,108 @@ done
 
 if [ -z "$image_path" ] || [ ! -f "$image_path" ]; then
   echo "Failed to generate image file." >&2
+  echo "Tip: ensure google-genai is installed in ~/scripts/.venv." >&2
   exit 1
 fi
 
-echo "Uploading generated image to temp host..." >&2
-output_url="$(curl -sS -F "file=@${image_path}" "$upload_endpoint" | head -n 1 | tr -d '\r')"
-
-if [ -z "$output_url" ]; then
-  echo "Temporary upload failed; no URL returned." >&2
-  exit 1
+media_url=""
+if [ "$upload_mode" = "skip" ]; then
+  echo "Upload skipped. Generated image at: $image_path" >&2
+  echo "Next: upload to R2 and PATCH the post hero_image_url + hero_image_alt." >&2
+  exit 0
 fi
 
-echo "Importing generated image into R2 via Bhart Codex API..." >&2
-media_payload="$(jq -n \
-  --arg source_url "$output_url" \
-  --arg alt_text "$alt_text" \
-  --arg author_name "$author_name" \
-  --arg author_email "$author_email" \
-  --arg key_prefix "$key_prefix" \
-  --arg internal_description "Generated via Gemini ($gemini_model)" \
-  '{
-    source_url: $source_url,
-    alt_text: $alt_text,
-    author_name: $author_name,
-    author_email: $author_email,
-    key_prefix: $key_prefix,
-    internal_description: $internal_description,
-    tags: ["header", "generated", "gemini"]
-  }')"
-
-media_json="$(curl -sS "${auth_header[@]}" \
-  -H "Content-Type: application/json" \
-  -d "$media_payload" \
-  "$api_base/media/import")"
-
-media_url="$(jq -r '.media.url // empty' <<<"$media_json")"
-if [ -z "$media_url" ]; then
-  err_code="$(jq -r '.error.code // empty' <<<"$media_json")"
-  if [ "$err_code" = "not_found" ]; then
-    echo "Warning: media import endpoint not found; falling back to external image URL." >&2
-    media_url="$output_url"
+upload_attempt=0
+upload_max_attempts=3
+while [ "$upload_attempt" -lt "$upload_max_attempts" ]; do
+  upload_attempt="$((upload_attempt + 1))"
+  if [ "$upload_mode" = "direct" ]; then
+    echo "Uploading generated image directly to R2 via Codex API (attempt $upload_attempt/$upload_max_attempts)..." >&2
+    media_json="$(curl -sS "${auth_header[@]}" \
+      -F "image=@${image_path}" \
+      -F "alt_text=${alt_text}" \
+      -F "author_name=${author_name}" \
+      -F "author_email=${author_email}" \
+      -F "key_prefix=${key_prefix}" \
+      -F "internal_description=Generated via Gemini (${gemini_model})" \
+      -F "tags=[\"header\",\"generated\",\"gemini\"]" \
+      "$api_base/media/upload")"
   else
-    echo "Media import failed. Response:" >&2
-    echo "$media_json" | jq . >&2 || true
-    exit 1
+    echo "Uploading generated image to temp host (attempt $upload_attempt/$upload_max_attempts)..." >&2
+    output_url="$(curl -sS -F "file=@${image_path}" "$upload_endpoint" | head -n 1 | tr -d '\r')"
+    if [ -z "$output_url" ]; then
+      echo "Temporary upload failed; no URL returned." >&2
+      media_json=""
+    else
+      echo "Importing generated image into R2 via Bhart Codex API..." >&2
+      media_payload="$(jq -n \
+        --arg source_url "$output_url" \
+        --arg alt_text "$alt_text" \
+        --arg author_name "$author_name" \
+        --arg author_email "$author_email" \
+        --arg key_prefix "$key_prefix" \
+        --arg internal_description "Generated via Gemini ($gemini_model)" \
+        '{
+          source_url: $source_url,
+          alt_text: $alt_text,
+          author_name: $author_name,
+          author_email: $author_email,
+          key_prefix: $key_prefix,
+          internal_description: $internal_description,
+          tags: ["header", "generated", "gemini"]
+        }')"
+      media_json="$(curl -sS "${auth_header[@]}" \
+        -H "Content-Type: application/json" \
+        -d "$media_payload" \
+        "$api_base/media/import")"
+    fi
   fi
+
+  if [ -n "$media_json" ]; then
+    media_url="$(jq -r '.media.url // empty' <<<"$media_json")"
+  fi
+  if [ -n "$media_url" ]; then
+    break
+  fi
+  if [ "$upload_attempt" -lt "$upload_max_attempts" ]; then
+    echo "Upload/import failed. Retrying..." >&2
+    sleep 2
+  fi
+done
+
+if [ -z "$media_url" ]; then
+  echo "Media upload failed. Response:" >&2
+  echo "$media_json" | jq . >&2 || true
+  exit 1
 fi
 
 echo "Updating post hero image fields..." >&2
-patch_payload="$(jq -n \
-  --arg hero_image_url "$media_url" \
-  --arg hero_image_alt "$alt_text" \
-  --arg expected_updated_at "$expected_updated_at" \
-  '{hero_image_url: $hero_image_url, hero_image_alt: $hero_image_alt, expected_updated_at: $expected_updated_at}')"
+patch_attempt=0
+patch_max_attempts=3
+patched=""
+while [ "$patch_attempt" -lt "$patch_max_attempts" ]; do
+  patch_attempt="$((patch_attempt + 1))"
+  patch_payload="$(jq -n \
+    --arg hero_image_url "$media_url" \
+    --arg hero_image_alt "$alt_text" \
+    --arg expected_updated_at "$expected_updated_at" \
+    '{hero_image_url: $hero_image_url, hero_image_alt: $hero_image_alt, expected_updated_at: $expected_updated_at}')"
 
-patched="$(curl -sS "${auth_header[@]}" \
-  -H "Content-Type: application/json" \
-  -X PATCH \
-  -d "$patch_payload" \
-  "$api_base/posts/$post_id")"
+  patched="$(curl -sS "${auth_header[@]}" \
+    -H "Content-Type: application/json" \
+    -X PATCH \
+    -d "$patch_payload" \
+    "$api_base/posts/$post_id")"
+
+  patched_post_id="$(jq -r '.post.id // empty' <<<"$patched")"
+  if [ -n "$patched_post_id" ]; then
+    break
+  fi
+  if [ "$patch_attempt" -lt "$patch_max_attempts" ]; then
+    echo "Post update failed. Retrying..." >&2
+    sleep 2
+  fi
+done
 
 patched_post_id="$(jq -r '.post.id // empty' <<<"$patched")"
 if [ -z "$patched_post_id" ]; then

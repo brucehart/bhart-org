@@ -99,6 +99,114 @@ export const handleApiRoutes = async (
 
   const codexPath = path.slice(codexPrefix.length) || '/';
 
+  // POST /media/upload
+  if (codexPath === '/media/upload' && method === 'POST') {
+    logCodexAudit(method, path, '');
+
+    const data = await request.formData();
+    const file = data.get('image');
+    if (!(file instanceof File) || file.size === 0) {
+      return jsonError(400, 'invalid_request', 'image file is required.');
+    }
+    if (!file.type.startsWith('image/')) {
+      return jsonError(400, 'invalid_request', 'image must be an image/* content-type.');
+    }
+
+    const readString = (value: FormDataEntryValue | null) =>
+      typeof value === 'string' ? value.trim() : '';
+
+    const altText = readString(data.get('alt_text'));
+    const authorName = readString(data.get('author_name'));
+    const authorEmail = readString(data.get('author_email'));
+    if (!altText || !authorName || !authorEmail) {
+      return jsonError(400, 'invalid_request', 'alt_text, author_name, and author_email are required.');
+    }
+
+    const filenameRaw = readString(data.get('filename'));
+    const keyPrefixRaw = readString(data.get('key_prefix'));
+    const captionRaw = readString(data.get('caption'));
+    const internalDescriptionRaw = readString(data.get('internal_description'));
+    const tagsRaw = readString(data.get('tags'));
+
+    let keyPrefix = 'uploads';
+    if (keyPrefixRaw) {
+      const trimmed = keyPrefixRaw.replace(/^\/+/, '').replace(/\/+$/, '');
+      if (!trimmed || trimmed.includes('..')) {
+        return jsonError(400, 'invalid_request', 'key_prefix must be a non-empty string without "..".');
+      }
+      keyPrefix = trimmed;
+    }
+
+    let tags: string[] | null = null;
+    if (tagsRaw) {
+      try {
+        const parsed = JSON.parse(tagsRaw);
+        if (!Array.isArray(parsed) || !parsed.every((entry) => typeof entry === 'string')) {
+          return jsonError(400, 'invalid_request', 'tags must be a JSON array of strings.');
+        }
+        tags = parsed;
+      } catch {
+        return jsonError(400, 'invalid_request', 'tags must be valid JSON.');
+      }
+    }
+
+    const body = await file.arrayBuffer();
+    const sizeBytes = body.byteLength;
+    if (sizeBytes <= 0) {
+      return jsonError(400, 'invalid_request', 'Uploaded image was empty.');
+    }
+    if (sizeBytes > MAX_MEDIA_IMPORT_BYTES) {
+      return jsonError(413, 'payload_too_large', `Image exceeds ${MAX_MEDIA_IMPORT_BYTES} bytes.`);
+    }
+
+    const contentType = file.type || 'application/octet-stream';
+    const filenameSource = filenameRaw || file.name || 'image';
+    const { base, ext } = sanitizeFilename(filenameSource);
+    const mimeExtension = extensionForContentType(contentType);
+    const normalizedExt = mimeExtension || ext || '.png';
+    const unique = crypto.randomUUID().slice(0, 8);
+    const key = `${keyPrefix}/${Date.now()}-${unique}-${base}${normalizedExt}`;
+
+    await env.MEDIA_BUCKET.put(key, body, {
+      httpMetadata: {
+        contentType,
+      },
+    });
+
+    const nowIso = new Date().toISOString();
+    const derivedTags = tags ?? Array.from(new Set([...deriveTagsFromFilename(base), 'header', 'generated']));
+    const dimensions = getImageDimensions(body, contentType);
+    const mediaId = await createMediaAsset(env.DB, {
+      key,
+      filename: `${base}${normalizedExt}`,
+      content_type: contentType,
+      size_bytes: sizeBytes,
+      width: dimensions.width,
+      height: dimensions.height,
+      alt_text: altText,
+      caption: captionRaw || altText,
+      internal_description: internalDescriptionRaw || 'Uploaded via Codex API.',
+      tags: derivedTags,
+      author_name: authorName,
+      author_email: authorEmail,
+      uploaded_at: nowIso,
+      published_at: nowIso,
+    });
+
+    return jsonResponse({
+      media: {
+        id: mediaId,
+        key,
+        url: buildMediaUrl(key),
+        content_type: contentType,
+        size_bytes: sizeBytes,
+        width: dimensions.width,
+        height: dimensions.height,
+        alt_text: altText,
+      },
+    });
+  }
+
   // POST /media/import
   if (codexPath === '/media/import' && method === 'POST') {
     logCodexAudit(method, path, '');

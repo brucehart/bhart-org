@@ -6,6 +6,13 @@ import { clearRateLimitStore } from '../src/middleware/rateLimit';
 
 const API_BASE = 'http://example.com/api/codex/v1';
 const TOKEN = 'test-token';
+const ONE_BY_ONE_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
+
+const makeImageFile = (type = 'image/png') => {
+  const bytes = Buffer.from(ONE_BY_ONE_PNG_BASE64, 'base64');
+  return new File([bytes], 'test.png', { type });
+};
 
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS authorized_users (
@@ -241,6 +248,86 @@ describe('Codex API', () => {
     expect(body.post.published_at).toBeNull();
     expect(body.post.tag_slugs).toContain('ai');
     expect(body.post.tag_slugs).toContain('personal');
+  });
+
+  it('uploads media via multipart', async () => {
+    const form = new FormData();
+    form.set('image', makeImageFile());
+    form.set('alt_text', 'Test image');
+    form.set('author_name', 'Test Author');
+    form.set('author_email', 'author@example.com');
+    form.set('key_prefix', 'headers');
+    form.set('tags', JSON.stringify(['header', 'generated']));
+
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/media/upload`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: form,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      media?: { url?: string; content_type?: string };
+    };
+    expect(payload.media?.url?.startsWith('/media/')).toBe(true);
+    expect(payload.media?.content_type).toBe('image/png');
+  });
+
+  it('rejects missing media upload', async () => {
+    const form = new FormData();
+    form.set('alt_text', 'Test image');
+    form.set('author_name', 'Test Author');
+    form.set('author_email', 'author@example.com');
+
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/media/upload`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: form,
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it('rejects non-image media upload', async () => {
+    const file = new File([Buffer.from('hello')], 'note.txt', { type: 'text/plain' });
+    const form = new FormData();
+    form.set('image', file);
+    form.set('alt_text', 'Test image');
+    form.set('author_name', 'Test Author');
+    form.set('author_email', 'author@example.com');
+
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/media/upload`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: form,
+      }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it('rejects invalid tags json for media upload', async () => {
+    const form = new FormData();
+    form.set('image', makeImageFile());
+    form.set('alt_text', 'Test image');
+    form.set('author_name', 'Test Author');
+    form.set('author_email', 'author@example.com');
+    form.set('tags', 'not-json');
+
+    const response = await fetchWorker(
+      new Request(`${API_BASE}/media/upload`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: form,
+      }),
+    );
+
+    expect(response.status).toBe(400);
   });
 
   it('lists and fetches posts', async () => {

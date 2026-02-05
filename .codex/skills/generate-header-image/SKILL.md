@@ -9,7 +9,7 @@ Use this skill when the user wants to create or replace an existing post's heade
 
 This workflow:
 1) generates an image with the Google Gemini API (Nano Banana Pro)
-2) imports the generated image URL into the bhart.org R2 media bucket (so it is served from `/media/...`)
+2) uploads the generated image directly into the bhart.org R2 media bucket (so it is served from `/media/...`)
 3) updates the target post's `hero_image_url` + `hero_image_alt`
 
 ## Requirements
@@ -25,6 +25,10 @@ This skill uses a Codex API media helper endpoint:
   - Downloads `source_url` (must be an image) into the `MEDIA_BUCKET` R2 bucket
   - Creates a `media_assets` row in D1
   - Returns `{ media: { id, key, url, ... } }` where `url` is a site-local `/media/<key>` URL
+- `POST /api/codex/v1/media/upload`
+  - Accepts a multipart form upload (`image` file)
+  - Stores directly in `MEDIA_BUCKET`
+  - Creates a `media_assets` row in D1
 
 ## Recommended workflow
 
@@ -35,7 +39,7 @@ This skill uses a Codex API media helper endpoint:
 3) Generate the image on Gemini (Nano Banana Pro):
    - Prefer passing the logo as an input image if it helps anchor the composition.
 4) Import into R2:
-   - Call `POST /media/import` with `source_url`, `alt_text`, and the post author fields.
+   - Call `POST /media/upload` with `image`, `alt_text`, and the post author fields.
 5) Update the post hero fields:
    - `PATCH /posts/:id` with `hero_image_url`, `hero_image_alt`, and `expected_updated_at`.
 
@@ -48,4 +52,5 @@ Run:
 Notes:
 - Default model is `gemini-3-pro-image-preview` (Nano Banana Pro).
 - Default aspect ratio is `16:9` (header-friendly); override via `--aspect-ratio`.
-- The script uploads the generated file to a temporary host (default: `https://0x0.st`) so it can be imported by the Codex API. Override with `--upload-endpoint` if needed.
+- Default upload mode is `direct` (multipart upload to `/media/upload`). Use `--upload-mode import` to import from a URL or `--upload-mode skip` to stop after generating the image.
+- The script prefers `~/scripts/.venv/bin/python` if available; otherwise it falls back to `python3`.
