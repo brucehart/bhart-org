@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat <<'EOF2'
 Usage:
   generate_header_image.sh --slug <post-slug> [options]
   generate_header_image.sh --post-id <post-id> [options]
@@ -12,24 +12,24 @@ Options:
   --prompt-file <file>            Read prompt text from a file
   --logo-url <url>                URL for a logo to include (also passed as an input image when supported)
   --alt <text>                    Alt text (if omitted, a basic one is generated)
-  --model <owner/name>            Replicate model (default: google/nano-banana-pro)
-  --replicate-input <json-file>   JSON file containing the Replicate 'input' object (overrides default input)
+  --model <name>                  Gemini model (default: gemini-3-pro-image-preview)
   --aspect-ratio <ratio>          Aspect ratio (default: 16:9)
-  --resolution <val>              Model resolution (default: 2K)
-  --output-format <fmt>           Output format (default: jpg)
+  --resolution <val>              Model resolution (default: 1K)
+  --gen-timeout <seconds>         Timeout for image generation (default: 180)
+  --gen-retries <count>           Retry count for image generation (default: 2)
+  --upload-endpoint <url>         Temp upload endpoint for media import (default: https://0x0.st)
   --key-prefix <prefix>           R2 key prefix for media import (default: headers)
   --api-base <url>                Bhart Codex API base (default: https://bhart-org.bruce-hart.workers.dev/api/codex/v1)
 
 Env:
   CODEX_BHART_API_TOKEN
-  REPLICATE_API_TOKEN
+  GEMINI_API_KEY
 
 Examples:
   bash generate_header_image.sh --slug web-tools-my-tiny-tool-factory-on-cloudflare-workers \
     --prompt-file prompt.txt \
-    --logo-url https://bhart.org/media/webtools.png \
-    --model openai/gpt-image-1.5
-EOF
+    --logo-url https://bhart.org/media/webtools.png
+EOF2
 }
 
 need_bin() {
@@ -50,14 +50,14 @@ prompt=""
 prompt_file=""
 logo_url=""
 alt_text=""
-replicate_model="google/nano-banana-pro"
-replicate_input_file=""
+gemini_model="gemini-3-pro-image-preview"
 key_prefix="headers"
 api_base="https://bhart-org.bruce-hart.workers.dev/api/codex/v1"
 aspect_ratio="16:9"
-resolution="2K"
-output_format="jpg"
-safety_filter_level="block_only_high"
+resolution="1K"
+upload_endpoint="https://0x0.st"
+gen_timeout="180"
+gen_retries="2"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -67,11 +67,12 @@ while [ $# -gt 0 ]; do
     --prompt-file) prompt_file="${2:-}"; shift 2 ;;
     --logo-url) logo_url="${2:-}"; shift 2 ;;
     --alt) alt_text="${2:-}"; shift 2 ;;
-    --model) replicate_model="${2:-}"; shift 2 ;;
-    --replicate-input) replicate_input_file="${2:-}"; shift 2 ;;
+    --model) gemini_model="${2:-}"; shift 2 ;;
     --aspect-ratio) aspect_ratio="${2:-}"; shift 2 ;;
     --resolution) resolution="${2:-}"; shift 2 ;;
-    --output-format) output_format="${2:-}"; shift 2 ;;
+    --gen-timeout) gen_timeout="${2:-}"; shift 2 ;;
+    --gen-retries) gen_retries="${2:-}"; shift 2 ;;
+    --upload-endpoint) upload_endpoint="${2:-}"; shift 2 ;;
     --key-prefix) key_prefix="${2:-}"; shift 2 ;;
     --api-base) api_base="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -81,8 +82,9 @@ done
 
 need_bin curl
 need_bin jq
+need_bin python
 need_env CODEX_BHART_API_TOKEN
-need_env REPLICATE_API_TOKEN
+need_env GEMINI_API_KEY
 
 if [ -n "$prompt_file" ]; then
   if [ ! -f "$prompt_file" ]; then
@@ -101,6 +103,11 @@ fi
 if [ -z "$post_id" ] && [ -z "$post_slug" ]; then
   echo "Missing --post-id or --slug" >&2
   usage
+  exit 1
+fi
+
+if [ -z "$upload_endpoint" ]; then
+  echo "Missing --upload-endpoint" >&2
   exit 1
 fi
 
@@ -127,70 +134,48 @@ if [ -z "$alt_text" ]; then
   fi
 fi
 
-replicate_input_json=""
-if [ -n "$replicate_input_file" ]; then
-  if [ ! -f "$replicate_input_file" ]; then
-    echo "Replicate input JSON file not found: $replicate_input_file" >&2
-    exit 1
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+python_args=(
+  --prompt "$prompt"
+  --model "$gemini_model"
+  --aspect-ratio "$aspect_ratio"
+  --resolution "$resolution"
+)
+if [ -n "$logo_url" ]; then
+  python_args+=(--reference-url "$logo_url")
+fi
+
+image_path=""
+attempt=0
+max_attempts="$((gen_retries + 1))"
+while [ "$attempt" -lt "$max_attempts" ]; do
+  attempt="$((attempt + 1))"
+  echo "Generating image (attempt $attempt/$max_attempts)..." >&2
+  if command -v timeout >/dev/null 2>&1; then
+    image_path="$(timeout "${gen_timeout}s" python "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
+  else
+    image_path="$(python "$script_dir/generate_header_image.py" "${python_args[@]}")" || true
   fi
-  replicate_input_json="$(cat "$replicate_input_file")"
-else
-  # Default input for google/nano-banana-pro. For other models, pass --replicate-input to match that model's schema.
-  replicate_input_json="$(jq -n \
-    --arg prompt "$prompt" \
-    --arg aspect_ratio "$aspect_ratio" \
-    --arg resolution "$resolution" \
-    --arg output_format "$output_format" \
-    --arg safety_filter_level "$safety_filter_level" \
-    --arg logo "$logo_url" \
-    '{
-      prompt: $prompt,
-      aspect_ratio: $aspect_ratio,
-      resolution: $resolution,
-      output_format: $output_format,
-      safety_filter_level: $safety_filter_level
-    }
-    + (if ($logo|length) > 0 then { image_input: [ $logo ] } else {} end)'
-  )"
-fi
 
-echo "Creating Replicate prediction for model: $replicate_model" >&2
-prediction_json="$(curl -sS \
-  -H "Authorization: Token $REPLICATE_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "$(jq -n --argjson input "$replicate_input_json" '{input: $input}')" \
-  "https://api.replicate.com/v1/models/$replicate_model/predictions")"
-
-prediction_id="$(jq -r '.id' <<<"$prediction_json")"
-if [ -z "$prediction_id" ] || [ "$prediction_id" = "null" ]; then
-  echo "Failed to create prediction. Response:" >&2
-  echo "$prediction_json" | jq . >&2 || true
-  exit 1
-fi
-
-status="$(jq -r '.status' <<<"$prediction_json")"
-while [ "$status" = "starting" ] || [ "$status" = "processing" ]; do
-  sleep 2
-  prediction_json="$(curl -sS -H "Authorization: Token $REPLICATE_API_TOKEN" "https://api.replicate.com/v1/predictions/$prediction_id")"
-  status="$(jq -r '.status' <<<"$prediction_json")"
+  if [ -n "$image_path" ] && [ -f "$image_path" ]; then
+    break
+  fi
+  if [ "$attempt" -lt "$max_attempts" ]; then
+    echo "Image generation failed or timed out. Retrying..." >&2
+    sleep 2
+  fi
 done
 
-if [ "$status" != "succeeded" ]; then
-  echo "Prediction failed with status: $status" >&2
-  echo "$prediction_json" | jq . >&2 || true
+if [ -z "$image_path" ] || [ ! -f "$image_path" ]; then
+  echo "Failed to generate image file." >&2
   exit 1
 fi
 
-output_url="$(jq -r '
-  if (.output|type) == "string" then .output
-  elif (.output|type) == "array" then (.output[0] // empty)
-  elif (.output|type) == "object" and (.output.url? != null) then .output.url
-  else empty end
-' <<<"$prediction_json")"
+echo "Uploading generated image to temp host..." >&2
+output_url="$(curl -sS -F "file=@${image_path}" "$upload_endpoint" | head -n 1 | tr -d '\r')"
 
-if [ -z "$output_url" ] || [ "$output_url" = "null" ]; then
-  echo "Could not determine output URL from prediction output." >&2
-  echo "$prediction_json" | jq . >&2 || true
+if [ -z "$output_url" ]; then
+  echo "Temporary upload failed; no URL returned." >&2
   exit 1
 fi
 
@@ -201,7 +186,7 @@ media_payload="$(jq -n \
   --arg author_name "$author_name" \
   --arg author_email "$author_email" \
   --arg key_prefix "$key_prefix" \
-  --arg internal_description "Generated via Replicate ($replicate_model), prediction $prediction_id" \
+  --arg internal_description "Generated via Gemini ($gemini_model)" \
   '{
     source_url: $source_url,
     alt_text: $alt_text,
@@ -209,7 +194,7 @@ media_payload="$(jq -n \
     author_email: $author_email,
     key_prefix: $key_prefix,
     internal_description: $internal_description,
-    tags: ["header", "generated", "replicate"]
+    tags: ["header", "generated", "gemini"]
   }')"
 
 media_json="$(curl -sS "${auth_header[@]}" \
