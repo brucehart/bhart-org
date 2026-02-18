@@ -66,12 +66,14 @@ export const newsTemplate = `<!DOCTYPE html>
           <div class="mt-10 flex flex-col gap-6">
             {{#has_news_items}}
             {{#news_items}}
-            <article class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <article id="{{anchor_id}}" class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-primary">
                 <span>{{category}}</span>
                 <span class="text-text-sub font-medium normal-case tracking-normal">{{published_date}}</span>
               </div>
-              <h3 class="mt-3 text-xl font-bold">{{title}}</h3>
+              <h3 class="mt-3 text-xl font-bold">
+                <a href="#{{anchor_id}}" class="hover:text-primary transition-colors">{{title}}</a>
+              </h3>
               <div class="prose prose-sm prose-slate max-w-none mt-2 text-text-sub">
                 {{{body_html}}}
               </div>

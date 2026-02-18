@@ -21,8 +21,14 @@ Load `references/agents.md` before generating or submitting drafts.
 
 ### 2) Draft the article
 
-- Use the writing style in `references/agents.md`.
-- Avoid typical LLM tells: no "not X but Y" framing, no em dashes, no scare quotes around ordinary words, and use straight ASCII quotes/apostrophes only.
+- Use the writing style in `references/agents.md` as the baseline.
+- Blend in a measured amount of sharp technical-blog voice: strong thesis hook up top, conversational-but-technical language, clear opinions with tradeoffs, and concrete specifics (names, numbers, costs, runtimes, configs) when helpful.
+- Add practical mechanics where they improve clarity: first-person reporting when relevant, explicit attribution/credit, links to primary sources, and "show your work" implementation detail.
+- Keep the mix balanced: Bhart house style first, external-inspired delivery second. Do not imitate phrasing verbatim.
+- Favor narrative + tutorial structure when relevant: why this matters, what was tried, what worked, what did not, and why.
+- Maintain credibility: cite uncertainty, caveats, and limits instead of overselling.
+- Aim to "add something extra" in each section: context, synthesis, or a concrete takeaway beyond a plain summary.
+- Avoid typical LLM tells: no em dashes, no scare quotes around ordinary words, and use straight ASCII quotes/apostrophes only.
 - Prefer prose over bulleted lists; use bullets sparingly and only when they add clarity.
 - Open with a hook and a clear thesis early (bold or standalone sentence).
 - Include 2-4 ideas or mental models with reasoning and tradeoffs.

@@ -285,6 +285,7 @@ export const handlePublicRoutes = async (
       `${origin}/work-with-me`,
       `${origin}/contact`,
       `${origin}/rss.xml`,
+      `${origin}/news-rss.xml`,
     ];
 
     const staticEntries = staticUrls.map((loc) => {
@@ -345,6 +346,57 @@ export const handlePublicRoutes = async (
       '<title>bhart.org</title>',
       `<link>${origin}</link>`,
       '<description>AI, tech, and personal writing from Bruce Hart.</description>',
+      `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
+      `<lastBuildDate>${formatRssDate()}</lastBuildDate>`,
+      '<language>en-us</language>',
+      items,
+      '</channel>',
+      '</rss>',
+    ].join('');
+
+    return new Response(rss, {
+      status: 200,
+      headers: {
+        'content-type': 'application/rss+xml; charset=utf-8',
+      },
+    });
+  }
+
+  // GET /news-rss.xml
+  if (path === '/news-rss.xml' && method === 'GET') {
+    const nowIso = new Date().toISOString();
+    const newsItems = await listPublishedNewsItems(env.DB, nowIso, 50);
+    const origin = new URL(request.url).origin;
+    const feedUrl = `${origin}/news-rss.xml`;
+    const items = newsItems
+      .map((item) => {
+        const anchorId = `news-${item.id}`;
+        const link = `${origin}/news#${anchorId}`;
+        const title = escapeXml(item.title);
+        const description = escapeXml(item.body_markdown);
+        const category = escapeXml(item.category);
+        const pubDate = formatRssDate(item.published_at);
+        const guid = escapeXml(`news:${item.id}`);
+        return [
+          '<item>',
+          `<title>${title}</title>`,
+          `<link>${link}</link>`,
+          `<guid isPermaLink="false">${guid}</guid>`,
+          `<pubDate>${pubDate}</pubDate>`,
+          `<category>${category}</category>`,
+          `<description>${description}</description>`,
+          '</item>',
+        ].join('');
+      })
+      .join('');
+
+    const rss = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+      '<channel>',
+      '<title>bhart.org News</title>',
+      `<link>${origin}/news</link>`,
+      '<description>News and updates from bhart.org.</description>',
       `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
       `<lastBuildDate>${formatRssDate()}</lastBuildDate>`,
       '<language>en-us</language>',
@@ -463,6 +515,7 @@ export const handlePublicRoutes = async (
       show_email_subscribe: showEmailSubscribe,
       has_news_items: newsItems.length > 0,
       news_items: newsItems.map((item) => ({
+        anchor_id: `news-${item.id}`,
         category: item.category,
         title: item.title,
         body_html: marked.parse(item.body_markdown),
