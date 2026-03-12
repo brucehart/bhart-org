@@ -33,7 +33,7 @@ Load `references/agents.md` before generating or submitting drafts.
 - Open with a hook and a clear thesis early (bold or standalone sentence).
 - Include 2-4 ideas or mental models with reasoning and tradeoffs.
 - Structure with `##` headings as claims, short paragraphs, and whitespace.
-- End with a conclusion or an invitation to reach out or discuss.
+- End with a solid conclusion that completes the thought.
 
 ### 3) Submit draft via API
 
