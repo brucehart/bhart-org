@@ -6,7 +6,7 @@ A Cloudflare Workers + D1 powered blog with Mustache templates, Markdown content
 
 - Public pages: home, about, projects, news, work-with-me, contact, archive, and article detail pages.
 - Admin area: Google OAuth login, post/news create/edit/delete, tags, drafts, featured images, and scheduling.
-- Sprite-backed Codex article drafting from `/admin/draft-article`.
+- Sprite-backed Codex article and news drafting from `/admin/draft-article`.
 - Markdown articles rendered server-side with RSS feed support.
 - Media library backed by R2 with metadata stored in D1.
 
@@ -80,9 +80,9 @@ wrangler r2 bucket create bhart-org
 
 Images uploaded in the admin are stored in R2 and indexed in D1.
 
-### Codex Article Drafting
+### Codex Content Drafting
 
-The admin drafting workspace at `/admin/draft-article` launches Codex inside a Fly.io Sprite and submits drafts through the existing `/api/codex/v1/posts` API.
+The admin drafting workspace at `/admin/draft-article` launches Codex inside a Fly.io Sprite and submits drafts through the existing Blog Automation API. Article mode uses `/api/codex/v1/posts`; news mode uses `/api/codex/v1/news`.
 
 Required Worker secrets:
 
@@ -117,7 +117,7 @@ The Sprite needs the repo, dependencies, Codex auth, and `/home/sprite/.config/s
 - `/admin/news/new` new news item
 - `/admin/news/:id` edit news item
 - `/admin/media` media library
-- `/admin/draft-article` Sprite-backed Codex draft workspace
+- `/admin/draft-article` Sprite-backed Codex article/news draft workspace
 - `/media/<key>` media asset delivery (public)
 
 ## Notes

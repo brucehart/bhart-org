@@ -22,17 +22,22 @@ const MAX_SPRITE_ERROR_SNIPPET_BYTES = 500;
 const JOB_ID_RE = /^[A-Za-z0-9_-]{16,80}$/;
 const JOB_STATUS = new Set(['queued', 'starting', 'running', 'complete', 'failed', 'canceled']);
 const TERMINAL_STATUS = new Set(['complete', 'failed', 'canceled']);
+const CONTENT_TYPES = new Set(['article', 'news']);
 
 type ArticleAgentStatus = 'queued' | 'starting' | 'running' | 'complete' | 'failed' | 'canceled';
+type ArticleAgentContentType = 'article' | 'news';
 
 type ArticleAgentJobRow = {
   id: string;
   requested_by: string;
   prompt: string;
+  content_type: ArticleAgentContentType;
   status: ArticleAgentStatus;
   sprite_name: string;
   post_id: string | null;
   post_slug: string | null;
+  news_id: string | null;
+  news_category: string | null;
   title: string | null;
   error: string | null;
   callback_token_hash: string;
@@ -101,10 +106,10 @@ export const parseArticleAgentAllowedEmails = (env: Env) => {
 export const getArticleAgentAccess = (env: Env, user: SessionUser) => {
   const allowed = parseArticleAgentAllowedEmails(env);
   if (allowed.size === 0) {
-    return { ok: false as const, status: 503, message: 'Article drafting is not configured.' };
+    return { ok: false as const, status: 503, message: 'Codex drafting is not configured.' };
   }
   if (!allowed.has(user.email.toLowerCase())) {
-    return { ok: false as const, status: 403, message: 'You are not allowed to launch article drafts.' };
+    return { ok: false as const, status: 403, message: 'You are not allowed to launch Codex drafts.' };
   }
   return { ok: true as const };
 };
@@ -176,24 +181,39 @@ const spriteConfig = (env: Env) => {
 
 const validateJobId = (jobId: string) => JOB_ID_RE.test(jobId);
 
-const publicJob = (row: ArticleAgentJobRow) => ({
-  id: row.id,
-  requested_by: row.requested_by,
-  prompt: row.prompt,
-  status: row.status,
-  sprite_name: row.sprite_name,
-  post_id: row.post_id,
-  post_slug: row.post_slug,
-  title: row.title,
-  error: row.error,
-  article_url: row.post_slug ? `/articles/${row.post_slug}` : null,
-  preview_url: row.post_id ? `/admin/preview/${row.post_id}` : null,
-  edit_url: row.post_id ? `/admin/posts/${row.post_id}` : null,
-  created_at: row.created_at,
-  updated_at: row.updated_at,
-  started_at: row.started_at,
-  completed_at: row.completed_at,
-});
+const normalizeContentType = (value: unknown): ArticleAgentContentType =>
+  value === 'news' ? 'news' : 'article';
+
+const publicJob = (row: ArticleAgentJobRow) => {
+  const contentType = normalizeContentType(row.content_type);
+  return {
+    id: row.id,
+    requested_by: row.requested_by,
+    prompt: row.prompt,
+    content_type: contentType,
+    status: row.status,
+    sprite_name: row.sprite_name,
+    post_id: row.post_id,
+    post_slug: row.post_slug,
+    news_id: row.news_id,
+    news_category: row.news_category,
+    title: row.title,
+    error: row.error,
+    article_url: contentType === 'article' && row.post_slug ? `/articles/${row.post_slug}` : null,
+    news_url: contentType === 'news' && row.news_id ? `/news#news-${row.news_id}` : null,
+    preview_url: contentType === 'article' && row.post_id ? `/admin/preview/${row.post_id}` : null,
+    edit_url:
+      contentType === 'news' && row.news_id
+        ? `/admin/news/${row.news_id}`
+        : contentType === 'article' && row.post_id
+          ? `/admin/posts/${row.post_id}`
+          : null,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    started_at: row.started_at,
+    completed_at: row.completed_at,
+  };
+};
 
 const sanitizeEventType = (value: string) => {
   const safe = value.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
@@ -226,6 +246,8 @@ const updateJobStatus = async (
   fields: {
     postId?: string | null;
     postSlug?: string | null;
+    newsId?: string | null;
+    newsCategory?: string | null;
     title?: string | null;
     error?: string | null;
   } = {},
@@ -249,6 +271,14 @@ const updateJobStatus = async (
   if (fields.postSlug !== undefined) {
     setParts.push('post_slug = ?');
     values.push(fields.postSlug);
+  }
+  if (fields.newsId !== undefined) {
+    setParts.push('news_id = ?');
+    values.push(fields.newsId);
+  }
+  if (fields.newsCategory !== undefined) {
+    setParts.push('news_category = ?');
+    values.push(fields.newsCategory ? fields.newsCategory.slice(0, MAX_TITLE_LENGTH) : null);
   }
   if (fields.title !== undefined) {
     setParts.push('title = ?');
@@ -546,6 +576,10 @@ const createArticleAgentJob = async (
   const data = await request.formData();
   const promptValue = data.get('prompt');
   const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
+  const requestedContentType = typeof data.get('content_type') === 'string' ? String(data.get('content_type')).trim() : '';
+  const contentType = CONTENT_TYPES.has(requestedContentType)
+    ? (requestedContentType as ArticleAgentContentType)
+    : 'article';
   if (!prompt) {
     return articleAgentError(400, 'invalid_request', 'Prompt is required.');
   }
@@ -569,14 +603,19 @@ const createArticleAgentJob = async (
   const now = new Date().toISOString();
   await env.DB.prepare(
     `INSERT INTO article_agent_jobs (
-      id, requested_by, prompt, status, sprite_name, callback_token_hash, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      id, requested_by, prompt, content_type, status, sprite_name, callback_token_hash, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
-    .bind(jobId, user.email, prompt, 'queued', config.spriteName, callbackTokenHash, now, now)
+    .bind(jobId, user.email, prompt, contentType, 'queued', config.spriteName, callbackTokenHash, now, now)
     .run();
 
   await uploadReferenceFiles(env, jobId, files);
-  await appendArticleAgentEvent(env, jobId, 'status', 'Article draft job queued.');
+  await appendArticleAgentEvent(
+    env,
+    jobId,
+    'status',
+    contentType === 'news' ? 'News item draft job queued.' : 'Article draft job queued.',
+  );
   const baseUrl = new URL(request.url).origin;
   ctx.waitUntil(
     launchSpriteJob(env, baseUrl, jobId, callbackToken).catch(async (error) => {
@@ -746,6 +785,7 @@ const getRunnerBootstrap = async (request: Request, env: Env, jobId: string) => 
   return articleAgentJson({
     id: row.id,
     prompt: row.prompt,
+    content_type: normalizeContentType(row.content_type),
     status: row.status,
     refs: results.map((ref) => ({
       id: ref.id,
@@ -838,17 +878,23 @@ const updateRunnerJob = async (request: Request, env: Env, jobId: string) => {
 
   const postId = typeof payload?.post_id === 'string' ? payload.post_id : undefined;
   const postSlug = typeof payload?.post_slug === 'string' ? payload.post_slug : undefined;
+  const newsId = typeof payload?.news_id === 'string' ? payload.news_id : undefined;
+  const newsCategory = typeof payload?.news_category === 'string' ? payload.news_category : undefined;
   const title = typeof payload?.title === 'string' ? payload.title : undefined;
   const error = typeof payload?.error === 'string' ? payload.error : undefined;
   await updateJobStatus(env, jobId, status as ArticleAgentStatus, {
     postId,
     postSlug,
+    newsId,
+    newsCategory,
     title,
     error,
   });
   await appendArticleAgentEvent(env, jobId, status, `Job status changed to ${status}.`, {
     post_id: postId,
     post_slug: postSlug,
+    news_id: newsId,
+    news_category: newsCategory,
     title,
   });
   return articleAgentJson({ ok: true });

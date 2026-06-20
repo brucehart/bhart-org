@@ -51,6 +51,7 @@ Load `references/agents.md` before drafting or submitting anything.
 - Provide the drafted `category`, `title`, `body_markdown`, and intended `status` for review.
 - If requested, submit immediately and return the created news item ID.
 - If an article was patched too, return the article ID or slug and summarize the addendum you appended.
+- When running under the Sprite article-agent runner and asked for a final marker, end with exactly one line beginning with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON containing the real `news_id`, `title`, `category`, and `status` returned by the API.
 
 ## API usage
 

@@ -3,7 +3,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Draft Article - Admin</title>
+    <title>Draft with Codex - Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -35,7 +35,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
       <header class="border-b border-gray-200 bg-white">
         <div class="mx-auto max-w-6xl px-6 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 class="text-2xl font-bold">Draft Article</h1>
+            <h1 class="text-2xl font-bold">Draft with Codex</h1>
             <p class="text-sm text-text-sub">Signed in as {{user_email}}</p>
           </div>
           <div class="flex flex-wrap items-center gap-3">
@@ -53,8 +53,22 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
           <section class="rounded-lg border border-gray-200 bg-white p-6">
             <form id="draft-form" class="space-y-5">
+              <fieldset>
+                <legend class="block text-sm font-semibold mb-2">Content type</legend>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold has-[:checked]:border-primary has-[:checked]:bg-blue-50 has-[:checked]:text-primary">
+                    <input class="sr-only" name="content_type" type="radio" value="article" checked />
+                    <span>Article</span>
+                  </label>
+                  <label class="flex cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold has-[:checked]:border-primary has-[:checked]:bg-blue-50 has-[:checked]:text-primary">
+                    <input class="sr-only" name="content_type" type="radio" value="news" />
+                    <span>News</span>
+                  </label>
+                </div>
+              </fieldset>
+
               <div>
-                <label class="block text-sm font-semibold mb-2" for="prompt">Article prompt</label>
+                <label class="block text-sm font-semibold mb-2" for="prompt">Prompt</label>
                 <textarea
                   class="min-h-64 w-full rounded-lg border-gray-200 text-sm focus:border-primary focus:ring-primary"
                   id="prompt"
@@ -63,7 +77,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
                   required
                 ></textarea>
                 <div class="mt-2 flex items-center justify-between text-xs text-text-sub">
-                  <span>Codex will submit a draft through the existing Blog Automation API.</span>
+                  <span id="content-helper">Codex will submit an article draft through the existing Blog Automation API.</span>
                   <span><span id="prompt-count">0</span>/4000</span>
                 </div>
               </div>
@@ -142,6 +156,8 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
       const terminalStatuses = new Set(['complete', 'failed', 'canceled']);
       const promptField = document.getElementById('prompt');
       const promptCount = document.getElementById('prompt-count');
+      const contentHelper = document.getElementById('content-helper');
+      const contentTypeInputs = Array.from(document.querySelectorAll('input[name="content_type"]'));
       const refsInput = document.getElementById('refs');
       const fileSummary = document.getElementById('file-summary');
       const alertBox = document.getElementById('agent-alert');
@@ -212,6 +228,22 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
         return 'bg-yellow-100 text-yellow-700';
       };
 
+      const contentType = (job) => job && job.content_type === 'news' ? 'news' : 'article';
+      const contentTypeLabel = (value) => value === 'news' ? 'News' : 'Article';
+      const selectedContentType = () => {
+        const selected = contentTypeInputs.find((input) => input.checked);
+        return selected && selected.value === 'news' ? 'news' : 'article';
+      };
+      const updateContentHelper = () => {
+        if (selectedContentType() === 'news') {
+          contentHelper.textContent = 'Codex will submit a short news draft through the existing Blog Automation API.';
+          submitButton.textContent = 'Start News Draft';
+        } else {
+          contentHelper.textContent = 'Codex will submit an article draft through the existing Blog Automation API.';
+          submitButton.textContent = 'Start Article Draft';
+        }
+      };
+
       const updateFileSummary = () => {
         const files = Array.from(refsInput.files || []);
         if (!files.length) {
@@ -242,7 +274,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
         if (!state.jobs.length) {
           const empty = document.createElement('div');
           empty.className = 'rounded-lg border border-dashed border-gray-200 p-4 text-xs text-text-sub';
-          empty.textContent = 'No article draft jobs yet.';
+          empty.textContent = 'No Codex draft jobs yet.';
           jobsList.appendChild(empty);
           return;
         }
@@ -259,12 +291,18 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
 
           const meta = document.createElement('div');
           meta.className = 'flex items-center justify-between gap-2 text-xs text-text-sub';
+          const type = document.createElement('span');
+          type.className = 'rounded-full bg-gray-100 px-2 py-1 font-semibold text-text-sub';
+          type.textContent = contentTypeLabel(contentType(job));
           const status = document.createElement('span');
           status.className = 'rounded-full px-2 py-1 font-semibold ' + statusClass(job.status);
           status.textContent = job.status;
+          const leftMeta = document.createElement('span');
+          leftMeta.className = 'flex items-center gap-2';
+          leftMeta.append(type, status);
           const date = document.createElement('span');
           date.textContent = formatDate(job.created_at);
-          meta.append(status, date);
+          meta.append(leftMeta, date);
           button.append(title, meta);
           button.addEventListener('click', () => selectJob(job.id));
           jobsList.appendChild(button);
@@ -286,16 +324,21 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
         const badge = document.createElement('span');
         badge.className = 'rounded-full px-2 py-1 ' + statusClass(job.status);
         badge.textContent = job.status;
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'ml-2 rounded-full bg-gray-100 px-2 py-1 text-text-sub';
+        typeBadge.textContent = contentTypeLabel(contentType(job));
         const sprite = document.createElement('span');
         sprite.className = 'ml-2 text-text-sub';
         sprite.textContent = job.sprite_name || '';
-        jobStatus.append(badge, sprite);
+        jobStatus.append(badge, typeBadge, sprite);
 
         jobLinks.textContent = '';
+        const type = contentType(job);
         const links = [
-          job.preview_url ? ['Preview Draft', job.preview_url] : null,
-          job.edit_url ? ['Edit Post', job.edit_url] : null,
-          job.article_url ? ['Article URL', job.article_url] : null
+          type === 'article' && job.preview_url ? ['Preview Draft', job.preview_url] : null,
+          job.edit_url ? [type === 'news' ? 'Edit News' : 'Edit Post', job.edit_url] : null,
+          type === 'article' && job.article_url ? ['Article URL', job.article_url] : null,
+          type === 'news' && job.news_url ? ['News URL', job.news_url] : null
         ].filter(Boolean);
         if (links.length) {
           links.forEach(([label, href]) => {
@@ -303,7 +346,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
             link.className = 'rounded-lg border border-gray-200 px-3 py-1 text-primary';
             link.href = href;
             link.textContent = label;
-            if (label === 'Article URL') {
+            if (label === 'Article URL' || label === 'News URL') {
               link.target = '_blank';
               link.rel = 'noreferrer';
             }
@@ -413,6 +456,10 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
         promptCount.textContent = String(promptField.value.length);
       });
 
+      contentTypeInputs.forEach((input) => {
+        input.addEventListener('change', updateContentHelper);
+      });
+
       refsInput.addEventListener('change', updateFileSummary);
 
       document.addEventListener('paste', (event) => {
@@ -435,6 +482,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
           return;
         }
         hideAlert();
+        const type = selectedContentType();
         submitButton.disabled = true;
         submitButton.textContent = 'Starting...';
         try {
@@ -453,15 +501,16 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
           renderJobs();
           renderSelectedJob(payload.job);
           connectEvents(payload.job.id);
-          showAlert('Draft job started.', 'success');
+          showAlert((type === 'news' ? 'News item' : 'Article') + ' draft job started.', 'success');
           form.reset();
           promptCount.textContent = '0';
+          updateContentHelper();
           updateFileSummary();
         } catch (error) {
           showAlert(error instanceof Error ? error.message : 'Unable to start draft job.', 'error');
         } finally {
           submitButton.disabled = false;
-          submitButton.textContent = 'Start Draft';
+          updateContentHelper();
         }
       });
 
@@ -521,6 +570,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
           }
         })
         .catch((error) => showAlert(error instanceof Error ? error.message : 'Unable to load jobs.', 'error'));
+      updateContentHelper();
     </script>
   </body>
 </html>

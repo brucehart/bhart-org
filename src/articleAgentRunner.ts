@@ -176,16 +176,7 @@ def download_refs(refs):
     return paths
 
 
-def build_codex_prompt(job, ref_paths):
-    refs = "\n".join("- " + path for path in ref_paths) if ref_paths else "- none"
-    reference_instruction = (
-        "No reference files were provided."
-        if not ref_paths
-        else (
-            "Reference files are available at the /tmp paths above. "
-            "Inspect them directly and use visible details as source material only when relevant."
-        )
-    )
+def build_article_prompt(job, refs, reference_instruction):
     return (
         "Use the draft-article skill in this repository to create and submit a bhart.org blog post draft.\n\n"
         "Article idea:\n"
@@ -206,6 +197,45 @@ def build_codex_prompt(job, ref_paths):
         "The marker must be followed by compact JSON containing the actual post_id, slug, title, and status returned by the API. "
         "Do not print placeholder values.\n"
     )
+
+
+def build_news_prompt(job, refs, reference_instruction):
+    return (
+        "Use the create-news-item skill in this repository to create and submit a bhart.org news item draft.\n\n"
+        "News item idea:\n"
+        + job["prompt"]
+        + "\n\nReference file paths:\n"
+        + refs
+        + "\n\n"
+        + reference_instruction
+        + "\n\nImportant repository facts:\n"
+        "- The existing Blog Automation API base is https://bhart.org/api/codex/v1.\n"
+        "- Authenticate with Authorization: Bearer $CODEX_BHART_API_TOKEN.\n"
+        "- Use POST /news for news item drafts.\n"
+        "- News items are short updates, not blog posts. Do not invent tags, summary, or SEO fields.\n"
+        "- Use the existing news workflow in .codex/skills/create-news-item/references/agents.md.\n"
+        "- Public news links use /news#news-<id>.\n\n"
+        "Run the full workflow and submit a draft through the existing API. Stream useful progress as you work.\n\n"
+        "When complete, print exactly one final line beginning with:\n"
+        "BHART_ARTICLE_AGENT_RESULT_JSON=\n\n"
+        "The marker must be followed by compact JSON containing the actual news_id, title, category, and status returned by the API. "
+        "Do not print placeholder values.\n"
+    )
+
+
+def build_codex_prompt(job, ref_paths):
+    refs = "\n".join("- " + path for path in ref_paths) if ref_paths else "- none"
+    reference_instruction = (
+        "No reference files were provided."
+        if not ref_paths
+        else (
+            "Reference files are available at the /tmp paths above. "
+            "Inspect them directly and use visible details as source material only when relevant."
+        )
+    )
+    if job.get("content_type") == "news":
+        return build_news_prompt(job, refs, reference_instruction)
+    return build_article_prompt(job, refs, reference_instruction)
 
 
 def strip_terminal(text):
@@ -232,7 +262,7 @@ def poll_messages(proc, input_fd):
         time.sleep(5)
 
 
-def parse_result(output):
+def parse_result(output, content_type):
     output = strip_terminal(output)
     marker = "BHART_ARTICLE_AGENT_RESULT_JSON="
     for line in reversed(output.splitlines()):
@@ -240,34 +270,43 @@ def parse_result(output):
             raw = line.split(marker, 1)[1].strip()
             try:
                 parsed = json.loads(raw)
-                if is_real_result(parsed):
+                if is_real_result(parsed, content_type):
                     return parsed
             except Exception:
                 continue
-    for match in reversed(re.findall(r"\{[^{}]*\"post_id\"[^{}]*\}", output)):
+    result_key = "news_id" if content_type == "news" else "post_id"
+    for match in reversed(re.findall(r"\{[^{}]*\"" + re.escape(result_key) + r"\"[^{}]*\}", output)):
         try:
             parsed = json.loads(match)
-            if is_real_result(parsed):
+            if is_real_result(parsed, content_type):
                 return parsed
         except Exception:
             continue
     return None
 
 
-def is_real_result(value):
+def is_real_result(value, content_type):
     if not isinstance(value, dict):
         return False
-    post_id = str(value.get("post_id") or "").strip()
-    slug = str(value.get("slug") or "").strip()
     title = str(value.get("title") or "").strip()
     status = str(value.get("status") or "").strip()
-    if len(post_id) < 8 or post_id in {"123", "example", "uuid", "post_id"}:
-        return False
-    if not slug or slug in {"example", "my-post", "slug"}:
-        return False
     if not title or title in {"Title", "My Post"}:
         return False
     if status not in {"draft", "published"}:
+        return False
+    if content_type == "news":
+        news_id = str(value.get("news_id") or value.get("id") or "").strip()
+        category = str(value.get("category") or "").strip()
+        if len(news_id) < 8 or news_id in {"123", "example", "uuid", "news_id", "id"}:
+            return False
+        if not category or category in {"Category", "Example"}:
+            return False
+        return True
+    post_id = str(value.get("post_id") or "").strip()
+    slug = str(value.get("slug") or "").strip()
+    if len(post_id) < 8 or post_id in {"123", "example", "uuid", "post_id"}:
+        return False
+    if not slug or slug in {"example", "my-post", "slug"}:
         return False
     return True
 
@@ -282,8 +321,12 @@ def main():
     post_event("status", "Sprite task hold acquired.")
     try:
         job = bootstrap()
+        content_type = "news" if job.get("content_type") == "news" else "article"
         patch_job("running")
-        post_event("status", "Article drafting agent started in Sprite.")
+        if content_type == "news":
+            post_event("status", "News item drafting agent started in Sprite.")
+        else:
+            post_event("status", "Article drafting agent started in Sprite.")
         ref_paths = download_refs(job.get("refs", []))
         if ref_paths:
             post_event("status", "Downloaded " + str(len(ref_paths)) + " reference file(s).")
@@ -308,7 +351,10 @@ def main():
             str(result_path),
         ]
         cmd.append(prompt)
-        post_event("status", "Launching Codex article draft workflow.")
+        if content_type == "news":
+            post_event("status", "Launching Codex news item draft workflow.")
+        else:
+            post_event("status", "Launching Codex article draft workflow.")
         master_fd, slave_fd = pty.openpty()
         proc = subprocess.Popen(
             cmd,
@@ -369,7 +415,7 @@ def main():
                 final_message = result_path.read_text(encoding="utf-8")
                 if final_message:
                     output_parts.append("\n" + final_message)
-                    result = parse_result(final_message)
+                    result = parse_result(final_message, content_type)
             except Exception as exc:
                 post_event("warning", "Could not read Codex final message: " + str(exc))
 
@@ -379,9 +425,21 @@ def main():
             return exit_code
 
         if not result:
-            result = parse_result("".join(output_parts))
+            result = parse_result("".join(output_parts), content_type)
 
-        if result and result.get("post_id"):
+        if content_type == "news" and result:
+            news_id = str(result.get("news_id") or result.get("id") or "")
+            if news_id:
+                patch_job(
+                    "complete",
+                    news_id=news_id,
+                    news_category=str(result.get("category") or ""),
+                    title=str(result.get("title") or ""),
+                )
+                post_event("complete", "News item draft created.", result)
+                return 0
+
+        if content_type == "article" and result and result.get("post_id"):
             patch_job(
                 "complete",
                 post_id=str(result["post_id"]),
@@ -391,8 +449,8 @@ def main():
             post_event("complete", "Article draft created.", result)
             return 0
 
-        patch_job("failed", error="Codex completed without a valid article result marker.")
-        post_event("error", "Codex completed without a valid article result marker.")
+        patch_job("failed", error="Codex completed without a valid result marker.")
+        post_event("error", "Codex completed without a valid result marker.")
         return 2
     finally:
         task_stop.set()

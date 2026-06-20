@@ -117,10 +117,13 @@ CREATE TABLE IF NOT EXISTS article_agent_jobs (
   id                  TEXT PRIMARY KEY,
   requested_by        TEXT NOT NULL,
   prompt              TEXT NOT NULL,
+  content_type        TEXT NOT NULL DEFAULT 'article',
   status              TEXT NOT NULL DEFAULT 'queued',
   sprite_name         TEXT NOT NULL,
   post_id             TEXT,
   post_slug           TEXT,
+  news_id             TEXT,
+  news_category       TEXT,
   title               TEXT,
   error               TEXT,
   callback_token_hash TEXT NOT NULL,
@@ -135,6 +138,9 @@ CREATE INDEX IF NOT EXISTS idx_article_agent_jobs_requested_by
 
 CREATE INDEX IF NOT EXISTS idx_article_agent_jobs_status
   ON article_agent_jobs (status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_jobs_content_type
+  ON article_agent_jobs (content_type, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS article_agent_refs (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -354,11 +360,14 @@ const seedArticleAgentJob = async (data: {
   id: string;
   requested_by?: string;
   prompt?: string;
+  content_type?: 'article' | 'news';
   status?: string;
   sprite_name?: string;
   callback_token_hash: string;
   post_id?: string | null;
   post_slug?: string | null;
+  news_id?: string | null;
+  news_category?: string | null;
   title?: string | null;
   error?: string | null;
   completed_at?: string | null;
@@ -366,18 +375,21 @@ const seedArticleAgentJob = async (data: {
   const now = new Date().toISOString();
   await env.DB.prepare(
     `INSERT INTO article_agent_jobs (
-      id, requested_by, prompt, status, sprite_name, post_id, post_slug, title, error,
+      id, requested_by, prompt, content_type, status, sprite_name, post_id, post_slug, news_id, news_category, title, error,
       callback_token_hash, created_at, updated_at, started_at, completed_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
     .bind(
       data.id,
       data.requested_by ?? 'admin@example.com',
       data.prompt ?? 'Draft an article about tiny tools.',
+      data.content_type ?? 'article',
       data.status ?? 'running',
       data.sprite_name ?? 'bhart-org',
       data.post_id ?? null,
       data.post_slug ?? null,
+      data.news_id ?? null,
+      data.news_category ?? null,
       data.title ?? null,
       data.error ?? null,
       data.callback_token_hash,
@@ -725,15 +737,17 @@ describe('Article Agent', () => {
       );
 
       expect(response.status).toBe(202);
-      const payload = (await response.json()) as { job: { id: string; status: string } };
+      const payload = (await response.json()) as { job: { id: string; status: string; content_type: string } };
       expect(payload.job.status).toBe('starting');
+      expect(payload.job.content_type).toBe('article');
 
       const job = await env.DB.prepare('SELECT * FROM article_agent_jobs WHERE id = ?')
         .bind(payload.job.id)
-        .first<{ status: string; requested_by: string; sprite_name: string }>();
+        .first<{ status: string; requested_by: string; sprite_name: string; content_type: string }>();
       expect(job?.status).toBe('starting');
       expect(job?.requested_by).toBe('admin@example.com');
       expect(job?.sprite_name).toBe('bhart-test');
+      expect(job?.content_type).toBe('article');
 
       const ref = await env.DB.prepare('SELECT * FROM article_agent_refs WHERE job_id = ?')
         .bind(payload.job.id)
@@ -755,6 +769,69 @@ describe('Article Agent', () => {
       expect(cmd).toContain('Mozilla/5.0');
       expect(cmd).not.toContain('Draft a post about patient AI tools.');
       expect(cmd).not.toContain('& &&');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('creates news-agent jobs on the same configured Sprite', async () => {
+    const originalFetch = globalThis.fetch;
+    const spriteRequests: string[] = [];
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const target = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      if (target.startsWith('https://api.sprites.dev/')) {
+        spriteRequests.push(target);
+        expect(init?.method).toBe('POST');
+        expect(init?.headers).toEqual({
+          Authorization: 'Bearer sprites-token',
+          'User-Agent': expect.stringContaining('Mozilla/5.0'),
+        });
+        return Response.json({ ok: true });
+      }
+      return originalFetch(input as RequestInfo, init);
+    }) as typeof fetch;
+
+    try {
+      const session = await seedAdminSession('admin@example.com');
+      env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+      env.SPRITES_API_TOKEN = 'sprites-token';
+      env.BHART_ARTICLE_AGENT_SPRITE_NAME = 'bhart-test';
+      env.BHART_ARTICLE_AGENT_SPRITE_WORKDIR = '/home/sprite/bhart-org/main';
+
+      const form = new FormData();
+      form.set('content_type', 'news');
+      form.set('prompt', 'Draft a news item about the Codex drafting workspace.');
+
+      const response = await fetchWorker(
+        new Request('http://example.com/admin/article-agent/jobs', {
+          method: 'POST',
+          headers: { cookie: session.cookie },
+          body: form,
+        }),
+      );
+
+      expect(response.status).toBe(202);
+      const payload = (await response.json()) as { job: { id: string; content_type: string; status: string } };
+      expect(payload.job.status).toBe('starting');
+      expect(payload.job.content_type).toBe('news');
+
+      const job = await env.DB.prepare('SELECT content_type, sprite_name FROM article_agent_jobs WHERE id = ?')
+        .bind(payload.job.id)
+        .first<{ content_type: string; sprite_name: string }>();
+      expect(job?.content_type).toBe('news');
+      expect(job?.sprite_name).toBe('bhart-test');
+
+      const token = await env.DB.prepare('SELECT callback_token_hash FROM article_agent_jobs WHERE id = ?')
+        .bind(payload.job.id)
+        .first<{ callback_token_hash: string }>();
+      expect(token?.callback_token_hash).toHaveLength(64);
+
+      expect(spriteRequests).toHaveLength(1);
+      const launchUrl = new URL(spriteRequests[0]);
+      expect(launchUrl.pathname).toBe('/v1/sprites/bhart-test/exec');
+      expect(launchUrl.searchParams.get('dir')).toBe('/home/sprite/bhart-org/main');
+      const cmd = launchUrl.searchParams.getAll('cmd').join(' ');
+      expect(cmd).not.toContain('Draft a news item about the Codex drafting workspace.');
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -921,6 +998,76 @@ describe('Article Agent', () => {
     expect(await response.text()).toContain(': heartbeat');
   });
 
+  it('records runner completion for news item jobs', async () => {
+    const token = 'runner-token';
+    const jobId = 'job_news123456789012';
+    await seedArticleAgentJob({
+      id: jobId,
+      content_type: 'news',
+      prompt: 'Create a short update about the Codex news mode.',
+      callback_token_hash: await sha256Hex(token),
+      status: 'running',
+    });
+
+    let response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/bootstrap`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const bootstrap = (await response.json()) as { content_type: string; prompt: string };
+    expect(bootstrap.content_type).toBe('news');
+    expect(bootstrap.prompt).toContain('Codex news mode');
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          status: 'complete',
+          news_id: 'news-abc-123',
+          news_category: 'Update',
+          title: 'Codex News Mode',
+        }),
+      }),
+    );
+    expect(response.status).toBe(200);
+
+    const job = await env.DB.prepare(
+      'SELECT status, post_id, post_slug, news_id, news_category, title FROM article_agent_jobs WHERE id = ?',
+    )
+      .bind(jobId)
+      .first<{
+        status: string;
+        post_id: string | null;
+        post_slug: string | null;
+        news_id: string;
+        news_category: string;
+        title: string;
+      }>();
+    expect(job?.status).toBe('complete');
+    expect(job?.post_id).toBeNull();
+    expect(job?.post_slug).toBeNull();
+    expect(job?.news_id).toBe('news-abc-123');
+    expect(job?.news_category).toBe('Update');
+    expect(job?.title).toBe('Codex News Mode');
+
+    const session = await seedAdminSession('admin@example.com');
+    env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+    response = await fetchWorker(
+      new Request(`http://example.com/admin/article-agent/jobs/${jobId}`, {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    const payload = (await response.json()) as {
+      job: { content_type: string; news_url: string; edit_url: string; article_url: string | null };
+    };
+    expect(payload.job.content_type).toBe('news');
+    expect(payload.job.news_url).toBe('/news#news-news-abc-123');
+    expect(payload.job.edit_url).toBe('/admin/news/news-abc-123');
+    expect(payload.job.article_url).toBeNull();
+  });
+
   it('cancels active jobs and asks Sprite to stop the runner', async () => {
     const originalFetch = globalThis.fetch;
     const spriteRequests: string[] = [];
@@ -1007,16 +1154,21 @@ describe('Article Agent', () => {
     expect(job?.title).toBeNull();
   });
 
-  it('runner prompt requires draft-article and the final result marker', () => {
+  it('runner prompt supports article and news skills with the final result marker', () => {
     expect(ARTICLE_AGENT_RUNNER).toContain('Use the draft-article skill');
+    expect(ARTICLE_AGENT_RUNNER).toContain('Use the create-news-item skill');
     expect(ARTICLE_AGENT_RUNNER).toContain('https://bhart.org/api/codex/v1');
     expect(ARTICLE_AGENT_RUNNER).toContain('CODEX_BHART_API_TOKEN');
+    expect(ARTICLE_AGENT_RUNNER).toContain('Use POST /posts');
+    expect(ARTICLE_AGENT_RUNNER).toContain('Use POST /news');
     expect(ARTICLE_AGENT_RUNNER).toContain('BHART_ARTICLE_AGENT_RESULT_JSON=');
     expect(ARTICLE_AGENT_RUNNER).toContain('post_id');
+    expect(ARTICLE_AGENT_RUNNER).toContain('news_id');
     expect(ARTICLE_AGENT_RUNNER).toContain('pty.openpty()');
     expect(ARTICLE_AGENT_RUNNER).toContain('os.write(');
     expect(ARTICLE_AGENT_RUNNER).toContain('"User-Agent": USER_AGENT');
     expect(ARTICLE_AGENT_RUNNER).not.toContain('"post_id":"123"');
+    expect(ARTICLE_AGENT_RUNNER).not.toContain('"news_id":"123"');
     expect(ARTICLE_AGENT_RUNNER).not.toContain('"slug":"example"');
   });
 });

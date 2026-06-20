@@ -78,9 +78,14 @@ curl -sS \
   "https://bhart.org/api/codex/v1/posts?status=draft&limit=20"
 ```
 
-## Sprite Article Drafting
+## Sprite Content Drafting
 
 Admin UI: `/admin/draft-article`
+
+The workspace can create either:
+
+- article drafts through the `draft-article` skill and `POST /posts`
+- news item drafts through the `create-news-item` skill and `POST /news`
 
 Browser job API:
 
@@ -108,7 +113,7 @@ Required Worker secrets:
 
 Sprite-side secrets live in `/home/sprite/.config/secrets/codex.env` and should include `CODEX_BHART_API_TOKEN` plus `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`.
 
-The article-agent runner must use the existing `draft-article` skill and end successful runs with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON containing the real `post_id`, `slug`, `title`, and `status`.
+The article-agent runner must use the existing `draft-article` skill for articles and the existing `create-news-item` skill for news items. Successful runs end with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON. Article runs include real `post_id`, `slug`, `title`, and `status`; news runs include real `news_id`, `title`, `category`, and `status`.
 
 ## Writing Style
 
