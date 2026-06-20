@@ -19,6 +19,7 @@ import { adminMediaTemplate } from './admin/media';
 import { adminEditTemplate } from './admin/edit';
 import { adminNewsListTemplate } from './admin/newsList';
 import { adminNewsEditTemplate } from './admin/newsEdit';
+import { adminDraftArticleTemplate } from './admin/draftArticle';
 
 // Auth templates
 import { loginTemplate } from './auth/login';
@@ -43,6 +44,7 @@ export const templates = {
   adminEdit: adminEditTemplate,
   adminNewsList: adminNewsListTemplate,
   adminNewsEdit: adminNewsEditTemplate,
+  adminDraftArticle: adminDraftArticleTemplate,
   login: loginTemplate,
   unauthorized: unauthorizedTemplate,
   notFound: notFoundTemplate,

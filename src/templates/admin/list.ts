@@ -39,6 +39,7 @@ export const adminListTemplate = `<!DOCTYPE html>
             <p class="text-sm text-text-sub">Signed in as {{user_email}}</p>
           </div>
           <div class="flex items-center gap-3">
+            <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/draft-article">Draft Article</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/news">News</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/media">Media</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/">View Site</a>
@@ -72,6 +73,7 @@ export const adminListTemplate = `<!DOCTYPE html>
               <a class="text-xs font-semibold text-text-sub hover:text-primary" href="{{clear_search_url}}">Clear</a>
               {{/has_search}}
             </form>
+            <a class="rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary" href="/admin/draft-article">Draft with Codex</a>
             <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/posts/new">New Post</a>
           </div>
         </div>

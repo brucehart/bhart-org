@@ -20,7 +20,7 @@ Options:
   --upload-mode <mode>            Upload mode: direct|import|skip (default: direct)
   --upload-endpoint <url>         Temp upload endpoint for media import (required for --upload-mode import)
   --key-prefix <prefix>           R2 key prefix for media import (default: headers)
-  --api-base <url>                Bhart Codex API base (default: https://bhart-org.bruce-hart.workers.dev/api/codex/v1)
+  --api-base <url>                Bhart Codex API base (default: https://bhart.org/api/codex/v1)
   --python-bin <path>             Python binary override (default: ~/scripts/.venv/bin/python or python3)
 
 Env:
@@ -54,7 +54,7 @@ logo_url=""
 alt_text=""
 image_model="google/nano-banana-pro"
 key_prefix="headers"
-api_base="https://bhart-org.bruce-hart.workers.dev/api/codex/v1"
+api_base="https://bhart.org/api/codex/v1"
 aspect_ratio="16:9"
 resolution="2K"
 upload_mode="direct"

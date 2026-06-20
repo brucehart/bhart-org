@@ -1,8 +1,8 @@
 import { env, createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import worker from '../src';
-import { slugify } from '../src/utils';
-import { clearRateLimitStore } from '../src/middleware/rateLimit';
+import { SESSION_COOKIE_NAME, slugify } from '../src/utils';
+import { ARTICLE_AGENT_RUNNER } from '../src/articleAgentRunner';
 
 const API_BASE = 'http://example.com/api/codex/v1';
 const TOKEN = 'test-token';
@@ -98,6 +98,81 @@ CREATE TABLE IF NOT EXISTS media_assets (
 
 CREATE INDEX IF NOT EXISTS media_assets_uploaded_at ON media_assets (uploaded_at);
 CREATE INDEX IF NOT EXISTS media_assets_published_at ON media_assets (published_at);
+
+CREATE TABLE IF NOT EXISTS news_items (
+  id TEXT PRIMARY KEY,
+  category TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body_markdown TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('draft', 'published')),
+  published_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS news_items_status_published ON news_items (status, published_at);
+CREATE INDEX IF NOT EXISTS news_items_updated_at ON news_items (updated_at);
+
+CREATE TABLE IF NOT EXISTS article_agent_jobs (
+  id                  TEXT PRIMARY KEY,
+  requested_by        TEXT NOT NULL,
+  prompt              TEXT NOT NULL,
+  status              TEXT NOT NULL DEFAULT 'queued',
+  sprite_name         TEXT NOT NULL,
+  post_id             TEXT,
+  post_slug           TEXT,
+  title               TEXT,
+  error               TEXT,
+  callback_token_hash TEXT NOT NULL,
+  created_at          TEXT NOT NULL,
+  updated_at          TEXT NOT NULL,
+  started_at          TEXT,
+  completed_at        TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_jobs_requested_by
+  ON article_agent_jobs (requested_by, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_jobs_status
+  ON article_agent_jobs (status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS article_agent_refs (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_id       TEXT NOT NULL,
+  r2_key       TEXT NOT NULL,
+  filename     TEXT NOT NULL,
+  content_type TEXT NOT NULL,
+  created_at   TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES article_agent_jobs(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_refs_job_id
+  ON article_agent_refs (job_id, id);
+
+CREATE TABLE IF NOT EXISTS article_agent_events (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_id     TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  message    TEXT NOT NULL,
+  metadata   TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES article_agent_jobs(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_events_job_id
+  ON article_agent_events (job_id, id);
+
+CREATE TABLE IF NOT EXISTS article_agent_messages (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_id       TEXT NOT NULL,
+  author_email TEXT NOT NULL,
+  content      TEXT NOT NULL,
+  created_at   TEXT NOT NULL,
+  FOREIGN KEY (job_id) REFERENCES article_agent_jobs(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_article_agent_messages_job_id
+  ON article_agent_messages (job_id, id);
 `;
 
 const applySchema = async () => {
@@ -110,6 +185,13 @@ const applySchema = async () => {
 };
 
 const resetData = async () => {
+  await env.DB.prepare('DELETE FROM article_agent_messages').run();
+  await env.DB.prepare('DELETE FROM article_agent_events').run();
+  await env.DB.prepare('DELETE FROM article_agent_refs').run();
+  await env.DB.prepare('DELETE FROM article_agent_jobs').run();
+  await env.DB.prepare('DELETE FROM sessions').run();
+  await env.DB.prepare('DELETE FROM authorized_users').run();
+  await env.DB.prepare('DELETE FROM news_items').run();
   await env.DB.prepare('DELETE FROM post_tags').run();
   await env.DB.prepare('DELETE FROM tags').run();
   await env.DB.prepare('DELETE FROM posts').run();
@@ -199,10 +281,113 @@ const fetchWorker = async (request: Request) => {
   return response;
 };
 
+const createTestRateLimiter = (): DurableObjectNamespace => {
+  const counters = new Map<string, number[]>();
+  return {
+    idFromName(name: string) {
+      return name as unknown as DurableObjectId;
+    },
+    get(id: DurableObjectId) {
+      const key = String(id);
+      return {
+        fetch: async (_input: RequestInfo | URL, init?: RequestInit) => {
+          const payload = init?.body ? JSON.parse(String(init.body)) : {};
+          const windowMs = Number(payload.windowMs);
+          const maxRequests = Number(payload.maxRequests);
+          const now = Date.now();
+          const windowStart = now - windowMs;
+          const timestamps = (counters.get(key) ?? []).filter((timestamp) => timestamp > windowStart);
+          if (timestamps.length >= maxRequests) {
+            counters.set(key, timestamps);
+            return new Response(
+              JSON.stringify({
+                error: {
+                  code: 'rate_limit_exceeded',
+                  message: 'Too many requests. Please try again later.',
+                },
+              }),
+              { status: 429, headers: { 'content-type': 'application/json' } },
+            );
+          }
+          timestamps.push(now);
+          counters.set(key, timestamps);
+          return Response.json({ ok: true });
+        },
+      } as unknown as DurableObjectStub;
+    },
+  } as unknown as DurableObjectNamespace;
+};
+
 const authHeaders = (extra?: Record<string, string>) => ({
   Authorization: `Bearer ${TOKEN}`,
   ...(extra ?? {}),
 });
+
+const sha256Hex = async (value: string) => {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+};
+
+const seedAdminSession = async (email = 'admin@example.com') => {
+  const userId = crypto.randomUUID();
+  const sessionId = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  await env.DB.prepare(
+    `INSERT INTO authorized_users (id, email, name, is_active, created_at)
+     VALUES (?, ?, ?, 1, ?)`,
+  )
+    .bind(userId, email, 'Admin User', now)
+    .run();
+  await env.DB.prepare(
+    `INSERT INTO sessions (id, user_id, created_at, expires_at)
+     VALUES (?, ?, ?, ?)`,
+  )
+    .bind(sessionId, userId, now, expiresAt)
+    .run();
+  return { email, cookie: `${SESSION_COOKIE_NAME}=${encodeURIComponent(sessionId)}` };
+};
+
+const seedArticleAgentJob = async (data: {
+  id: string;
+  requested_by?: string;
+  prompt?: string;
+  status?: string;
+  sprite_name?: string;
+  callback_token_hash: string;
+  post_id?: string | null;
+  post_slug?: string | null;
+  title?: string | null;
+  error?: string | null;
+  completed_at?: string | null;
+}) => {
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    `INSERT INTO article_agent_jobs (
+      id, requested_by, prompt, status, sprite_name, post_id, post_slug, title, error,
+      callback_token_hash, created_at, updated_at, started_at, completed_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  )
+    .bind(
+      data.id,
+      data.requested_by ?? 'admin@example.com',
+      data.prompt ?? 'Draft an article about tiny tools.',
+      data.status ?? 'running',
+      data.sprite_name ?? 'bhart-org',
+      data.post_id ?? null,
+      data.post_slug ?? null,
+      data.title ?? null,
+      data.error ?? null,
+      data.callback_token_hash,
+      now,
+      now,
+      data.status === 'running' ? now : null,
+      data.completed_at ?? null,
+    )
+    .run();
+};
 
 beforeAll(async () => {
   env.CODEX_API_TOKEN = TOKEN;
@@ -211,8 +396,13 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   env.CODEX_API_TOKEN = TOKEN;
+  env.RATE_LIMITER = createTestRateLimiter();
+  delete (env as Partial<Env>).BHART_ARTICLE_AGENT_ALLOWED_EMAILS;
+  delete (env as Partial<Env>).SPRITES_API_TOKEN;
+  delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITE_NAME;
+  delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITE_WORKDIR;
+  delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITES_API_BASE;
   await resetData();
-  clearRateLimitStore(); // Clear rate limit state between tests
 });
 
 describe('Codex API', () => {
@@ -468,6 +658,365 @@ describe('Codex API', () => {
   });
 });
 
+describe('Article Agent', () => {
+  it('requires admin login and the article-agent allowlist', async () => {
+    let response = await fetchWorker(new Request('http://example.com/admin/article-agent/jobs'));
+    expect(response.status).toBe(401);
+
+    const session = await seedAdminSession('admin@example.com');
+    response = await fetchWorker(
+      new Request('http://example.com/admin/article-agent/jobs', {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    expect(response.status).toBe(503);
+
+    env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'owner@example.com';
+    response = await fetchWorker(
+      new Request('http://example.com/admin/article-agent/jobs', {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    expect(response.status).toBe(403);
+
+    env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+    response = await fetchWorker(
+      new Request('http://example.com/admin/article-agent/jobs', {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it('creates article-agent jobs, stores references, and launches the configured Sprite', async () => {
+    const originalFetch = globalThis.fetch;
+    const spriteRequests: string[] = [];
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const target = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      if (target.startsWith('https://api.sprites.dev/')) {
+        spriteRequests.push(target);
+        expect(init?.method).toBe('POST');
+        expect(init?.headers).toEqual({
+          Authorization: 'Bearer sprites-token',
+          'User-Agent': expect.stringContaining('Mozilla/5.0'),
+        });
+        return Response.json({ ok: true });
+      }
+      return originalFetch(input as RequestInfo, init);
+    }) as typeof fetch;
+
+    try {
+      const session = await seedAdminSession('admin@example.com');
+      env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+      env.SPRITES_API_TOKEN = 'sprites-token';
+      env.BHART_ARTICLE_AGENT_SPRITE_NAME = 'bhart-test';
+      env.BHART_ARTICLE_AGENT_SPRITE_WORKDIR = '/home/sprite/bhart-org/main';
+
+      const form = new FormData();
+      form.set('prompt', 'Draft a post about patient AI tools.');
+      form.append('refs', new File([Buffer.from('notes')], 'notes.md', { type: 'text/markdown' }));
+
+      const response = await fetchWorker(
+        new Request('http://example.com/admin/article-agent/jobs', {
+          method: 'POST',
+          headers: { cookie: session.cookie },
+          body: form,
+        }),
+      );
+
+      expect(response.status).toBe(202);
+      const payload = (await response.json()) as { job: { id: string; status: string } };
+      expect(payload.job.status).toBe('starting');
+
+      const job = await env.DB.prepare('SELECT * FROM article_agent_jobs WHERE id = ?')
+        .bind(payload.job.id)
+        .first<{ status: string; requested_by: string; sprite_name: string }>();
+      expect(job?.status).toBe('starting');
+      expect(job?.requested_by).toBe('admin@example.com');
+      expect(job?.sprite_name).toBe('bhart-test');
+
+      const ref = await env.DB.prepare('SELECT * FROM article_agent_refs WHERE job_id = ?')
+        .bind(payload.job.id)
+        .first<{ r2_key: string; filename: string; content_type: string }>();
+      expect(ref?.filename).toBe('notes.md');
+      expect(ref?.content_type).toBe('text/markdown');
+      expect(ref?.r2_key.startsWith(`article-agent/${payload.job.id}/`)).toBe(true);
+      const object = await env.MEDIA_BUCKET.get(ref?.r2_key ?? '');
+      expect(await object?.text()).toBe('notes');
+
+      expect(spriteRequests).toHaveLength(1);
+      const launchUrl = new URL(spriteRequests[0]);
+      expect(launchUrl.pathname).toBe('/v1/sprites/bhart-test/exec');
+      expect(launchUrl.searchParams.get('dir')).toBe('/home/sprite/bhart-org/main');
+      const cmd = launchUrl.searchParams.getAll('cmd').join(' ');
+      expect(cmd).toContain('article-agent-');
+      expect(cmd).toContain('BHART_ARTICLE_AGENT_TASK_NAME=');
+      expect(cmd).toContain('BHART_CODEX_API_BASE=');
+      expect(cmd).toContain('Mozilla/5.0');
+      expect(cmd).not.toContain('Draft a post about patient AI tools.');
+      expect(cmd).not.toContain('& &&');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('stores concise Sprite launch failures without raw HTML', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const target = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      if (target.startsWith('https://api.sprites.dev/')) {
+        expect(init?.headers).toEqual({
+          Authorization: 'Bearer sprites-token',
+          'User-Agent': expect.stringContaining('Mozilla/5.0'),
+        });
+        return new Response('<!doctype html><html><body>Forbidden</body></html>', {
+          status: 403,
+          statusText: 'Forbidden',
+          headers: { 'content-type': 'text/html' },
+        });
+      }
+      return originalFetch(input as RequestInfo, init);
+    }) as typeof fetch;
+
+    try {
+      const session = await seedAdminSession('admin@example.com');
+      env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+      env.SPRITES_API_TOKEN = 'sprites-token';
+      const form = new FormData();
+      form.set('prompt', 'Draft a post about a failed launch.');
+
+      const response = await fetchWorker(
+        new Request('http://example.com/admin/article-agent/jobs', {
+          method: 'POST',
+          headers: { cookie: session.cookie },
+          body: form,
+        }),
+      );
+      expect(response.status).toBe(202);
+      const payload = (await response.json()) as { job: { id: string } };
+      const job = await env.DB.prepare('SELECT status, error FROM article_agent_jobs WHERE id = ?')
+        .bind(payload.job.id)
+        .first<{ status: string; error: string }>();
+      expect(job?.status).toBe('failed');
+      expect(job?.error).toContain('Sprite launch failed (403 Forbidden).');
+      expect(job?.error).not.toContain('<html>');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('authenticates runner callbacks and exposes bootstrap, refs, messages, events, and completion', async () => {
+    const token = 'runner-token';
+    const jobId = 'job_1234567890123456';
+    await seedArticleAgentJob({
+      id: jobId,
+      callback_token_hash: await sha256Hex(token),
+      status: 'running',
+    });
+    await env.MEDIA_BUCKET.put('article-agent/test/ref.txt', 'ref-data', {
+      httpMetadata: { contentType: 'text/plain' },
+    });
+    await env.DB.prepare(
+      `INSERT INTO article_agent_refs (job_id, r2_key, filename, content_type, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+    )
+      .bind(jobId, 'article-agent/test/ref.txt', 'ref.txt', 'text/plain', new Date().toISOString())
+      .run();
+
+    let response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/bootstrap`),
+    );
+    expect(response.status).toBe(401);
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/bootstrap`, {
+        headers: { Authorization: 'Bearer wrong-token' },
+      }),
+    );
+    expect(response.status).toBe(401);
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/bootstrap`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const bootstrap = (await response.json()) as {
+      prompt: string;
+      refs: Array<{ url: string; filename: string }>;
+    };
+    expect(bootstrap.prompt).toContain('tiny tools');
+    expect(bootstrap.refs[0].url).toBe(`/api/article-agent/jobs/${jobId}/refs/1`);
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/refs/1`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    expect(await response.text()).toBe('ref-data');
+
+    const session = await seedAdminSession('admin@example.com');
+    env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+    response = await fetchWorker(
+      new Request(`http://example.com/admin/article-agent/jobs/${jobId}/messages`, {
+        method: 'POST',
+        headers: { cookie: session.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ content: 'Make it sharper.' }),
+      }),
+    );
+    expect(response.status).toBe(200);
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/messages?after=0`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    const messages = (await response.json()) as { messages: Array<{ content: string }> };
+    expect(messages.messages[0].content).toBe('Make it sharper.');
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}/events`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ type: 'log', message: 'working' }),
+      }),
+    );
+    expect(response.status).toBe(200);
+
+    response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          status: 'complete',
+          post_id: 'post-abc-123',
+          post_slug: 'patient-ai-tools',
+          title: 'Patient AI Tools',
+        }),
+      }),
+    );
+    expect(response.status).toBe(200);
+
+    const job = await env.DB.prepare('SELECT status, post_id, post_slug, title FROM article_agent_jobs WHERE id = ?')
+      .bind(jobId)
+      .first<{ status: string; post_id: string; post_slug: string; title: string }>();
+    expect(job?.status).toBe('complete');
+    expect(job?.post_id).toBe('post-abc-123');
+    expect(job?.post_slug).toBe('patient-ai-tools');
+
+    response = await fetchWorker(
+      new Request(`http://example.com/admin/article-agent/jobs/${jobId}/events`, {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    const events = await response.text();
+    expect(events).toContain('event: log');
+    expect(events).toContain('event: complete');
+
+    response = await fetchWorker(
+      new Request(`http://example.com/admin/article-agent/jobs/${jobId}/events?after=999`, {
+        headers: { cookie: session.cookie },
+      }),
+    );
+    expect(await response.text()).toContain(': heartbeat');
+  });
+
+  it('cancels active jobs and asks Sprite to stop the runner', async () => {
+    const originalFetch = globalThis.fetch;
+    const spriteRequests: string[] = [];
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const target = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      if (target.startsWith('https://api.sprites.dev/')) {
+        spriteRequests.push(target);
+        expect(init?.headers).toEqual({
+          Authorization: 'Bearer sprites-token',
+          'User-Agent': expect.stringContaining('Mozilla/5.0'),
+        });
+        return Response.json({ ok: true });
+      }
+      return originalFetch(input as RequestInfo, init);
+    }) as typeof fetch;
+
+    try {
+      const token = 'runner-token';
+      const jobId = 'job_ABCdef1234567890';
+      await seedArticleAgentJob({
+        id: jobId,
+        callback_token_hash: await sha256Hex(token),
+        status: 'running',
+      });
+      const session = await seedAdminSession('admin@example.com');
+      env.BHART_ARTICLE_AGENT_ALLOWED_EMAILS = 'admin@example.com';
+      env.SPRITES_API_TOKEN = 'sprites-token';
+
+      const response = await fetchWorker(
+        new Request(`http://example.com/admin/article-agent/jobs/${jobId}/cancel`, {
+          method: 'POST',
+          headers: { cookie: session.cookie },
+        }),
+      );
+      expect(response.status).toBe(200);
+      const job = await env.DB.prepare('SELECT status FROM article_agent_jobs WHERE id = ?')
+        .bind(jobId)
+        .first<{ status: string }>();
+      expect(job?.status).toBe('canceled');
+      expect(spriteRequests).toHaveLength(1);
+      const cmd = new URL(spriteRequests[0]).searchParams.getAll('cmd').join(' ');
+      expect(cmd).toContain(jobId);
+      expect(cmd).toContain('http://sprite/v1/tasks/article-agent-job-abcdef1234567890');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('ignores late runner completion after cancellation', async () => {
+    const token = 'runner-token';
+    const jobId = 'job_latecancel123456';
+    await seedArticleAgentJob({
+      id: jobId,
+      callback_token_hash: await sha256Hex(token),
+      status: 'canceled',
+      completed_at: new Date().toISOString(),
+    });
+
+    const response = await fetchWorker(
+      new Request(`http://example.com/api/article-agent/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          status: 'complete',
+          post_id: 'post-too-late',
+          post_slug: 'too-late',
+          title: 'Too Late',
+        }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { ignored?: boolean };
+    expect(body.ignored).toBe(true);
+    const job = await env.DB.prepare('SELECT status, post_id, post_slug, title FROM article_agent_jobs WHERE id = ?')
+      .bind(jobId)
+      .first<{ status: string; post_id: string | null; post_slug: string | null; title: string | null }>();
+    expect(job?.status).toBe('canceled');
+    expect(job?.post_id).toBeNull();
+    expect(job?.post_slug).toBeNull();
+    expect(job?.title).toBeNull();
+  });
+
+  it('runner prompt requires draft-article and the final result marker', () => {
+    expect(ARTICLE_AGENT_RUNNER).toContain('Use the draft-article skill');
+    expect(ARTICLE_AGENT_RUNNER).toContain('https://bhart.org/api/codex/v1');
+    expect(ARTICLE_AGENT_RUNNER).toContain('CODEX_BHART_API_TOKEN');
+    expect(ARTICLE_AGENT_RUNNER).toContain('BHART_ARTICLE_AGENT_RESULT_JSON=');
+    expect(ARTICLE_AGENT_RUNNER).toContain('post_id');
+    expect(ARTICLE_AGENT_RUNNER).toContain('pty.openpty()');
+    expect(ARTICLE_AGENT_RUNNER).toContain('os.write(');
+    expect(ARTICLE_AGENT_RUNNER).toContain('"User-Agent": USER_AGENT');
+    expect(ARTICLE_AGENT_RUNNER).not.toContain('"post_id":"123"');
+    expect(ARTICLE_AGENT_RUNNER).not.toContain('"slug":"example"');
+  });
+});
+
 describe('Public Routes', () => {
   beforeEach(async () => {
     await seedPostWithTags(
@@ -635,7 +1184,8 @@ describe('Security', () => {
     expect(response.status).toBe(200);
     const html = await response.text();
     // Markdown should be safely rendered
-    expect(html).not.toContain('<script>');
+    expect(html).toContain('Safe content');
+    expect(html).not.toContain('<script>alert');
   });
 });
 

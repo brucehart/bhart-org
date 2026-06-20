@@ -45,6 +45,7 @@ Load `references/agents.md` before generating or submitting drafts.
 
 - Provide the drafted `body_markdown`, `title`, `summary`, `tags`, `seo_title`, and `seo_description` for review.
 - If requested, immediately submit the draft and return the created post ID/slug.
+- When running under the Sprite article-agent runner and asked for a final marker, end with exactly one line beginning with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON containing the real `post_id`, `slug`, `title`, and `status` returned by the API.
 
 ## API usage
 

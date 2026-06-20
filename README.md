@@ -6,6 +6,7 @@ A Cloudflare Workers + D1 powered blog with Mustache templates, Markdown content
 
 - Public pages: home, about, projects, news, work-with-me, contact, archive, and article detail pages.
 - Admin area: Google OAuth login, post/news create/edit/delete, tags, drafts, featured images, and scheduling.
+- Sprite-backed Codex article drafting from `/admin/draft-article`.
 - Markdown articles rendered server-side with RSS feed support.
 - Media library backed by R2 with metadata stored in D1.
 
@@ -79,6 +80,26 @@ wrangler r2 bucket create bhart-org
 
 Images uploaded in the admin are stored in R2 and indexed in D1.
 
+### Codex Article Drafting
+
+The admin drafting workspace at `/admin/draft-article` launches Codex inside a Fly.io Sprite and submits drafts through the existing `/api/codex/v1/posts` API.
+
+Required Worker secrets:
+
+```bash
+wrangler secret put CODEX_API_TOKEN
+wrangler secret put SPRITES_API_TOKEN
+wrangler secret put BHART_ARTICLE_AGENT_ALLOWED_EMAILS
+```
+
+Optional Worker vars are set in `wrangler.jsonc`:
+
+- `BHART_ARTICLE_AGENT_SPRITE_NAME` defaults to `bhart-org`
+- `BHART_ARTICLE_AGENT_SPRITE_WORKDIR` defaults to `/home/sprite/bhart-org/main`
+- `BHART_ARTICLE_AGENT_SPRITES_API_BASE` defaults to `https://api.sprites.dev`
+
+The Sprite needs the repo, dependencies, Codex auth, and `/home/sprite/.config/secrets/codex.env` containing `CODEX_BHART_API_TOKEN` and `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`.
+
 ## Routes
 
 - `/` home page
@@ -96,6 +117,7 @@ Images uploaded in the admin are stored in R2 and indexed in D1.
 - `/admin/news/new` new news item
 - `/admin/news/:id` edit news item
 - `/admin/media` media library
+- `/admin/draft-article` Sprite-backed Codex draft workspace
 - `/media/<key>` media asset delivery (public)
 
 ## Notes
