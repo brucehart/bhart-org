@@ -429,11 +429,16 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
 
       document.getElementById('draft-form').addEventListener('submit', async (event) => {
         event.preventDefault();
+        const form = event.currentTarget;
+        if (!(form instanceof HTMLFormElement)) {
+          showAlert('Unable to start draft job.', 'error');
+          return;
+        }
         hideAlert();
         submitButton.disabled = true;
         submitButton.textContent = 'Starting...';
         try {
-          const data = new FormData(event.currentTarget);
+          const data = new FormData(form);
           const response = await fetch('/admin/article-agent/jobs', {
             method: 'POST',
             body: data,
@@ -449,7 +454,7 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
           renderSelectedJob(payload.job);
           connectEvents(payload.job.id);
           showAlert('Draft job started.', 'success');
-          event.currentTarget.reset();
+          form.reset();
           promptCount.textContent = '0';
           updateFileSummary();
         } catch (error) {
