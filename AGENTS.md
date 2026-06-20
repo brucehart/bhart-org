@@ -6,7 +6,9 @@ Base path: `/api/codex/v1`
 
 Auth: `Authorization: Bearer $CODEX_BHART_API_TOKEN`
 
-Local dev: `npm run dev`, then call `http://bhart-org.bruce-hart.workers.dev/api/codex/v1/...`
+Production: `https://bhart.org/api/codex/v1/...`
+
+Local dev: `npm run dev`, then call `http://localhost:8787/api/codex/v1/...`
 
 ### Endpoints
 
@@ -73,8 +75,40 @@ News workflow mirrors posts:
 ```bash
 curl -sS \
   -H "Authorization: Bearer $CODEX_BHART_API_TOKEN" \
-  "https://bhart-org.bruce-hart.workers.dev/api/codex/v1/posts?status=draft&limit=20"
+  "https://bhart.org/api/codex/v1/posts?status=draft&limit=20"
 ```
+
+## Sprite Article Drafting
+
+Admin UI: `/admin/draft-article`
+
+Browser job API:
+
+- `GET /admin/article-agent/jobs`
+- `POST /admin/article-agent/jobs`
+- `GET /admin/article-agent/jobs/:id`
+- `GET /admin/article-agent/jobs/:id/events`
+- `POST /admin/article-agent/jobs/:id/messages`
+- `POST /admin/article-agent/jobs/:id/cancel`
+
+Runner callback API:
+
+- `GET /api/article-agent/jobs/:id/runner.py`
+- `GET /api/article-agent/jobs/:id/bootstrap`
+- `GET /api/article-agent/jobs/:id/refs/:refId`
+- `GET /api/article-agent/jobs/:id/messages?after=:id`
+- `POST /api/article-agent/jobs/:id/events`
+- `PATCH /api/article-agent/jobs/:id`
+
+Required Worker secrets:
+
+- `SPRITES_API_TOKEN`
+- `BHART_ARTICLE_AGENT_ALLOWED_EMAILS`
+- existing `CODEX_API_TOKEN`
+
+Sprite-side secrets live in `/home/sprite/.config/secrets/codex.env` and should include `CODEX_BHART_API_TOKEN` plus `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`.
+
+The article-agent runner must use the existing `draft-article` skill and end successful runs with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON containing the real `post_id`, `slug`, `title`, and `status`.
 
 ## Writing Style
 

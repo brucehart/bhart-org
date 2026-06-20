@@ -112,7 +112,7 @@ export const handleApiRoutes = async (
       return jsonError(400, 'invalid_request', 'image must be an image/* content-type.');
     }
 
-    const readString = (value: FormDataEntryValue | null) =>
+    const readString = (value: unknown) =>
       typeof value === 'string' ? value.trim() : '';
 
     const altText = readString(data.get('alt_text'));

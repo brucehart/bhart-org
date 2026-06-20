@@ -148,7 +148,11 @@ export const parseTagPatch = (current: string[], patch: CodexTagPatch) => {
   return withAdds.filter((tag) => !removeKeys.has(slugify(tag)));
 };
 
-export const readJsonBody = async (request: Request) => {
+export type JsonBodyResult =
+  | { ok: true; data: unknown }
+  | { ok: false; response: Response };
+
+export const readJsonBody = async (request: Request): Promise<JsonBodyResult> => {
   try {
     return { ok: true, data: (await request.json()) as unknown };
   } catch {

@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import { handleApiRoutes } from './routes/api';
+import { handleArticleAgentRoutes } from './routes/articleAgent';
 import { handleAuthRoutes } from './routes/auth';
 import { handleAdminRoutes } from './routes/admin';
 import { handleMediaRoutes } from './routes/media';
@@ -8,13 +9,10 @@ import { htmlResponse } from './shared';
 import { templates } from './templates/index';
 export { RateLimiter } from './middleware/rateLimit';
 
-marked.setOptions({
-  mangle: false,
-  headerIds: false,
-});
+marked.setOptions({});
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     try {
       const url = new URL(request.url);
       const method = request.method.toUpperCase();
@@ -32,25 +30,31 @@ export default {
         return authResponse;
       }
 
-      // 3. Media routes (/media/*)
+      // 3. Article agent routes (/admin/article-agent/* and /api/article-agent/*)
+      const articleAgentResponse = await handleArticleAgentRoutes(request, env, url, method, ctx);
+      if (articleAgentResponse) {
+        return articleAgentResponse;
+      }
+
+      // 4. Media routes (/media/*)
       const mediaResponse = await handleMediaRoutes(request, env, url, method);
       if (mediaResponse) {
         return mediaResponse;
       }
 
-      // 4. Admin routes (/admin/*)
+      // 5. Admin routes (/admin/*)
       const adminResponse = await handleAdminRoutes(request, env, url, method);
       if (adminResponse) {
         return adminResponse;
       }
 
-      // 5. Public routes (/, /about, /articles/*, etc.)
+      // 6. Public routes (/, /about, /articles/*, etc.)
       const publicResponse = await handlePublicRoutes(request, env, url, method);
       if (publicResponse) {
         return publicResponse;
       }
 
-      // 6. 404 Not Found
+      // 7. 404 Not Found
       return htmlResponse(templates.notFound, {}, 404);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unexpected error.';

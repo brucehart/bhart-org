@@ -438,7 +438,7 @@ export const handlePublicRoutes = async (
     }
     const year = Number.parseInt(yearParam, 10);
     const month = monthParam ? Number.parseInt(monthParam, 10) : null;
-    if (monthParam && (!Number.isInteger(month) || month < 1 || month > 12)) {
+    if (monthParam && (month === null || !Number.isInteger(month) || month < 1 || month > 12)) {
       return htmlResponse(templates.notFound, {}, 404);
     }
     const startDate = month

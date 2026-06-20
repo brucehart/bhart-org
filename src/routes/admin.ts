@@ -47,6 +47,7 @@ import type { PostStatus } from '../types';
 import { templates } from '../templates/index';
 import type { NewsItemInput, PostInput } from '../db';
 import type { NewsStatus } from '../types';
+import { getArticleAgentAccess } from './articleAgent';
 
 const MEDIA_PAGE_SIZE = 5;
 
@@ -380,6 +381,17 @@ export const handleAdminRoutes = async (
     });
   }
 
+  // GET /admin/draft-article
+  if (path === '/admin/draft-article' && method === 'GET') {
+    const access = getArticleAgentAccess(env, sessionUser);
+    if (!access.ok) {
+      return htmlResponse(templates.error, { message: access.message }, access.status);
+    }
+    return htmlResponse(templates.adminDraftArticle, {
+      user_email: sessionUser.email,
+    });
+  }
+
   // POST /admin/media/:id/delete
   const mediaDeleteMatch = path.match(/^\/admin\/media\/([^/]+)\/delete$/);
   if (mediaDeleteMatch && method === 'POST') {
@@ -547,6 +559,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Create News Item',
         page_subtitle: 'Share a short update with readers.',
         form_action: '/admin/news',
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -554,7 +567,6 @@ export const handleAdminRoutes = async (
         show_delete: false,
         delete_action: '',
         save_success: false,
-        ...parsed.raw,
       });
     }
 
@@ -567,6 +579,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Create News Item',
         page_subtitle: 'Share a short update with readers.',
         form_action: '/admin/news',
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -574,7 +587,6 @@ export const handleAdminRoutes = async (
         show_delete: false,
         delete_action: '',
         save_success: false,
-        ...parsed.raw,
       });
     }
   }
@@ -617,6 +629,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Edit News Item',
         page_subtitle: 'Update the copy and publishing details.',
         form_action: `/admin/news/${newsId}`,
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -624,7 +637,6 @@ export const handleAdminRoutes = async (
         show_delete: true,
         delete_action: `/admin/news/${newsId}/delete`,
         save_success: false,
-        ...parsed.raw,
       });
     }
 
@@ -637,6 +649,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Edit News Item',
         page_subtitle: 'Update the copy and publishing details.',
         form_action: `/admin/news/${newsId}`,
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -644,7 +657,6 @@ export const handleAdminRoutes = async (
         show_delete: true,
         delete_action: `/admin/news/${newsId}/delete`,
         save_success: false,
-        ...parsed.raw,
       });
     }
   }
@@ -699,6 +711,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Create Post',
         page_subtitle: 'Draft a new story for bhart.org',
         form_action: '/admin/posts',
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -710,7 +723,6 @@ export const handleAdminRoutes = async (
         show_preview: false,
         preview_url: '',
         save_success: false,
-        ...parsed.raw,
       });
     }
 
@@ -723,6 +735,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Create Post',
         page_subtitle: 'Draft a new story for bhart.org',
         form_action: '/admin/posts',
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -734,7 +747,6 @@ export const handleAdminRoutes = async (
         show_preview: false,
         preview_url: '',
         save_success: false,
-        ...parsed.raw,
       });
     }
   }
@@ -818,6 +830,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Edit Post',
         page_subtitle: 'Update the content and publishing details.',
         form_action: `/admin/posts/${postId}`,
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -829,7 +842,6 @@ export const handleAdminRoutes = async (
         show_preview: true,
         preview_url: `/admin/preview/${postId}`,
         save_success: false,
-        ...parsed.raw,
       });
     }
 
@@ -842,6 +854,7 @@ export const handleAdminRoutes = async (
         page_heading: 'Edit Post',
         page_subtitle: 'Update the content and publishing details.',
         form_action: `/admin/posts/${postId}`,
+        ...parsed.raw,
         status_draft_selected: parsed.values.status === 'draft',
         status_published_selected: parsed.values.status === 'published',
         published_at: parsed.raw.published_at,
@@ -853,7 +866,6 @@ export const handleAdminRoutes = async (
         show_preview: true,
         preview_url: `/admin/preview/${postId}`,
         save_success: false,
-        ...parsed.raw,
       });
     }
   }
