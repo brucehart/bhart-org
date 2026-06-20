@@ -230,6 +230,11 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
 
       const contentType = (job) => job && job.content_type === 'news' ? 'news' : 'article';
       const contentTypeLabel = (value) => value === 'news' ? 'News' : 'Article';
+      const setContentType = (value) => {
+        contentTypeInputs.forEach((input) => {
+          input.checked = value === 'news' ? input.value === 'news' : input.value === 'article';
+        });
+      };
       const selectedContentType = () => {
         const selected = contentTypeInputs.find((input) => input.checked);
         return selected && selected.value === 'news' ? 'news' : 'article';
@@ -570,6 +575,10 @@ export const adminDraftArticleTemplate = `<!DOCTYPE html>
           }
         })
         .catch((error) => showAlert(error instanceof Error ? error.message : 'Unable to load jobs.', 'error'));
+      const initialContentType = new URLSearchParams(window.location.search).get('content_type');
+      if (initialContentType === 'news') {
+        setContentType('news');
+      }
       updateContentHelper();
     </script>
   </body>

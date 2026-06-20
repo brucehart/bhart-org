@@ -40,6 +40,7 @@ export const adminNewsListTemplate = `<!DOCTYPE html>
           </div>
           <div class="flex items-center gap-3">
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin">Posts</a>
+            <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/draft-article?content_type=news">Draft with Codex</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/news">News</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/admin/media">Media</a>
             <a class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-text-main" href="/">View Site</a>
@@ -52,7 +53,10 @@ export const adminNewsListTemplate = `<!DOCTYPE html>
       <main class="mx-auto w-full max-w-6xl px-6 py-10 flex-grow">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold">News</h2>
-          <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/news/new">New News Item</a>
+          <div class="flex items-center gap-3">
+            <a class="rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary" href="/admin/draft-article?content_type=news">Draft with Codex</a>
+            <a class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white" href="/admin/news/new">New News Item</a>
+          </div>
         </div>
         <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
           <table class="w-full min-w-[720px] text-left text-sm">
