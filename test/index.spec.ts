@@ -963,6 +963,10 @@ describe('Article Agent', () => {
       expect(spriteRequests).toHaveLength(1);
       const cmd = new URL(spriteRequests[0]).searchParams.getAll('cmd').join(' ');
       expect(cmd).toContain(jobId);
+      expect(cmd).not.toContain('pkill -TERM -f');
+      expect(cmd).toContain(`runner='/tmp/article-agent-${jobId}.py'`);
+      expect(cmd).toContain('ps -eo pid=,ppid=,comm=,args=');
+      expect(cmd).toContain('kill -TERM "$pid"');
       expect(cmd).toContain('http://sprite/v1/tasks/article-agent-job-abcdef1234567890');
     } finally {
       globalThis.fetch = originalFetch;

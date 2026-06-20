@@ -459,13 +459,20 @@ const cancelSpriteJob = async (env: Env, jobId: string) => {
     return;
   }
   const taskName = spriteTaskName(jobId);
+  const runnerPath = `/tmp/article-agent-${jobId}.py`;
+  const runnerProcessSelector = '$3 ~ /^python/ && index($0, runner) && $1 != self && $2 != self { print $1 }';
+  const terminateRunnerCommand = [
+    `runner=${quoteShell(runnerPath)}`,
+    'self=$$',
+    `ps -eo pid=,ppid=,comm=,args= | awk -v runner="$runner" -v self="$self" ${quoteShell(runnerProcessSelector)} | while IFS= read -r pid; do kill -TERM "$pid" 2>/dev/null || true; done`,
+  ].join('; ');
   const url = new URL(`${config.apiBase}/v1/sprites/${encodeURIComponent(config.spriteName)}/exec`);
   url.searchParams.append('cmd', 'bash');
   url.searchParams.append('cmd', '-lc');
   url.searchParams.append(
     'cmd',
     [
-      `pkill -TERM -f ${quoteShell(`article-agent-${jobId}.py`)} || true`,
+      terminateRunnerCommand,
       `curl -fsS --unix-socket /.sprite/api.sock -X DELETE ${quoteShell(
         `http://sprite/v1/tasks/${taskName}`,
       )} >/dev/null 2>&1 || true`,
