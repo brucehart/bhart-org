@@ -96,9 +96,10 @@ Optional Worker vars are set in `wrangler.jsonc`:
 
 - `BHART_ARTICLE_AGENT_SPRITE_NAME` defaults to `bhart-org`
 - `BHART_ARTICLE_AGENT_SPRITE_WORKDIR` defaults to `/home/sprite/bhart-org/main`
+- `BHART_ARTICLE_AGENT_CODEX_HOME` defaults to `/home/sprite/.codex-bhart-org`
 - `BHART_ARTICLE_AGENT_SPRITES_API_BASE` defaults to `https://api.sprites.dev`
 
-The Sprite needs the repo, dependencies, Codex auth, and `/home/sprite/.config/secrets/codex.env` containing `CODEX_BHART_API_TOKEN` and `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`.
+The Sprite needs the repo, dependencies, project-specific Codex auth at `/home/sprite/.codex-bhart-org/auth.json`, and `/home/sprite/.config/secrets/codex.env` containing `CODEX_BHART_API_TOKEN` and `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`. Do not copy `auth.json` from another Sprite or project; create a fresh login inside this Sprite with `mkdir -p /home/sprite/.codex-bhart-org && CODEX_HOME=/home/sprite/.codex-bhart-org codex login --device-auth`.
 
 ## Routes
 

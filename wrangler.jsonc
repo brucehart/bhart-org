@@ -50,6 +50,7 @@
 		"SHOW_EMAIL_SUBSCRIBE": "no",
 		"BHART_ARTICLE_AGENT_SPRITE_NAME": "bhart-org",
 		"BHART_ARTICLE_AGENT_SPRITE_WORKDIR": "/home/sprite/bhart-org/main",
+		"BHART_ARTICLE_AGENT_CODEX_HOME": "/home/sprite/.codex-bhart-org",
 		"BHART_ARTICLE_AGENT_SPRITES_API_BASE": "https://api.sprites.dev"
 	}
 }

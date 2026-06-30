@@ -413,6 +413,7 @@ beforeEach(async () => {
   delete (env as Partial<Env>).SPRITES_API_TOKEN;
   delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITE_NAME;
   delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITE_WORKDIR;
+  delete (env as Partial<Env>).BHART_ARTICLE_AGENT_CODEX_HOME;
   delete (env as Partial<Env>).BHART_ARTICLE_AGENT_SPRITES_API_BASE;
   await resetData();
 });
@@ -723,6 +724,7 @@ describe('Article Agent', () => {
       env.SPRITES_API_TOKEN = 'sprites-token';
       env.BHART_ARTICLE_AGENT_SPRITE_NAME = 'bhart-test';
       env.BHART_ARTICLE_AGENT_SPRITE_WORKDIR = '/home/sprite/bhart-org/main';
+      env.BHART_ARTICLE_AGENT_CODEX_HOME = '/home/sprite/.codex-bhart-test';
 
       const form = new FormData();
       form.set('prompt', 'Draft a post about patient AI tools.');
@@ -766,6 +768,8 @@ describe('Article Agent', () => {
       expect(cmd).toContain('article-agent-');
       expect(cmd).toContain('BHART_ARTICLE_AGENT_TASK_NAME=');
       expect(cmd).toContain('BHART_CODEX_API_BASE=');
+      expect(cmd).toContain('CODEX_HOME=');
+      expect(cmd).toContain('/home/sprite/.codex-bhart-test');
       expect(cmd).toContain('Mozilla/5.0');
       expect(cmd).not.toContain('Draft a post about patient AI tools.');
       expect(cmd).not.toContain('& &&');
@@ -1162,6 +1166,8 @@ describe('Article Agent', () => {
     expect(ARTICLE_AGENT_RUNNER).toContain('Use POST /posts');
     expect(ARTICLE_AGENT_RUNNER).toContain('Use POST /news');
     expect(ARTICLE_AGENT_RUNNER).toContain('BHART_ARTICLE_AGENT_RESULT_JSON=');
+    expect(ARTICLE_AGENT_RUNNER).toContain('CODEX_HOME');
+    expect(ARTICLE_AGENT_RUNNER).toContain('.codex-bhart-org');
     expect(ARTICLE_AGENT_RUNNER).toContain('post_id');
     expect(ARTICLE_AGENT_RUNNER).toContain('news_id');
     expect(ARTICLE_AGENT_RUNNER).toContain('pty.openpty()');

@@ -111,6 +111,8 @@ Required Worker secrets:
 - `BHART_ARTICLE_AGENT_ALLOWED_EMAILS`
 - existing `CODEX_API_TOKEN`
 
+Sprite-side Codex auth must be project-specific. This project uses `BHART_ARTICLE_AGENT_CODEX_HOME=/home/sprite/.codex-bhart-org`, so Codex auth should live at `/home/sprite/.codex-bhart-org/auth.json`. Do not copy `auth.json` from another Sprite or project; create a fresh login inside this Sprite with `mkdir -p /home/sprite/.codex-bhart-org && CODEX_HOME=/home/sprite/.codex-bhart-org codex login --device-auth`.
+
 Sprite-side secrets live in `/home/sprite/.config/secrets/codex.env` and should include `CODEX_BHART_API_TOKEN` plus `BHART_CODEX_API_BASE=https://bhart.org/api/codex/v1`.
 
 The article-agent runner must use the existing `draft-article` skill for articles and the existing `create-news-item` skill for news items. Successful runs end with `BHART_ARTICLE_AGENT_RESULT_JSON=` followed by compact JSON. Article runs include real `post_id`, `slug`, `title`, and `status`; news runs include real `news_id`, `title`, `category`, and `status`.

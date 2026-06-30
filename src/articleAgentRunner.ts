@@ -20,6 +20,7 @@ BASE_URL = os.environ["BHART_ARTICLE_AGENT_BASE_URL"].rstrip("/")
 JOB_ID = os.environ["BHART_ARTICLE_AGENT_JOB_ID"]
 JOB_TOKEN = os.environ["BHART_ARTICLE_AGENT_TOKEN"]
 WORKDIR = os.environ.get("BHART_ARTICLE_AGENT_WORKDIR", "/home/sprite/bhart-org/main")
+CODEX_HOME = pathlib.Path(os.environ.get("CODEX_HOME", "/home/sprite/.codex-bhart-org")).expanduser()
 CODEX_API_BASE = os.environ.get("BHART_CODEX_API_BASE", "https://bhart.org/api/codex/v1")
 SECRETS_PATH = pathlib.Path.home() / ".config" / "secrets" / "codex.env"
 TASK_NAME = os.environ.get("BHART_ARTICLE_AGENT_TASK_NAME") or re.sub(
@@ -61,6 +62,18 @@ def load_secret_env():
                 os.environ[name] = parse_env_value(raw_value.strip())
     if not os.environ.get("BHART_CODEX_API_BASE"):
         os.environ["BHART_CODEX_API_BASE"] = CODEX_API_BASE
+
+
+def ensure_codex_home():
+    CODEX_HOME.mkdir(mode=0o700, parents=True, exist_ok=True)
+    try:
+        CODEX_HOME.chmod(0o700)
+    except OSError:
+        pass
+
+
+def has_codex_auth():
+    return (CODEX_HOME / "auth.json").exists() or bool(os.environ.get("OPENAI_API_KEY"))
 
 
 def api_request(method, path, payload=None, timeout=30):
@@ -313,12 +326,23 @@ def is_real_result(value, content_type):
 
 def main():
     load_secret_env()
+    ensure_codex_home()
     print("article agent runner started; callback token hash prefix " + token_hash_prefix(), flush=True)
     refresh_task()
     task_stop = threading.Event()
     task_thread = threading.Thread(target=heartbeat_task, args=(task_stop,), daemon=True)
     task_thread.start()
     post_event("status", "Sprite task hold acquired.")
+    post_event("status", "Using Codex home " + str(CODEX_HOME) + ".")
+    if not has_codex_auth():
+        post_event(
+            "warning",
+            "Codex auth not found at "
+            + str(CODEX_HOME / "auth.json")
+            + "; run CODEX_HOME="
+            + str(CODEX_HOME)
+            + " codex login in this Sprite.",
+        )
     try:
         job = bootstrap()
         content_type = "news" if job.get("content_type") == "news" else "article"
@@ -333,6 +357,7 @@ def main():
 
         prompt = build_codex_prompt(job, ref_paths)
         env = os.environ.copy()
+        env["CODEX_HOME"] = str(CODEX_HOME)
         env["BHART_CODEX_API_BASE"] = env.get("BHART_CODEX_API_BASE") or CODEX_API_BASE
         result_path = pathlib.Path("/tmp") / ("article-agent-" + JOB_ID + "-codex-result.txt")
         try:

@@ -10,14 +10,21 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.12.12",
+		"@cloudflare/vitest-pool-workers": "^0.12.21",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
-		"wrangler": "^4.65.0"
+		"wrangler": "^4.105.0"
 	},
 	"dependencies": {
 		"@types/mustache": "^4.2.6",
 		"marked": "^17.0.1",
 		"mustache": "^4.2.0"
+	},
+	"allowScripts": {
+		"esbuild@0.27.3": true,
+		"esbuild@0.28.1": true,
+		"sharp@0.34.5": true,
+		"workerd@1.20260212.0": true,
+		"workerd@1.20260625.1": true
 	}
 }

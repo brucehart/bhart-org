@@ -6,6 +6,7 @@ import type { SessionUser } from '../types';
 const DEFAULT_SPRITES_API_BASE = 'https://api.sprites.dev';
 const DEFAULT_SPRITE_NAME = 'bhart-org';
 const DEFAULT_SPRITE_WORKDIR = '/home/sprite/bhart-org/main';
+const DEFAULT_CODEX_HOME = '/home/sprite/.codex-bhart-org';
 const DEFAULT_CODEX_API_BASE = 'https://bhart.org/api/codex/v1';
 const SPRITE_RUNNER_USER_AGENT =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
@@ -176,6 +177,7 @@ const spriteConfig = (env: Env) => {
     token: env.SPRITES_API_TOKEN || '',
     spriteName: env.BHART_ARTICLE_AGENT_SPRITE_NAME || DEFAULT_SPRITE_NAME,
     workdir: env.BHART_ARTICLE_AGENT_SPRITE_WORKDIR || DEFAULT_SPRITE_WORKDIR,
+    codexHome: env.BHART_ARTICLE_AGENT_CODEX_HOME || DEFAULT_CODEX_HOME,
   };
 };
 
@@ -433,6 +435,7 @@ const launchSpriteJob = async (
     `export BHART_ARTICLE_AGENT_WORKDIR=${quoteShell(config.workdir)}`,
     `export BHART_ARTICLE_AGENT_TASK_NAME=${quoteShell(taskName)}`,
     `export BHART_CODEX_API_BASE=${quoteShell(DEFAULT_CODEX_API_BASE)}`,
+    `export CODEX_HOME=${quoteShell(config.codexHome)}`,
     'export PYTHONUNBUFFERED=1',
   ];
   const writeEnvCommand = `umask 077 && printf '%s\\n' ${runnerEnvLines.map(quoteShell).join(' ')} > "$envfile"`;
